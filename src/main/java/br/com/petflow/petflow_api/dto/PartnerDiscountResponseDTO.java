@@ -7,14 +7,12 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PlanResponseDTO {
+public class PartnerDiscountResponseDTO {
 
     private Long id;
-    private String name;
-    private String description;
-    private BigDecimal price;
-    private Integer durationDays;
-    private Integer pointsPerEvent;
+    private String partnerName;
+    private String category;
+    private BigDecimal discountPercent;
     private Long clinicId;
     private String clinicName;
 }

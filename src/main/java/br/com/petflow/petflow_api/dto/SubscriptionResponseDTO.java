@@ -8,17 +8,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class HealthEventResponseDTO {
+public class SubscriptionResponseDTO {
 
     private Long id;
-    private String description;
-    private LocalDate eventDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String status;
     private LocalDateTime createdAt;
     private Long petId;
     private String petName;
-    private Long eventTypeId;
-    private String eventTypeName;
-    private Long clinicId;
-    private String clinicName;
+    private Long planId;
+    private String planName;
 }
