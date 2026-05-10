@@ -8,9 +8,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +40,14 @@ public class PartnerDiscountController {
     @GetMapping
     @Operation(summary = "Listar todos os descontos de parceiros com paginação")
     public ResponseEntity<Page<PartnerDiscountResponseDTO>> findAll(
-            @PageableDefault(size = 10, sort = "partnerName", direction = Sort.Direction.ASC) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "partnerName") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+        
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        
         Page<PartnerDiscountResponseDTO> response = partnerDiscountService.findAll(pageable);
         return ResponseEntity.ok(response);
     }
@@ -49,7 +56,10 @@ public class PartnerDiscountController {
     @Operation(summary = "Buscar descontos de parceiros por categoria")
     public ResponseEntity<Page<PartnerDiscountResponseDTO>> findByCategory(
             @RequestParam String category,
-            @PageableDefault(size = 10) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "partnerName"));
         Page<PartnerDiscountResponseDTO> response = partnerDiscountService.findByCategory(category, pageable);
         return ResponseEntity.ok(response);
     }
@@ -58,7 +68,10 @@ public class PartnerDiscountController {
     @Operation(summary = "Buscar descontos de parceiros por ID da clínica")
     public ResponseEntity<Page<PartnerDiscountResponseDTO>> findByClinicId(
             @PathVariable Long clinicId,
-            @PageableDefault(size = 10) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "partnerName"));
         Page<PartnerDiscountResponseDTO> response = partnerDiscountService.findByClinicId(clinicId, pageable);
         return ResponseEntity.ok(response);
     }

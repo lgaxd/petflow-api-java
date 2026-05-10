@@ -4,16 +4,15 @@ import br.com.petflow.petflow_api.dto.TutorRequestDTO;
 import br.com.petflow.petflow_api.dto.TutorResponseDTO;
 import br.com.petflow.petflow_api.service.TutorService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,8 +51,14 @@ public class TutorController {
     @GetMapping
     @Operation(summary = "Listar todos os tutores com paginação")
     public ResponseEntity<Page<TutorResponseDTO>> findAll(
-            @Parameter(description = "Paginação e ordenação")
-            @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+        
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        
         Page<TutorResponseDTO> response = tutorService.findAll(pageable);
         return ResponseEntity.ok(response);
     }
@@ -62,7 +67,10 @@ public class TutorController {
     @Operation(summary = "Buscar tutores por nome")
     public ResponseEntity<Page<TutorResponseDTO>> findByName(
             @RequestParam String name,
-            @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
         Page<TutorResponseDTO> response = tutorService.findByName(name, pageable);
         return ResponseEntity.ok(response);
     }

@@ -8,9 +8,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +40,14 @@ public class ClinicController {
     @GetMapping
     @Operation(summary = "Listar todas as clínicas com paginação")
     public ResponseEntity<Page<ClinicResponseDTO>> findAll(
-            @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+        
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        
         Page<ClinicResponseDTO> response = clinicService.findAll(pageable);
         return ResponseEntity.ok(response);
     }
@@ -49,7 +56,10 @@ public class ClinicController {
     @Operation(summary = "Buscar clínicas por nome")
     public ResponseEntity<Page<ClinicResponseDTO>> findByName(
             @RequestParam String name,
-            @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
         Page<ClinicResponseDTO> response = clinicService.findByName(name, pageable);
         return ResponseEntity.ok(response);
     }

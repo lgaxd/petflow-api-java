@@ -8,9 +8,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +40,14 @@ public class HealthEventController {
     @GetMapping
     @Operation(summary = "Listar todos os eventos de saúde com paginação")
     public ResponseEntity<Page<HealthEventResponseDTO>> findAll(
-            @PageableDefault(size = 10, sort = "eventDate", direction = Sort.Direction.DESC) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "eventDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+        
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        
         Page<HealthEventResponseDTO> response = healthEventService.findAll(pageable);
         return ResponseEntity.ok(response);
     }
@@ -49,7 +56,10 @@ public class HealthEventController {
     @Operation(summary = "Buscar eventos de saúde por status")
     public ResponseEntity<Page<HealthEventResponseDTO>> findByStatus(
             @RequestParam String status,
-            @PageableDefault(size = 10, sort = "eventDate", direction = Sort.Direction.DESC) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventDate"));
         Page<HealthEventResponseDTO> response = healthEventService.findByStatus(status, pageable);
         return ResponseEntity.ok(response);
     }
@@ -58,7 +68,10 @@ public class HealthEventController {
     @Operation(summary = "Buscar eventos de saúde por ID do pet")
     public ResponseEntity<Page<HealthEventResponseDTO>> findByPetId(
             @PathVariable Long petId,
-            @PageableDefault(size = 10, sort = "eventDate", direction = Sort.Direction.DESC) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventDate"));
         Page<HealthEventResponseDTO> response = healthEventService.findByPetId(petId, pageable);
         return ResponseEntity.ok(response);
     }

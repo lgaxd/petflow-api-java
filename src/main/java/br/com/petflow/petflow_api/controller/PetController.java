@@ -8,9 +8,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +40,14 @@ public class PetController {
     @GetMapping
     @Operation(summary = "Listar todos os pets com paginação")
     public ResponseEntity<Page<PetResponseDTO>> findAll(
-            @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+        
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        
         Page<PetResponseDTO> response = petService.findAll(pageable);
         return ResponseEntity.ok(response);
     }
@@ -49,7 +56,10 @@ public class PetController {
     @Operation(summary = "Buscar pets por nome")
     public ResponseEntity<Page<PetResponseDTO>> findByName(
             @RequestParam String name,
-            @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
         Page<PetResponseDTO> response = petService.findByName(name, pageable);
         return ResponseEntity.ok(response);
     }
@@ -58,7 +68,10 @@ public class PetController {
     @Operation(summary = "Buscar pets por ID do tutor")
     public ResponseEntity<Page<PetResponseDTO>> findByTutorId(
             @PathVariable Long tutorId,
-            @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
         Page<PetResponseDTO> response = petService.findByTutorId(tutorId, pageable);
         return ResponseEntity.ok(response);
     }
@@ -67,7 +80,10 @@ public class PetController {
     @Operation(summary = "Buscar pets por ID da espécie")
     public ResponseEntity<Page<PetResponseDTO>> findBySpeciesId(
             @PathVariable Long speciesId,
-            @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
         Page<PetResponseDTO> response = petService.findBySpeciesId(speciesId, pageable);
         return ResponseEntity.ok(response);
     }

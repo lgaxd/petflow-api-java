@@ -8,9 +8,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +47,14 @@ public class CouponController {
     @GetMapping
     @Operation(summary = "Listar todos os cupons com paginação")
     public ResponseEntity<Page<CouponResponseDTO>> findAll(
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+        
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        
         Page<CouponResponseDTO> response = couponService.findAll(pageable);
         return ResponseEntity.ok(response);
     }
@@ -56,7 +63,10 @@ public class CouponController {
     @Operation(summary = "Buscar cupons por status")
     public ResponseEntity<Page<CouponResponseDTO>> findByStatus(
             @RequestParam String status,
-            @PageableDefault(size = 10) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
         Page<CouponResponseDTO> response = couponService.findByStatus(status, pageable);
         return ResponseEntity.ok(response);
     }
