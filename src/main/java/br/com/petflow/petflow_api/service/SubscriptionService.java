@@ -30,9 +30,9 @@ public class SubscriptionService {
     private final PetRepository petRepository;
     private final PlanRepository planRepository;
 
-    private static final String STATUS_ATIVO = "ATIVO";
+    private static final String STATUS_ATIVO    = "ATIVO";
     private static final String STATUS_CANCELADO = "CANCELADO";
-    private static final String STATUS_EXPIRADO = "EXPIRADO";
+    private static final String STATUS_EXPIRADO  = "EXPIRADO";
 
     @Transactional
     @CacheEvict(value = "subscriptions", allEntries = true)
@@ -51,7 +51,7 @@ public class SubscriptionService {
         Subscription subscription = Subscription.builder()
                 .startDate(request.getStartDate())
                 .endDate(endDate)
-                .status(request.getStatus())
+                .status(request.getStatus() != null ? request.getStatus() : STATUS_ATIVO)
                 .pet(pet)
                 .plan(plan)
                 .build();
@@ -97,28 +97,18 @@ public class SubscriptionService {
 
         subscription.setStatus(STATUS_CANCELADO);
         subscription = subscriptionRepository.save(subscription);
-
         return toResponseDTO(subscription);
     }
 
-    /**
-     * Atualiza automaticamente assinaturas expiradas
-     * Executa diariamente às 00:00
-     */
     @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
+    @CacheEvict(value = "subscriptions", allEntries = true)
     public void expireSubscriptions() {
-        List<Subscription> activeSubscriptions = subscriptionRepository.findByStatusIgnoreCase(STATUS_ATIVO, Pageable.unpaged())
-                .getContent();
-        
-        LocalDate today = LocalDate.now();
-        
-        for (Subscription subscription : activeSubscriptions) {
-            if (subscription.getEndDate() != null && subscription.getEndDate().isBefore(today)) {
-                subscription.setStatus(STATUS_EXPIRADO);
-                subscriptionRepository.save(subscription);
-            }
-        }
+        List<Subscription> expired = subscriptionRepository
+                .findExpiredSubscriptions(LocalDate.now());
+
+        expired.forEach(s -> s.setStatus(STATUS_EXPIRADO));
+        subscriptionRepository.saveAll(expired);
     }
 
     @Transactional
