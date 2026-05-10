@@ -9,12 +9,12 @@ import br.com.petflow.petflow_api.repository.RewardActionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +25,6 @@ public class RewardActionService {
     @Transactional
     @CacheEvict(value = "rewardActions", allEntries = true)
     public RewardActionResponseDTO create(RewardActionRequestDTO request) {
-        // Verificar se já existe uma ação com o mesmo nome
         if (rewardActionRepository.existsByNameIgnoreCase(request.getName())) {
             throw new DuplicateResourceException("Ação de Recompensa", "nome", request.getName());
         }
@@ -47,11 +46,8 @@ public class RewardActionService {
         return toResponseDTO(rewardAction);
     }
 
-    @Cacheable(value = "rewardActions", key = "'all'")
-    public List<RewardActionResponseDTO> findAll() {
-        return rewardActionRepository.findAll().stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+    public Page<RewardActionResponseDTO> findAll(Pageable pageable) {
+        return rewardActionRepository.findAllProjected(pageable);
     }
 
     @Transactional
@@ -60,7 +56,6 @@ public class RewardActionService {
         RewardAction rewardAction = rewardActionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ação de Recompensa", id));
 
-        // Verificar se outro registro já possui o mesmo nome
         Optional<RewardAction> existing = rewardActionRepository.findByNameIgnoreCase(request.getName());
         if (existing.isPresent() && !existing.get().getId().equals(id)) {
             throw new DuplicateResourceException("Ação de Recompensa", "nome", request.getName());

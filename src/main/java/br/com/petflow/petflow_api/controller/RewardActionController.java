@@ -7,11 +7,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/reward-actions")
@@ -36,9 +38,10 @@ public class RewardActionController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar todas as ações de recompensa")
-    public ResponseEntity<List<RewardActionResponseDTO>> findAll() {
-        List<RewardActionResponseDTO> response = rewardActionService.findAll();
+    @Operation(summary = "Listar todas as ações de recompensa com paginação")
+    public ResponseEntity<Page<RewardActionResponseDTO>> findAll(
+            @PageableDefault(size = 20, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<RewardActionResponseDTO> response = rewardActionService.findAll(pageable);
         return ResponseEntity.ok(response);
     }
 

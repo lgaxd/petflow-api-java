@@ -11,11 +11,10 @@ import br.com.petflow.petflow_api.repository.RiskScoreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,30 +49,22 @@ public class RiskScoreService {
         return toResponseDTO(riskScore);
     }
 
-    public List<RiskScoreResponseDTO> findAll() {
-        return riskScoreRepository.findAll().stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+    public Page<RiskScoreResponseDTO> findAll(Pageable pageable) {
+        return riskScoreRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
-    public List<RiskScoreResponseDTO> findByPetId(Long petId) {
+    public Page<RiskScoreResponseDTO> findByPetId(Long petId, Pageable pageable) {
         if (!petRepository.existsById(petId)) {
             throw new EntityNotFoundException("Pet", petId);
         }
-        return riskScoreRepository.findByPetId(petId).stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+        return riskScoreRepository.findByPetId(petId, pageable);
     }
 
     public RiskScoreResponseDTO getLatestByPetId(Long petId) {
-        List<RiskScore> scores = riskScoreRepository.findByPetId(petId);
-        if (scores.isEmpty()) {
-            throw new EntityNotFoundException("Score de Risco para o Pet", petId);
-        }
-        RiskScore latest = scores.stream()
-                .max((a, b) -> a.getCalculatedAt().compareTo(b.getCalculatedAt()))
-                .orElseThrow();
-        return toResponseDTO(latest);
+        Page<RiskScoreResponseDTO> latestPage = riskScoreRepository.findLatestByPetId(petId, Pageable.ofSize(1));
+        return latestPage.stream()
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Score de Risco para o Pet", petId));
     }
 
     @Transactional

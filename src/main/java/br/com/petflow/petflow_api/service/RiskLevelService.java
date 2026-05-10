@@ -9,12 +9,12 @@ import br.com.petflow.petflow_api.repository.RiskLevelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,11 +50,8 @@ public class RiskLevelService {
         return toResponseDTO(riskLevel);
     }
 
-    @Cacheable(value = "riskLevels", key = "'all'")
-    public List<RiskLevelResponseDTO> findAll() {
-        return riskLevelRepository.findAll().stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+    public Page<RiskLevelResponseDTO> findAll(Pageable pageable) {
+        return riskLevelRepository.findAllProjected(pageable);
     }
 
     public RiskLevelResponseDTO findByName(String name) {
