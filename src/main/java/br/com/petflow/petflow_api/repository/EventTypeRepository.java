@@ -30,6 +30,14 @@ public interface EventTypeRepository extends JpaRepository<EventType, Long> {
             """)
     Page<EventTypeResponseDTO> findByNameContainingIgnoreCase(@Param("name") String name, Pageable pageable);
 
+    @Query("""
+            SELECT new br.com.petflow.petflow_api.dto.EventTypeResponseDTO(
+                e.id, e.name, e.pointsReward, e.category
+            )
+            FROM EventType e
+            """)
+    Page<EventTypeResponseDTO> findAllProjected(Pageable pageable);
+
     Optional<EventType> findByNameIgnoreCase(String name);
 
     boolean existsByNameIgnoreCase(String name);

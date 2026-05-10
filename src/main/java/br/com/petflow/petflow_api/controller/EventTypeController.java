@@ -40,7 +40,7 @@ public class EventTypeController {
     @GetMapping
     @Operation(summary = "Listar todos os tipos de evento com paginação")
     public ResponseEntity<Page<EventTypeResponseDTO>> findAll(
-            @PageableDefault(size = 20, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {  // ← mudou de "name" para "id"
         Page<EventTypeResponseDTO> response = eventTypeService.findAll(pageable);
         return ResponseEntity.ok(response);
     }

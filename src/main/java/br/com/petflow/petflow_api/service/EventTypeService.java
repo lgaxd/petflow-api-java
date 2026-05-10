@@ -44,8 +44,9 @@ public class EventTypeService {
         return toResponseDTO(eventType);
     }
 
+    // ✅ CORRIGIDO - usa projection
     public Page<EventTypeResponseDTO> findAll(Pageable pageable) {
-        return eventTypeRepository.findAll(pageable).map(this::toResponseDTO);
+        return eventTypeRepository.findAllProjected(pageable);
     }
 
     public Page<EventTypeResponseDTO> findByCategory(String category, Pageable pageable) {
