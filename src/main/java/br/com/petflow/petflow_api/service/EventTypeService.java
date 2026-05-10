@@ -9,11 +9,10 @@ import br.com.petflow.petflow_api.repository.EventTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +23,7 @@ public class EventTypeService {
     @Transactional
     @CacheEvict(value = "eventTypes", allEntries = true)
     public EventTypeResponseDTO create(EventTypeRequestDTO request) {
-        List<EventType> existing = eventTypeRepository.findByNameContainingIgnoreCase(request.getName());
-        if (!existing.isEmpty()) {
+        if (eventTypeRepository.existsByNameIgnoreCase(request.getName())) {
             throw new DuplicateResourceException("Tipo de Evento", "nome", request.getName());
         }
 
@@ -46,25 +44,16 @@ public class EventTypeService {
         return toResponseDTO(eventType);
     }
 
-    @Cacheable(value = "eventTypes", key = "'all'")
-    public List<EventTypeResponseDTO> findAll() {
-        return eventTypeRepository.findAll().stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+    public Page<EventTypeResponseDTO> findAll(Pageable pageable) {
+        return eventTypeRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
-    @Cacheable(value = "eventTypes", key = "'category_' + #category")
-    public List<EventTypeResponseDTO> findByCategory(String category) {
-        return eventTypeRepository.findByCategoryIgnoreCase(category).stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+    public Page<EventTypeResponseDTO> findByCategory(String category, Pageable pageable) {
+        return eventTypeRepository.findByCategoryIgnoreCase(category, pageable);
     }
 
-    @Cacheable(value = "eventTypes", key = "'name_' + #name")
-    public List<EventTypeResponseDTO> findByName(String name) {
-        return eventTypeRepository.findByNameContainingIgnoreCase(name).stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+    public Page<EventTypeResponseDTO> findByName(String name, Pageable pageable) {
+        return eventTypeRepository.findByNameContainingIgnoreCase(name, pageable);
     }
 
     @Transactional
@@ -73,8 +62,8 @@ public class EventTypeService {
         EventType eventType = eventTypeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Tipo de Evento", id));
 
-        List<EventType> existing = eventTypeRepository.findByNameContainingIgnoreCase(request.getName());
-        if (!existing.isEmpty() && !existing.get(0).getId().equals(id)) {
+        if (eventTypeRepository.existsByNameIgnoreCase(request.getName()) &&
+                !eventType.getName().equalsIgnoreCase(request.getName())) {
             throw new DuplicateResourceException("Tipo de Evento", "nome", request.getName());
         }
 

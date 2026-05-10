@@ -7,11 +7,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/addresses")
@@ -36,30 +38,37 @@ public class AddressController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar todos os endereços")
-    public ResponseEntity<List<AddressResponseDTO>> findAll() {
-        List<AddressResponseDTO> response = addressService.findAll();
+    @Operation(summary = "Listar todos os endereços com paginação")
+    public ResponseEntity<Page<AddressResponseDTO>> findAll(
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<AddressResponseDTO> response = addressService.findAll(pageable);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/search/city")
     @Operation(summary = "Buscar endereços por cidade")
-    public ResponseEntity<List<AddressResponseDTO>> findByCity(@RequestParam String city) {
-        List<AddressResponseDTO> response = addressService.findByCity(city);
+    public ResponseEntity<Page<AddressResponseDTO>> findByCity(
+            @RequestParam String city,
+            @PageableDefault(size = 10) Pageable pageable) {
+        Page<AddressResponseDTO> response = addressService.findByCity(city, pageable);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/search/state")
     @Operation(summary = "Buscar endereços por estado")
-    public ResponseEntity<List<AddressResponseDTO>> findByState(@RequestParam String state) {
-        List<AddressResponseDTO> response = addressService.findByState(state);
+    public ResponseEntity<Page<AddressResponseDTO>> findByState(
+            @RequestParam String state,
+            @PageableDefault(size = 10) Pageable pageable) {
+        Page<AddressResponseDTO> response = addressService.findByState(state, pageable);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/by-tutor/{tutorId}")
     @Operation(summary = "Buscar endereços por ID do tutor")
-    public ResponseEntity<List<AddressResponseDTO>> findByTutorId(@PathVariable Long tutorId) {
-        List<AddressResponseDTO> response = addressService.findByTutorId(tutorId);
+    public ResponseEntity<Page<AddressResponseDTO>> findByTutorId(
+            @PathVariable Long tutorId,
+            @PageableDefault(size = 10) Pageable pageable) {
+        Page<AddressResponseDTO> response = addressService.findByTutorId(tutorId, pageable);
         return ResponseEntity.ok(response);
     }
 

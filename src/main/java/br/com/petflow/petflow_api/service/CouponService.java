@@ -11,12 +11,12 @@ import br.com.petflow.petflow_api.repository.CouponTemplateRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -60,10 +60,12 @@ public class CouponService {
         return toResponseDTO(coupon);
     }
 
-    public List<CouponResponseDTO> findAll() {
-        return couponRepository.findAll().stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+    public Page<CouponResponseDTO> findAll(Pageable pageable) {
+        return couponRepository.findAllProjected(pageable);
+    }
+
+    public Page<CouponResponseDTO> findByStatus(String status, Pageable pageable) {
+        return couponRepository.findByStatusIgnoreCase(status, pageable);
     }
 
     @Transactional

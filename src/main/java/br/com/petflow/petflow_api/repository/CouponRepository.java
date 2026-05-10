@@ -12,8 +12,16 @@ import java.util.Optional;
 
 public interface CouponRepository extends JpaRepository<Coupon, Long> {
 
-    // Mantida para verificação de duplicatas e para RedeemService (precisa da entidade)
     Optional<Coupon> findByCode(String code);
+
+    @Query("""
+            SELECT new br.com.petflow.petflow_api.dto.CouponResponseDTO(
+                c.id, c.code, c.status, c.expirationDate, c.createdAt,
+                c.template.id, c.template.title
+            )
+            FROM Coupon c
+            """)
+    Page<CouponResponseDTO> findAllProjected(Pageable pageable);
 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.CouponResponseDTO(

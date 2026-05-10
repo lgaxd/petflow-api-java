@@ -30,7 +30,6 @@ public interface EventTypeRepository extends JpaRepository<EventType, Long> {
             """)
     Page<EventTypeResponseDTO> findByNameContainingIgnoreCase(@Param("name") String name, Pageable pageable);
 
-    // Mantida para verificação de duplicatas no service (retorna entidade inteira)
     Optional<EventType> findByNameIgnoreCase(String name);
 
     boolean existsByNameIgnoreCase(String name);

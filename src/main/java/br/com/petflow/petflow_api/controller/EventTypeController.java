@@ -7,11 +7,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/event-types")
@@ -36,23 +38,28 @@ public class EventTypeController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar todos os tipos de evento")
-    public ResponseEntity<List<EventTypeResponseDTO>> findAll() {
-        List<EventTypeResponseDTO> response = eventTypeService.findAll();
+    @Operation(summary = "Listar todos os tipos de evento com paginação")
+    public ResponseEntity<Page<EventTypeResponseDTO>> findAll(
+            @PageableDefault(size = 20, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<EventTypeResponseDTO> response = eventTypeService.findAll(pageable);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/search/category")
     @Operation(summary = "Buscar tipos de evento por categoria")
-    public ResponseEntity<List<EventTypeResponseDTO>> findByCategory(@RequestParam String category) {
-        List<EventTypeResponseDTO> response = eventTypeService.findByCategory(category);
+    public ResponseEntity<Page<EventTypeResponseDTO>> findByCategory(
+            @RequestParam String category,
+            @PageableDefault(size = 20, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<EventTypeResponseDTO> response = eventTypeService.findByCategory(category, pageable);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/search/name")
     @Operation(summary = "Buscar tipos de evento por nome")
-    public ResponseEntity<List<EventTypeResponseDTO>> findByName(@RequestParam String name) {
-        List<EventTypeResponseDTO> response = eventTypeService.findByName(name);
+    public ResponseEntity<Page<EventTypeResponseDTO>> findByName(
+            @RequestParam String name,
+            @PageableDefault(size = 20, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<EventTypeResponseDTO> response = eventTypeService.findByName(name, pageable);
         return ResponseEntity.ok(response);
     }
 

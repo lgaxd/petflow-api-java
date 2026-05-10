@@ -10,11 +10,10 @@ import br.com.petflow.petflow_api.repository.TutorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,36 +42,27 @@ public class AddressService {
 
     @Cacheable(value = "addresses", key = "#id")
     public AddressResponseDTO findById(Long id) {
-        Address address = addressRepository.findById(id)
+        return addressRepository.findProjectedById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Endereço", id));
-        return toResponseDTO(address);
     }
 
-    public List<AddressResponseDTO> findAll() {
-        return addressRepository.findAll().stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+    public Page<AddressResponseDTO> findAll(Pageable pageable) {
+        return addressRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
-    public List<AddressResponseDTO> findByCity(String city) {
-        return addressRepository.findByCityIgnoreCase(city).stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+    public Page<AddressResponseDTO> findByCity(String city, Pageable pageable) {
+        return addressRepository.findByCityIgnoreCase(city, pageable);
     }
 
-    public List<AddressResponseDTO> findByState(String state) {
-        return addressRepository.findByStateIgnoreCase(state).stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+    public Page<AddressResponseDTO> findByState(String state, Pageable pageable) {
+        return addressRepository.findByStateIgnoreCase(state, pageable);
     }
 
-    public List<AddressResponseDTO> findByTutorId(Long tutorId) {
+    public Page<AddressResponseDTO> findByTutorId(Long tutorId, Pageable pageable) {
         if (!tutorRepository.existsById(tutorId)) {
             throw new EntityNotFoundException("Tutor", tutorId);
         }
-        return addressRepository.findByTutorId(tutorId).stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+        return addressRepository.findByTutorId(tutorId, pageable);
     }
 
     @Transactional

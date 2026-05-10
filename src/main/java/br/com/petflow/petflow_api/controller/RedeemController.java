@@ -7,11 +7,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/redeems")
@@ -36,16 +38,19 @@ public class RedeemController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar todos os resgates")
-    public ResponseEntity<List<RedeemResponseDTO>> findAll() {
-        List<RedeemResponseDTO> response = redeemService.findAll();
+    @Operation(summary = "Listar todos os resgates com paginação")
+    public ResponseEntity<Page<RedeemResponseDTO>> findAll(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<RedeemResponseDTO> response = redeemService.findAll(pageable);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/by-tutor/{tutorId}")
     @Operation(summary = "Buscar resgates por ID do tutor")
-    public ResponseEntity<List<RedeemResponseDTO>> findByTutorId(@PathVariable Long tutorId) {
-        List<RedeemResponseDTO> response = redeemService.findByTutorId(tutorId);
+    public ResponseEntity<Page<RedeemResponseDTO>> findByTutorId(
+            @PathVariable Long tutorId,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<RedeemResponseDTO> response = redeemService.findByTutorId(tutorId, pageable);
         return ResponseEntity.ok(response);
     }
 }

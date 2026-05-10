@@ -12,12 +12,12 @@ import br.com.petflow.petflow_api.repository.TutorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +40,6 @@ public class RedeemService {
         Coupon coupon = couponRepository.findById(request.getCouponId())
                 .orElseThrow(() -> new EntityNotFoundException("Cupom", request.getCouponId()));
 
-        // Validar status do cupom
         if (!COUPON_STATUS_DISPONIVEL.equals(coupon.getStatus())) {
             if (COUPON_STATUS_RESGATADO.equals(coupon.getStatus())) {
                 throw new CouponAlreadyRedeemedException(coupon.getCode());
@@ -48,13 +47,11 @@ public class RedeemService {
             throw new BusinessRuleException("Cupom não está disponível para resgate");
         }
 
-        // Validar expiração
         if (coupon.getExpirationDate() != null && 
             coupon.getExpirationDate().isBefore(LocalDate.now())) {
             throw new ExpiredCouponException(coupon.getCode(), coupon.getExpirationDate());
         }
 
-        // Validar pontos suficientes
         Integer pointsRequired = coupon.getTemplate().getPointsRequired();
         Integer availablePoints = rewardPointService.getTotalPointsByTutor(tutor.getId());
 
@@ -62,7 +59,6 @@ public class RedeemService {
             throw new InsufficientPointsException(availablePoints, pointsRequired);
         }
 
-        // Criar resgate
         Redeem redeem = Redeem.builder()
                 .pointsUsed(pointsRequired)
                 .tutor(tutor)
@@ -71,7 +67,6 @@ public class RedeemService {
 
         redeem = redeemRepository.save(redeem);
 
-        // Atualizar status do cupom
         coupon.setStatus(COUPON_STATUS_RESGATADO);
         couponRepository.save(coupon);
 
@@ -85,19 +80,15 @@ public class RedeemService {
         return toResponseDTO(redeem);
     }
 
-    public List<RedeemResponseDTO> findAll() {
-        return redeemRepository.findAll().stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+    public Page<RedeemResponseDTO> findAll(Pageable pageable) {
+        return redeemRepository.findAllProjected(pageable);
     }
 
-    public List<RedeemResponseDTO> findByTutorId(Long tutorId) {
+    public Page<RedeemResponseDTO> findByTutorId(Long tutorId, Pageable pageable) {
         if (!tutorRepository.existsById(tutorId)) {
             throw new EntityNotFoundException("Tutor", tutorId);
         }
-        return redeemRepository.findByTutorId(tutorId).stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+        return redeemRepository.findByTutorId(tutorId, pageable);
     }
 
     private RedeemResponseDTO toResponseDTO(Redeem redeem) {

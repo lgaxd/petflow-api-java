@@ -7,11 +7,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/reward-points")
@@ -36,9 +38,11 @@ public class RewardPointController {
     }
 
     @GetMapping("/by-tutor/{tutorId}")
-    @Operation(summary = "Buscar pontos por ID do tutor")
-    public ResponseEntity<List<RewardPointResponseDTO>> findByTutorId(@PathVariable Long tutorId) {
-        List<RewardPointResponseDTO> response = rewardPointService.findByTutorId(tutorId);
+    @Operation(summary = "Buscar pontos por ID do tutor com paginação")
+    public ResponseEntity<Page<RewardPointResponseDTO>> findByTutorId(
+            @PathVariable Long tutorId,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<RewardPointResponseDTO> response = rewardPointService.findByTutorId(tutorId, pageable);
         return ResponseEntity.ok(response);
     }
 
