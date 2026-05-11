@@ -1,5 +1,8 @@
 package br.com.petflow.petflow_api.controller;
 
+import br.com.petflow.petflow_api.dto.PetResponseDTO;
+import br.com.petflow.petflow_api.dto.RedeemResponseDTO;
+import br.com.petflow.petflow_api.dto.RewardPointResponseDTO;
 import br.com.petflow.petflow_api.dto.TutorRequestDTO;
 import br.com.petflow.petflow_api.dto.TutorResponseDTO;
 import br.com.petflow.petflow_api.service.TutorService;

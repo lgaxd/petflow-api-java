@@ -1,7 +1,10 @@
 package br.com.petflow.petflow_api.controller;
 
+import br.com.petflow.petflow_api.dto.HealthEventResponseDTO;
 import br.com.petflow.petflow_api.dto.PetRequestDTO;
 import br.com.petflow.petflow_api.dto.PetResponseDTO;
+import br.com.petflow.petflow_api.dto.RiskScoreResponseDTO;
+import br.com.petflow.petflow_api.dto.SubscriptionResponseDTO;
 import br.com.petflow.petflow_api.service.PetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

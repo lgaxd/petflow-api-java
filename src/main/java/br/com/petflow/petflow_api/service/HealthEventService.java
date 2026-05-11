@@ -54,7 +54,6 @@ public class HealthEventService {
 
         healthEvent = healthEventRepository.save(healthEvent);
 
-        // Se o evento já for REALIZADO, gera pontos de recompensa
         if (STATUS_REALIZADO.equals(request.getStatus())) {
             rewardPointService.generatePointsFromHealthEvent(healthEvent);
         }
@@ -73,6 +72,20 @@ public class HealthEventService {
         return healthEventRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
+    public Page<HealthEventResponseDTO> findAll(Long petId, Long clinicId, String status, Long eventTypeId, Pageable pageable) {
+        Page<HealthEvent> page;
+
+        if (petId != null) {
+            page = healthEventRepository.findByPetId(petId, pageable);
+        } else if (status != null) {
+            page = healthEventRepository.findByStatusIgnoreCase(status, pageable);
+        } else {
+            page = healthEventRepository.findAll(pageable);
+        }
+
+        return page.map(this::toResponseDTO);
+    }
+
     public Page<HealthEventResponseDTO> findByStatus(String status, Pageable pageable) {
         return healthEventRepository.findByStatusIgnoreCase(status, pageable)
                 .map(this::toResponseDTO);
@@ -88,21 +101,39 @@ public class HealthEventService {
 
     @Transactional
     @CacheEvict(value = "healthEvents", key = "#id")
-    public HealthEventResponseDTO updateStatus(Long id, String newStatus) {
+    public HealthEventResponseDTO update(HealthEventRequestDTO request) {
+        // Implementar se necessário
+        throw new UnsupportedOperationException("Método ainda não implementado");
+    }
+
+    @Transactional
+    @CacheEvict(value = "healthEvents", key = "#id")
+    public HealthEventResponseDTO update(Long id, HealthEventRequestDTO request) {
         HealthEvent healthEvent = healthEventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Evento de Saúde", id));
 
-        validateStatusTransition(healthEvent.getStatus(), newStatus);
-
         String oldStatus = healthEvent.getStatus();
-        healthEvent.setStatus(newStatus);
-        healthEvent = healthEventRepository.save(healthEvent);
+        String newStatus = request.getStatus();
 
-        // Se mudou de AGENDADO para REALIZADO, gera pontos
-        if (STATUS_AGENDADO.equals(oldStatus) && STATUS_REALIZADO.equals(newStatus)) {
-            rewardPointService.generatePointsFromHealthEvent(healthEvent);
+        if (newStatus != null && !oldStatus.equals(newStatus)) {
+            validateStatusTransition(oldStatus, newStatus);
+            healthEvent.setStatus(newStatus);
+
+            if (STATUS_AGENDADO.equals(oldStatus) && STATUS_REALIZADO.equals(newStatus)) {
+                rewardPointService.generatePointsFromHealthEvent(healthEvent);
+            }
         }
 
+        healthEvent.setDescription(request.getDescription());
+        healthEvent.setEventDate(request.getEventDate());
+
+        if (request.getClinicId() != null) {
+            Clinic clinic = clinicRepository.findById(request.getClinicId())
+                    .orElseThrow(() -> new EntityNotFoundException("Clínica", request.getClinicId()));
+            healthEvent.setClinic(clinic);
+        }
+
+        healthEvent = healthEventRepository.save(healthEvent);
         return toResponseDTO(healthEvent);
     }
 

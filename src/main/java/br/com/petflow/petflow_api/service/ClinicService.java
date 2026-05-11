@@ -2,10 +2,12 @@ package br.com.petflow.petflow_api.service;
 
 import br.com.petflow.petflow_api.dto.ClinicRequestDTO;
 import br.com.petflow.petflow_api.dto.ClinicResponseDTO;
+import br.com.petflow.petflow_api.dto.PlanResponseDTO;
 import br.com.petflow.petflow_api.entity.Clinic;
 import br.com.petflow.petflow_api.exception.DuplicateResourceException;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
 import br.com.petflow.petflow_api.repository.ClinicRepository;
+import br.com.petflow.petflow_api.repository.PlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ClinicService {
 
     private final ClinicRepository clinicRepository;
+    private final PlanRepository planRepository;
 
     @Transactional
     @CacheEvict(value = "clinics", allEntries = true)
@@ -52,6 +55,14 @@ public class ClinicService {
     public Page<ClinicResponseDTO> findByName(String name, Pageable pageable) {
         return clinicRepository.findByNameContainingIgnoreCase(name, pageable)
                 .map(this::toResponseDTO);
+    }
+
+    public Page<PlanResponseDTO> findPlansByClinicId(Long clinicId, Pageable pageable) {
+        if (!clinicRepository.existsById(clinicId)) {
+            throw new EntityNotFoundException("Clínica", clinicId);
+        }
+        return planRepository.findByClinicId(clinicId, pageable)
+                .map(this::toPlanResponseDTO);
     }
 
     @Transactional
@@ -91,6 +102,19 @@ public class ClinicService {
                 .phone(clinic.getPhone())
                 .cnpj(clinic.getCnpj())
                 .createdAt(clinic.getCreatedAt())
+                .build();
+    }
+
+    private PlanResponseDTO toPlanResponseDTO(br.com.petflow.petflow_api.entity.Plan plan) {
+        return PlanResponseDTO.builder()
+                .id(plan.getId())
+                .name(plan.getName())
+                .description(plan.getDescription())
+                .price(plan.getPrice())
+                .durationDays(plan.getDurationDays())
+                .pointsPerEvent(plan.getPointsPerEvent())
+                .clinicId(plan.getClinic().getId())
+                .clinicName(plan.getClinic().getName())
                 .build();
     }
 }

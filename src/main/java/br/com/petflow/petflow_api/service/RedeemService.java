@@ -47,8 +47,8 @@ public class RedeemService {
             throw new BusinessRuleException("Cupom não está disponível para resgate");
         }
 
-        if (coupon.getExpirationDate() != null && 
-            coupon.getExpirationDate().isBefore(LocalDate.now())) {
+        if (coupon.getExpirationDate() != null &&
+                coupon.getExpirationDate().isBefore(LocalDate.now())) {
             throw new ExpiredCouponException(coupon.getCode(), coupon.getExpirationDate());
         }
 
@@ -81,6 +81,13 @@ public class RedeemService {
     }
 
     public Page<RedeemResponseDTO> findAll(Pageable pageable) {
+        return redeemRepository.findAllProjected(pageable);
+    }
+
+    public Page<RedeemResponseDTO> findAll(Long tutorId, Pageable pageable) {
+        if (tutorId != null) {
+            return redeemRepository.findByTutorId(tutorId, pageable);
+        }
         return redeemRepository.findAllProjected(pageable);
     }
 

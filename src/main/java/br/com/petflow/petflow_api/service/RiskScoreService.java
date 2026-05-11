@@ -53,6 +53,13 @@ public class RiskScoreService {
         return riskScoreRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
+    public Page<RiskScoreResponseDTO> findAll(Long petId, Pageable pageable) {
+        if (petId != null) {
+            return riskScoreRepository.findByPetId(petId, pageable);
+        }
+        return riskScoreRepository.findAll(pageable).map(this::toResponseDTO);
+    }
+
     public Page<RiskScoreResponseDTO> findByPetId(Long petId, Pageable pageable) {
         if (!petRepository.existsById(petId)) {
             throw new EntityNotFoundException("Pet", petId);
@@ -65,15 +72,6 @@ public class RiskScoreService {
         return latestPage.stream()
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException("Score de Risco para o Pet", petId));
-    }
-
-    @Transactional
-    @CacheEvict(value = "riskScores", allEntries = true)
-    public void delete(Long id) {
-        if (!riskScoreRepository.existsById(id)) {
-            throw new EntityNotFoundException("Score de Risco", id);
-        }
-        riskScoreRepository.deleteById(id);
     }
 
     private RiskScoreResponseDTO toResponseDTO(RiskScore riskScore) {

@@ -30,9 +30,10 @@ public class SubscriptionService {
     private final PetRepository petRepository;
     private final PlanRepository planRepository;
 
-    private static final String STATUS_ATIVO    = "ATIVO";
+    private static final String STATUS_ATIVO = "ATIVO";
+    private static final String STATUS_ENCERRADO = "ENCERRADO";
     private static final String STATUS_CANCELADO = "CANCELADO";
-    private static final String STATUS_EXPIRADO  = "EXPIRADO";
+    private static final String STATUS_EXPIRADO = "EXPIRADO";
 
     @Transactional
     @CacheEvict(value = "subscriptions", allEntries = true)
@@ -71,6 +72,15 @@ public class SubscriptionService {
         return subscriptionRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
+    public Page<SubscriptionResponseDTO> findAll(Long petId, Long planId, String status, Pageable pageable) {
+        if (petId != null) {
+            return subscriptionRepository.findByPetId(petId, pageable).map(this::toResponseDTO);
+        } else if (status != null) {
+            return subscriptionRepository.findByStatusIgnoreCase(status, pageable).map(this::toResponseDTO);
+        }
+        return subscriptionRepository.findAll(pageable).map(this::toResponseDTO);
+    }
+
     public Page<SubscriptionResponseDTO> findByStatus(String status, Pageable pageable) {
         return subscriptionRepository.findByStatusIgnoreCase(status, pageable)
                 .map(this::toResponseDTO);
@@ -82,6 +92,19 @@ public class SubscriptionService {
         }
         return subscriptionRepository.findByPetId(petId, pageable)
                 .map(this::toResponseDTO);
+    }
+
+    @Transactional
+    @CacheEvict(value = "subscriptions", key = "#id")
+    public SubscriptionResponseDTO updateStatus(Long id, String newStatus) {
+        Subscription subscription = subscriptionRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Assinatura", id));
+
+        validateStatusTransition(subscription.getStatus(), newStatus);
+
+        subscription.setStatus(newStatus);
+        subscription = subscriptionRepository.save(subscription);
+        return toResponseDTO(subscription);
     }
 
     @Transactional
@@ -104,11 +127,16 @@ public class SubscriptionService {
     @Transactional
     @CacheEvict(value = "subscriptions", allEntries = true)
     public void expireSubscriptions() {
-        List<Subscription> expired = subscriptionRepository
-                .findExpiredSubscriptions(LocalDate.now());
+        List<Subscription> activeSubscriptions = subscriptionRepository
+                .findByStatusIgnoreCase(STATUS_ATIVO, Pageable.unpaged()).getContent();
 
-        expired.forEach(s -> s.setStatus(STATUS_EXPIRADO));
-        subscriptionRepository.saveAll(expired);
+        LocalDate today = LocalDate.now();
+        for (Subscription subscription : activeSubscriptions) {
+            if (subscription.getEndDate() != null && subscription.getEndDate().isBefore(today)) {
+                subscription.setStatus(STATUS_EXPIRADO);
+                subscriptionRepository.save(subscription);
+            }
+        }
     }
 
     @Transactional
@@ -118,6 +146,20 @@ public class SubscriptionService {
             throw new EntityNotFoundException("Assinatura", id);
         }
         subscriptionRepository.deleteById(id);
+    }
+
+    private void validateStatusTransition(String currentStatus, String newStatus) {
+        if (currentStatus.equals(newStatus)) {
+            return;
+        }
+
+        if (STATUS_ATIVO.equals(currentStatus)) {
+            if (!STATUS_ENCERRADO.equals(newStatus) && !STATUS_CANCELADO.equals(newStatus)) {
+                throw new InvalidStatusTransitionException("Subscription", currentStatus, newStatus);
+            }
+        } else {
+            throw new InvalidStatusTransitionException("Subscription", currentStatus, newStatus);
+        }
     }
 
     private SubscriptionResponseDTO toResponseDTO(Subscription subscription) {

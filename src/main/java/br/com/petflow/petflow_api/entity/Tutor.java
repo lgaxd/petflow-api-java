@@ -54,10 +54,6 @@ public class Tutor {
  
     @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Address> addresses = new ArrayList<>();
- 
-    @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
     private List<RewardPoint> rewardPoints = new ArrayList<>();
  
     @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)

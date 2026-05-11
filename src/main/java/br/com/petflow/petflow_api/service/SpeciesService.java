@@ -46,7 +46,6 @@ public class SpeciesService {
         return toResponseDTO(species);
     }
 
-    @Cacheable(value = "species", key = "'all_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<SpeciesResponseDTO> findAll(Pageable pageable) {
         return speciesRepository.findAll(pageable).map(this::toResponseDTO);
     }

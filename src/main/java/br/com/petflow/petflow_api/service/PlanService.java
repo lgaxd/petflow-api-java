@@ -52,6 +52,14 @@ public class PlanService {
         return planRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
+    public Page<PlanResponseDTO> findAll(Long clinicId, Pageable pageable) {
+        if (clinicId != null) {
+            return planRepository.findByClinicId(clinicId, pageable)
+                    .map(this::toResponseDTO);
+        }
+        return planRepository.findAll(pageable).map(this::toResponseDTO);
+    }
+
     public Page<PlanResponseDTO> findByName(String name, Pageable pageable) {
         return planRepository.findByNameContainingIgnoreCase(name, pageable)
                 .map(this::toResponseDTO);

@@ -89,6 +89,17 @@ public class RewardPointService {
         return toResponseDTO(rewardPoint);
     }
 
+    public Page<RewardPointResponseDTO> findAll(Pageable pageable) {
+        return rewardPointRepository.findAll(pageable).map(this::toResponseDTO);
+    }
+
+    public Page<RewardPointResponseDTO> findAll(Long tutorId, Long rewardActionId, Pageable pageable) {
+        if (tutorId != null) {
+            return rewardPointRepository.findByTutorId(tutorId, pageable);
+        }
+        return rewardPointRepository.findAll(pageable).map(this::toResponseDTO);
+    }
+
     public Page<RewardPointResponseDTO> findByTutorId(Long tutorId, Pageable pageable) {
         if (!tutorRepository.existsById(tutorId)) {
             throw new EntityNotFoundException("Tutor", tutorId);
@@ -101,6 +112,20 @@ public class RewardPointService {
             throw new EntityNotFoundException("Tutor", tutorId);
         }
         return rewardPointRepository.sumPointsByTutorId(tutorId);
+    }
+
+    @Transactional
+    @CacheEvict(value = "rewardPoints", key = "#id")
+    public RewardPointResponseDTO update(Long id, RewardPointRequestDTO request) {
+        RewardPoint rewardPoint = rewardPointRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Ponto de Recompensa", id));
+
+        rewardPoint.setPoints(request.getPoints());
+        rewardPoint.setReferenceType(request.getReferenceType());
+        rewardPoint.setReferenceId(request.getReferenceId());
+
+        rewardPoint = rewardPointRepository.save(rewardPoint);
+        return toResponseDTO(rewardPoint);
     }
 
     @Transactional
