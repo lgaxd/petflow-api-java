@@ -13,10 +13,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/coupon-templates")
+@Validated
 @RequiredArgsConstructor
 @Tag(name = "Templates de Cupom", description = "Endpoints para gerenciamento de templates de cupons")
 public class CouponTemplateController {

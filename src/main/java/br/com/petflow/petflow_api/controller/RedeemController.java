@@ -13,10 +13,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/redeems")
+@Validated
 @RequiredArgsConstructor
 @Tag(name = "Resgates", description = "Endpoints para gerenciamento de resgates de cupons")
 public class RedeemController {

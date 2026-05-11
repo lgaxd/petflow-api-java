@@ -16,10 +16,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/pets")
+@Validated
 @RequiredArgsConstructor
 @Tag(name = "Pets", description = "Endpoints para gerenciamento de pets")
 public class PetController {

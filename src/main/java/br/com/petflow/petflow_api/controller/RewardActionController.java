@@ -13,10 +13,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/reward-actions")
+@Validated
 @RequiredArgsConstructor
 @Tag(name = "Ações de Recompensa", description = "Endpoints para gerenciamento de ações que geram pontos")
 public class RewardActionController {

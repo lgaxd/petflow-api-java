@@ -13,10 +13,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/risk-levels")
+@Validated
 @RequiredArgsConstructor
 @Tag(name = "Níveis de Risco", description = "Endpoints para gerenciamento de níveis de risco")
 public class RiskLevelController {

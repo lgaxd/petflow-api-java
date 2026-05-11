@@ -13,10 +13,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/subscriptions")
+@Validated
 @RequiredArgsConstructor
 @Tag(name = "Assinaturas", description = "Endpoints para gerenciamento de assinaturas")
 public class SubscriptionController {

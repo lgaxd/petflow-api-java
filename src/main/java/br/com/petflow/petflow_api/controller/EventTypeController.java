@@ -13,10 +13,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/event-types")
+@Validated
 @RequiredArgsConstructor
 @Tag(name = "Tipos de Evento", description = "Endpoints para gerenciamento de tipos de evento")
 public class EventTypeController {
