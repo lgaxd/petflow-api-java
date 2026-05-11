@@ -72,7 +72,7 @@ public class SubscriptionService {
         return subscriptionRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
-    public Page<SubscriptionResponseDTO> findAll(Long petId, Long planId, String status, Pageable pageable) {
+    public Page<SubscriptionResponseDTO> findAll(Long petId, String status, Pageable pageable) {
         if (petId != null) {
             return subscriptionRepository.findByPetId(petId, pageable).map(this::toResponseDTO);
         } else if (status != null) {

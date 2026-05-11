@@ -35,11 +35,13 @@ public class PlanController {
     @GetMapping
     @Operation(summary = "Listar planos com filtro opcional por clínica")
     public ResponseEntity<Page<PlanResponseDTO>> findAll(
-            @RequestParam(required = false) Long clinicId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
-        return ResponseEntity.ok(planService.findAll(clinicId, pageable));
+        @RequestParam(required = false) Long clinicId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "name") String sortBy,
+        @RequestParam(defaultValue = "asc") String direction) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sortBy));
+    return ResponseEntity.ok(planService.findAll(clinicId, pageable));
     }
 
     @GetMapping("/{id}")

@@ -49,10 +49,6 @@ public class Clinic {
     @Builder.Default
     private List<Plan> plans = new ArrayList<>();
  
-    @OneToMany(mappedBy = "clinic", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<PartnerDiscount> partnerDiscounts = new ArrayList<>();
- 
     @PrePersist
     private void prePersist() {
         this.createdAt = LocalDateTime.now();

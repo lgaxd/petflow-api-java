@@ -35,14 +35,15 @@ public class HealthEventController {
     @GetMapping
     @Operation(summary = "Listar eventos de saúde com filtros")
     public ResponseEntity<Page<HealthEventResponseDTO>> findAll(
-            @RequestParam(required = false) Long petId,
-            @RequestParam(required = false) Long clinicId,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) Long eventTypeId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventDate"));
-        return ResponseEntity.ok(healthEventService.findAll(petId, clinicId, status, eventTypeId, pageable));
+        @RequestParam(required = false) Long petId,
+        @RequestParam(required = false) String eventType,
+        @RequestParam(required = false) String status,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "eventDate") String sortBy,
+        @RequestParam(defaultValue = "desc") String direction) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sortBy));
+    return ResponseEntity.ok(healthEventService.findAll(petId, eventType, status, pageable));
     }
 
     @GetMapping("/{id}")

@@ -13,12 +13,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/coupons")
-@Validated
 @RequiredArgsConstructor
 @Tag(name = "Cupons", description = "Endpoints para gerenciamento de cupons")
 public class CouponController {
@@ -28,19 +26,19 @@ public class CouponController {
     @PostMapping
     @Operation(summary = "Gerar novo cupom")
     public ResponseEntity<CouponResponseDTO> create(@Valid @RequestBody CouponRequestDTO request) {
-        CouponResponseDTO response = couponService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(couponService.create(request));
     }
 
     @GetMapping
     @Operation(summary = "Listar cupons com filtros")
     public ResponseEntity<Page<CouponResponseDTO>> findAll(
-            @RequestParam(required = false) Long templateId,
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "code"));
-        return ResponseEntity.ok(couponService.findAll(templateId, status, pageable));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "code") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sortBy));
+        return ResponseEntity.ok(couponService.findAll(status, pageable));
     }
 
     @GetMapping("/{id}")
@@ -49,8 +47,8 @@ public class CouponController {
         return ResponseEntity.ok(couponService.findById(id));
     }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Atualizar status do cupom (DISPONIVEL → UTILIZADO)")
+    @PutMapping("/{id}/status")
+    @Operation(summary = "Atualizar status do cupom (DISPONIVEL → UTILIZADO ou RESGATADO)")
     public ResponseEntity<CouponResponseDTO> updateStatus(
             @PathVariable Long id,
             @RequestParam String status) {

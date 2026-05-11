@@ -57,14 +57,6 @@ public class ClinicService {
                 .map(this::toResponseDTO);
     }
 
-    public Page<PlanResponseDTO> findPlansByClinicId(Long clinicId, Pageable pageable) {
-        if (!clinicRepository.existsById(clinicId)) {
-            throw new EntityNotFoundException("Clínica", clinicId);
-        }
-        return planRepository.findByClinicId(clinicId, pageable)
-                .map(this::toPlanResponseDTO);
-    }
-
     @Transactional
     @CacheEvict(value = "clinics", key = "#id")
     public ClinicResponseDTO update(Long id, ClinicRequestDTO request) {

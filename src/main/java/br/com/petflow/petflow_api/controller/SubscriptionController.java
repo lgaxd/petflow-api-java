@@ -35,15 +35,15 @@ public class SubscriptionController {
     @GetMapping
     @Operation(summary = "Listar assinaturas com filtros")
     public ResponseEntity<Page<SubscriptionResponseDTO>> findAll(
-            @RequestParam(required = false) Long petId,
-            @RequestParam(required = false) Long planId,
-            @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return ResponseEntity.ok(subscriptionService.findAll(petId, planId, status, pageable));
+        @RequestParam(required = false) Long petId,
+        @RequestParam(required = false) String status,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "createdAt") String sortBy,
+        @RequestParam(defaultValue = "desc") String direction) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sortBy));
+    return ResponseEntity.ok(subscriptionService.findAll(petId, status, pageable));
     }
-
     @GetMapping("/{id}")
     @Operation(summary = "Buscar assinatura por ID")
     public ResponseEntity<SubscriptionResponseDTO> findById(@PathVariable Long id) {
