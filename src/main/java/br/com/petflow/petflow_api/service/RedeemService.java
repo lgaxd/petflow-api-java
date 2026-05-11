@@ -26,7 +26,6 @@ public class RedeemService {
     private final RedeemRepository redeemRepository;
     private final TutorRepository tutorRepository;
     private final CouponRepository couponRepository;
-    private final RewardPointService rewardPointService;
 
     private static final String COUPON_STATUS_DISPONIVEL = "DISPONIVEL";
     private static final String COUPON_STATUS_RESGATADO = "RESGATADO";
@@ -52,12 +51,7 @@ public class RedeemService {
             throw new ExpiredCouponException(coupon.getCode(), coupon.getExpirationDate());
         }
 
-        Integer pointsRequired = coupon.getTemplate().getPointsRequired();
-        Integer availablePoints = rewardPointService.getTotalPointsByTutor(tutor.getId());
-
-        if (availablePoints < pointsRequired) {
-            throw new InsufficientPointsException(availablePoints, pointsRequired);
-        }
+        Integer pointsRequired = coupon.getPointsRequired();
 
         Redeem redeem = Redeem.builder()
                 .pointsUsed(pointsRequired)
@@ -80,22 +74,11 @@ public class RedeemService {
         return toResponseDTO(redeem);
     }
 
-    public Page<RedeemResponseDTO> findAll(Pageable pageable) {
-        return redeemRepository.findAllProjected(pageable);
-    }
-
     public Page<RedeemResponseDTO> findAll(Long tutorId, Pageable pageable) {
         if (tutorId != null) {
             return redeemRepository.findByTutorId(tutorId, pageable);
         }
         return redeemRepository.findAllProjected(pageable);
-    }
-
-    public Page<RedeemResponseDTO> findByTutorId(Long tutorId, Pageable pageable) {
-        if (!tutorRepository.existsById(tutorId)) {
-            throw new EntityNotFoundException("Tutor", tutorId);
-        }
-        return redeemRepository.findByTutorId(tutorId, pageable);
     }
 
     private RedeemResponseDTO toResponseDTO(Redeem redeem) {

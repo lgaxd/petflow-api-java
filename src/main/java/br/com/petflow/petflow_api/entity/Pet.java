@@ -3,13 +3,12 @@ package br.com.petflow.petflow_api.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
- 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
- 
+
 @Entity
 @Table(name = "PET")
 @Getter
@@ -44,6 +43,9 @@ public class Pet {
     @Column(name = "WEIGHT", precision = 5, scale = 2)
     private BigDecimal weight;
  
+    @Column(name = "SPECIES", length = 50)
+    private String species;
+ 
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;
 
@@ -52,11 +54,6 @@ public class Pet {
     @NotNull(message = "O tutor é obrigatório")
     private Tutor tutor;
  
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "SPECIES_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_PET_SPECIES"))
-    @NotNull(message = "A espécie é obrigatória")
-    private Species species;
- 
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<HealthEvent> healthEvents = new ArrayList<>();
@@ -64,10 +61,6 @@ public class Pet {
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Subscription> subscriptions = new ArrayList<>();
- 
-    @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<RiskScore> riskScores = new ArrayList<>();
 
     @PrePersist
     private void prePersist() {

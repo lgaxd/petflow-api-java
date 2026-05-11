@@ -16,9 +16,8 @@ public class PetResponseDTO {
     private String breed;
     private LocalDate birthDate;
     private BigDecimal weight;
+    private String species;
     private LocalDateTime createdAt;
     private Long tutorId;
     private String tutorName;
-    private Long speciesId;
-    private String speciesName;
 }

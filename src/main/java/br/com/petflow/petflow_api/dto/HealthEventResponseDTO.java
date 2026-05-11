@@ -17,8 +17,7 @@ public class HealthEventResponseDTO {
     private LocalDateTime createdAt;
     private Long petId;
     private String petName;
-    private Long eventTypeId;
-    private String eventTypeName;
+    private String eventType;
     private Long clinicId;
     private String clinicName;
 }

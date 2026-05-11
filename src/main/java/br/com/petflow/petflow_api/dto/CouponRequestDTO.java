@@ -2,6 +2,7 @@ package br.com.petflow.petflow_api.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -21,6 +22,11 @@ public class CouponRequestDTO {
     @Future(message = "A data de expiração deve ser uma data futura")
     private LocalDate expirationDate;
 
-    @NotNull(message = "O ID do template é obrigatório")
-    private Long templateId;
+    @NotNull(message = "O valor do desconto é obrigatório")
+    @DecimalMin(value = "0.01", message = "O desconto deve ser maior que zero")
+    private BigDecimal discountValue;
+
+    @NotNull(message = "Os pontos necessários são obrigatórios")
+    @Positive(message = "Os pontos necessários devem ser positivos")
+    private Integer pointsRequired;
 }

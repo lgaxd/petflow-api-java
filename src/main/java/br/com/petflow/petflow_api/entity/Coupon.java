@@ -3,7 +3,7 @@ package br.com.petflow.petflow_api.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
- 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
  
@@ -28,9 +28,6 @@ public class Coupon {
     @Column(name = "CODE", length = 50, nullable = false, unique = true)
     private String code;
  
-    /*
-     * Valores esperados: DISPONIVEL, RESGATADO, EXPIRADO
-     */
     @NotBlank(message = "O status é obrigatório")
     @Size(max = 20, message = "O status deve ter no máximo 20 caracteres")
     @Column(name = "STATUS", length = 20, nullable = false)
@@ -39,15 +36,20 @@ public class Coupon {
     @Future(message = "A data de expiração deve ser uma data futura")
     @Column(name = "EXPIRATION_DATE")
     private LocalDate expirationDate;
+
+    @NotNull(message = "O valor do desconto é obrigatório")
+    @DecimalMin(value = "0.01", message = "O desconto deve ser maior que zero")
+    @Column(name = "DISCOUNT_VALUE", nullable = false)
+    private BigDecimal discountValue;
+
+    @NotNull(message = "Os pontos necessários são obrigatórios")
+    @Positive(message = "Os pontos necessários devem ser positivos")
+    @Column(name = "POINTS_REQUIRED", nullable = false)
+    private Integer pointsRequired;
  
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;
- 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TEMPLATE_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_COUPON_TEMPLATE"))
-    @NotNull(message = "O template é obrigatório")
-    private CouponTemplate template;
- 
+
     @PrePersist
     private void prePersist() {
         this.createdAt = LocalDateTime.now();

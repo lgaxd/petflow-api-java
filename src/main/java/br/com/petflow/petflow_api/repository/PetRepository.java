@@ -10,6 +10,4 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
     Page<Pet> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
     Page<Pet> findByTutorId(Long tutorId, Pageable pageable);
-
-    Page<Pet> findBySpeciesId(Long speciesId, Pageable pageable);
 }

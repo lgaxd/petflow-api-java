@@ -3,7 +3,6 @@ package br.com.petflow.petflow_api.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
- 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +39,7 @@ public class Tutor {
     private String phone;
  
     @NotBlank(message = "A senha é obrigatória")
-    @Size(max = 255)
-    @Column(name = "PASSWORD_HASH", length = 255, nullable = false)
+    @Column(name = "PASSWORD_HASH", nullable = false)
     private String passwordHash;
  
     @Column(name = "CREATED_AT", updatable = false)
@@ -50,10 +48,6 @@ public class Tutor {
     @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Pet> pets = new ArrayList<>();
- 
-    @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<RewardPoint> rewardPoints = new ArrayList<>();
  
     @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

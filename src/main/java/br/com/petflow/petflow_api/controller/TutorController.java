@@ -1,8 +1,5 @@
 package br.com.petflow.petflow_api.controller;
 
-import br.com.petflow.petflow_api.dto.PetResponseDTO;
-import br.com.petflow.petflow_api.dto.RedeemResponseDTO;
-import br.com.petflow.petflow_api.dto.RewardPointResponseDTO;
 import br.com.petflow.petflow_api.dto.TutorRequestDTO;
 import br.com.petflow.petflow_api.dto.TutorResponseDTO;
 import br.com.petflow.petflow_api.service.TutorService;
@@ -16,12 +13,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/tutors")
-@Validated
 @RequiredArgsConstructor
 @Tag(name = "Tutores", description = "Endpoints para gerenciamento de tutores")
 public class TutorController {
@@ -31,16 +26,17 @@ public class TutorController {
     @PostMapping
     @Operation(summary = "Cadastrar novo tutor")
     public ResponseEntity<TutorResponseDTO> create(@Valid @RequestBody TutorRequestDTO request) {
-        TutorResponseDTO response = tutorService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(tutorService.create(request));
     }
 
     @GetMapping
     @Operation(summary = "Listar todos os tutores")
     public ResponseEntity<Page<TutorResponseDTO>> findAll(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sortBy));
         return ResponseEntity.ok(tutorService.findAll(pageable));
     }
 
@@ -50,41 +46,9 @@ public class TutorController {
         return ResponseEntity.ok(tutorService.findById(id));
     }
 
-    @GetMapping("/{id}/pets")
-    @Operation(summary = "Listar todos os pets de um tutor")
-    public ResponseEntity<Page<PetResponseDTO>> findPetsByTutorId(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
-        return ResponseEntity.ok(tutorService.findPetsByTutorId(id, pageable));
-    }
-
-    @GetMapping("/{id}/points")
-    @Operation(summary = "Extrato de pontos do tutor")
-    public ResponseEntity<Page<RewardPointResponseDTO>> findPointsByTutorId(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return ResponseEntity.ok(tutorService.findPointsByTutorId(id, pageable));
-    }
-
-    @GetMapping("/{id}/redeems")
-    @Operation(summary = "Histórico de cupons resgatados pelo tutor")
-    public ResponseEntity<Page<RedeemResponseDTO>> findRedeemsByTutorId(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return ResponseEntity.ok(tutorService.findRedeemsByTutorId(id, pageable));
-    }
-
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar dados do tutor")
-    public ResponseEntity<TutorResponseDTO> update(
-            @PathVariable Long id,
-            @Valid @RequestBody TutorRequestDTO request) {
+    public ResponseEntity<TutorResponseDTO> update(@PathVariable Long id, @Valid @RequestBody TutorRequestDTO request) {
         return ResponseEntity.ok(tutorService.update(id, request));
     }
 

@@ -23,8 +23,8 @@ public class HealthEventRequestDTO {
     @NotNull(message = "O ID do pet é obrigatório")
     private Long petId;
 
-    @NotNull(message = "O ID do tipo de evento é obrigatório")
-    private Long eventTypeId;
+    @NotBlank(message = "O tipo de evento é obrigatório")
+    private String eventType;
 
     private Long clinicId;
 }

@@ -3,7 +3,6 @@ package br.com.petflow.petflow_api.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
- 
 import java.time.LocalDateTime;
  
 @Entity

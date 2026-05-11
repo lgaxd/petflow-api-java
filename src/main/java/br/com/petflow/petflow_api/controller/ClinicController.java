@@ -2,7 +2,6 @@ package br.com.petflow.petflow_api.controller;
 
 import br.com.petflow.petflow_api.dto.ClinicRequestDTO;
 import br.com.petflow.petflow_api.dto.ClinicResponseDTO;
-import br.com.petflow.petflow_api.dto.PlanResponseDTO;
 import br.com.petflow.petflow_api.service.ClinicService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,12 +13,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/clinics")
-@Validated
 @RequiredArgsConstructor
 @Tag(name = "Clínicas", description = "Endpoints para gerenciamento de clínicas")
 public class ClinicController {
@@ -29,16 +26,17 @@ public class ClinicController {
     @PostMapping
     @Operation(summary = "Cadastrar nova clínica")
     public ResponseEntity<ClinicResponseDTO> create(@Valid @RequestBody ClinicRequestDTO request) {
-        ClinicResponseDTO response = clinicService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(clinicService.create(request));
     }
 
     @GetMapping
     @Operation(summary = "Listar todas as clínicas")
     public ResponseEntity<Page<ClinicResponseDTO>> findAll(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sortBy));
         return ResponseEntity.ok(clinicService.findAll(pageable));
     }
 
@@ -48,21 +46,9 @@ public class ClinicController {
         return ResponseEntity.ok(clinicService.findById(id));
     }
 
-    @GetMapping("/{id}/plans")
-    @Operation(summary = "Listar planos de uma clínica")
-    public ResponseEntity<Page<PlanResponseDTO>> findPlansByClinicId(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
-        return ResponseEntity.ok(clinicService.findPlansByClinicId(id, pageable));
-    }
-
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar clínica")
-    public ResponseEntity<ClinicResponseDTO> update(
-            @PathVariable Long id,
-            @Valid @RequestBody ClinicRequestDTO request) {
+    public ResponseEntity<ClinicResponseDTO> update(@PathVariable Long id, @Valid @RequestBody ClinicRequestDTO request) {
         return ResponseEntity.ok(clinicService.update(id, request));
     }
 

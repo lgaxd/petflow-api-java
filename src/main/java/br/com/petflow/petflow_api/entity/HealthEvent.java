@@ -1,9 +1,9 @@
 package br.com.petflow.petflow_api.entity;
 
+import br.com.petflow.petflow_api.enums.EventType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
- 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
  
@@ -44,9 +44,8 @@ public class HealthEvent {
     @NotNull(message = "O pet é obrigatório")
     private Pet pet;
  
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "EVENT_TYPE_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_HE_EVENT_TYPE"))
-    @NotNull(message = "O tipo de evento é obrigatório")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "EVENT_TYPE", nullable = false)
     private EventType eventType;
 
     @ManyToOne(fetch = FetchType.LAZY)
