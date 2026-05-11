@@ -1,5 +1,7 @@
 package br.com.petflow.petflow_api.dto;
 
+import br.com.petflow.petflow_api.enums.EventType;
+import br.com.petflow.petflow_api.enums.HealthEventStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDate;
@@ -22,7 +24,7 @@ public class HealthEventResponseDTO {
     private LocalDate eventDate;
 
     @Schema(description = "Status do evento", example = "REALIZADO", allowableValues = {"AGENDADO", "REALIZADO", "CANCELADO"})
-    private String status;
+    private HealthEventStatus status;
 
     @Schema(description = "Data de registro", example = "2024-01-15T10:30:00")
     private LocalDateTime createdAt;
@@ -34,7 +36,7 @@ public class HealthEventResponseDTO {
     private String petName;
 
     @Schema(description = "Tipo do evento", example = "VACCINE", allowableValues = {"VACCINE", "EXAM", "CONSULTATION", "SURGERY"})
-    private String eventType;
+    private EventType eventType;
 
     @Schema(description = "ID da clínica (opcional)", example = "5")
     private Long clinicId;

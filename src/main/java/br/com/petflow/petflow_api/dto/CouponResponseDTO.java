@@ -1,5 +1,6 @@
 package br.com.petflow.petflow_api.dto;
 
+import br.com.petflow.petflow_api.enums.CouponStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.math.BigDecimal;
@@ -20,7 +21,7 @@ public class CouponResponseDTO {
     private String code;
 
     @Schema(description = "Status do cupom", example = "DISPONIVEL", allowableValues = {"DISPONIVEL", "RESGATADO", "UTILIZADO"})
-    private String status;
+    private CouponStatus status;
 
     @Schema(description = "Data de expiração", example = "2025-12-31")
     private LocalDate expirationDate;

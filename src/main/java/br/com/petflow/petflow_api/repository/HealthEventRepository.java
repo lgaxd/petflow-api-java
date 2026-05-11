@@ -2,6 +2,7 @@ package br.com.petflow.petflow_api.repository;
 
 import br.com.petflow.petflow_api.dto.HealthEventResponseDTO;
 import br.com.petflow.petflow_api.entity.HealthEvent;
+import br.com.petflow.petflow_api.enums.HealthEventStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,8 +14,7 @@ public interface HealthEventRepository extends JpaRepository<HealthEvent, Long> 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.HealthEventResponseDTO(
                 h.id, h.description, h.eventDate, h.status, h.createdAt,
-                h.pet.id, h.pet.name,
-                h.eventType, h.clinic.id, h.clinic.name
+                h.pet.id, h.pet.name, h.eventType, h.clinic.id, h.clinic.name
             )
             FROM HealthEvent h
             WHERE h.pet.id = :petId
@@ -24,19 +24,17 @@ public interface HealthEventRepository extends JpaRepository<HealthEvent, Long> 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.HealthEventResponseDTO(
                 h.id, h.description, h.eventDate, h.status, h.createdAt,
-                h.pet.id, h.pet.name,
-                h.eventType, h.clinic.id, h.clinic.name
+                h.pet.id, h.pet.name, h.eventType, h.clinic.id, h.clinic.name
             )
             FROM HealthEvent h
             WHERE h.status = :status
             """)
-    Page<HealthEventResponseDTO> findByStatusProjected(@Param("status") String status, Pageable pageable);
+    Page<HealthEventResponseDTO> findByStatusProjected(@Param("status") HealthEventStatus status, Pageable pageable);
 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.HealthEventResponseDTO(
                 h.id, h.description, h.eventDate, h.status, h.createdAt,
-                h.pet.id, h.pet.name,
-                h.eventType, h.clinic.id, h.clinic.name
+                h.pet.id, h.pet.name, h.eventType, h.clinic.id, h.clinic.name
             )
             FROM HealthEvent h
             """)

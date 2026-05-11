@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -77,7 +78,12 @@ public class SubscriptionService {
         if (petId != null) {
             return subscriptionRepository.findByPetIdProjected(petId, pageable);
         } else if (status != null && !status.isBlank()) {
-            return subscriptionRepository.findByStatusProjected(status.toUpperCase(), pageable);
+            try {
+                SubscriptionStatus subscriptionStatus = SubscriptionStatus.valueOf(status.toUpperCase());
+                return subscriptionRepository.findByStatusProjected(subscriptionStatus, pageable);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Status inválido. Valores permitidos: ATIVO, ENCERRADO, CANCELADO, EXPIRADO");
+            }
         }
         return subscriptionRepository.findAllProjected(pageable);
     }
@@ -122,16 +128,12 @@ public class SubscriptionService {
     @Transactional
     @CacheEvict(value = "subscriptions", allEntries = true)
     public void expireSubscriptions() {
-        Page<SubscriptionResponseDTO> activePage = subscriptionRepository
-                .findByStatusProjected(SubscriptionStatus.ATIVO.name(), Pageable.unpaged());
+        List<Subscription> expiredSubscriptions = subscriptionRepository
+                .findExpiredSubscriptions(SubscriptionStatus.ATIVO, LocalDate.now());
 
-        LocalDate today = LocalDate.now();
-        for (SubscriptionResponseDTO dto : activePage.getContent()) {
-            Subscription subscription = subscriptionRepository.findById(dto.getId()).orElse(null);
-            if (subscription != null && subscription.getEndDate() != null && subscription.getEndDate().isBefore(today)) {
-                subscription.setStatus(SubscriptionStatus.EXPIRADO);
-                subscriptionRepository.save(subscription);
-            }
+        for (Subscription subscription : expiredSubscriptions) {
+            subscription.setStatus(SubscriptionStatus.EXPIRADO);
+            subscriptionRepository.save(subscription);
         }
     }
 
@@ -165,7 +167,7 @@ public class SubscriptionService {
                 .id(subscription.getId())
                 .startDate(subscription.getStartDate())
                 .endDate(subscription.getEndDate())
-                .status(subscription.getStatus().name())
+                .status(subscription.getStatus())
                 .createdAt(subscription.getCreatedAt())
                 .petId(subscription.getPet().getId())
                 .petName(subscription.getPet().getName())

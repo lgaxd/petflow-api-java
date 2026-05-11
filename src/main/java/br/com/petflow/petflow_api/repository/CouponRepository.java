@@ -2,6 +2,7 @@ package br.com.petflow.petflow_api.repository;
 
 import br.com.petflow.petflow_api.dto.CouponResponseDTO;
 import br.com.petflow.petflow_api.entity.Coupon;
+import br.com.petflow.petflow_api.enums.CouponStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,7 +28,7 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
                 c.id, c.code, c.status, c.expirationDate, c.discountValue, c.pointsRequired, c.createdAt
             )
             FROM Coupon c
-            WHERE LOWER(c.status) = LOWER(:status)
+            WHERE c.status = :status
             """)
-    Page<CouponResponseDTO> findByStatusIgnoreCase(@Param("status") String status, Pageable pageable);
+    Page<CouponResponseDTO> findByStatus(@Param("status") CouponStatus status, Pageable pageable);
 }

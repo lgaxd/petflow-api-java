@@ -16,9 +16,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -83,16 +87,29 @@ public class HealthEventService {
         if (petId != null) {
             page = healthEventRepository.findByPetIdProjected(petId, pageable);
         } else if (status != null && !status.isBlank()) {
-            page = healthEventRepository.findByStatusProjected(status.toUpperCase(), pageable);
+            try {
+                HealthEventStatus healthStatus = HealthEventStatus.valueOf(status.toUpperCase());
+                page = healthEventRepository.findByStatusProjected(healthStatus, pageable);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Status inválido. Valores permitidos: AGENDADO, REALIZADO, CANCELADO");
+            }
         } else {
             page = healthEventRepository.findAllProjected(pageable);
         }
         
+        // Filtrar por eventType se necessário (em memória)
         if (eventType != null && !eventType.isBlank() && page.hasContent()) {
-            java.util.List<HealthEventResponseDTO> filtered = page.getContent().stream()
-                    .filter(dto -> dto.getEventType().equalsIgnoreCase(eventType))
-                    .collect(java.util.stream.Collectors.toList());
-            page = new org.springframework.data.domain.PageImpl<>(filtered, pageable, filtered.size());
+            EventType targetEventType;
+            try {
+                targetEventType = EventType.valueOf(eventType.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Tipo de evento inválido. Valores permitidos: VACCINE, EXAM, CONSULTATION, SURGERY");
+            }
+            
+            List<HealthEventResponseDTO> filtered = page.getContent().stream()
+                    .filter(dto -> dto.getEventType() == targetEventType)
+                    .collect(Collectors.toList());
+            page = new PageImpl<>(filtered, pageable, filtered.size());
         }
 
         return page;
@@ -171,11 +188,11 @@ public class HealthEventService {
                 .id(healthEvent.getId())
                 .description(healthEvent.getDescription())
                 .eventDate(healthEvent.getEventDate())
-                .status(healthEvent.getStatus().name())
+                .status(healthEvent.getStatus())
                 .createdAt(healthEvent.getCreatedAt())
                 .petId(healthEvent.getPet().getId())
                 .petName(healthEvent.getPet().getName())
-                .eventType(healthEvent.getEventType().name())
+                .eventType(healthEvent.getEventType())
                 .clinicId(healthEvent.getClinic() != null ? healthEvent.getClinic().getId() : null)
                 .clinicName(healthEvent.getClinic() != null ? healthEvent.getClinic().getName() : null)
                 .build();

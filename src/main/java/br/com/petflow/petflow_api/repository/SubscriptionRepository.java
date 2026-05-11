@@ -2,6 +2,7 @@ package br.com.petflow.petflow_api.repository;
 
 import br.com.petflow.petflow_api.dto.SubscriptionResponseDTO;
 import br.com.petflow.petflow_api.entity.Subscription;
+import br.com.petflow.petflow_api.enums.SubscriptionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,7 +34,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
             FROM Subscription s
             WHERE s.status = :status
             """)
-    Page<SubscriptionResponseDTO> findByStatusProjected(@Param("status") String status, Pageable pageable);
+    Page<SubscriptionResponseDTO> findByStatusProjected(@Param("status") SubscriptionStatus status, Pageable pageable);
 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.SubscriptionResponseDTO(
@@ -45,6 +46,6 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
             """)
     Page<SubscriptionResponseDTO> findAllProjected(Pageable pageable);
     
-    @Query("SELECT s FROM Subscription s WHERE s.status = 'ATIVO' AND s.endDate < :today")
-    List<Subscription> findExpiredSubscriptions(@Param("today") LocalDate today);
+    @Query("SELECT s FROM Subscription s WHERE s.status = :status AND s.endDate < :today")
+    List<Subscription> findExpiredSubscriptions(@Param("status") SubscriptionStatus status, @Param("today") LocalDate today);
 }

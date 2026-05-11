@@ -63,7 +63,12 @@ public class CouponService {
     @Cacheable(value = "coupons", key = "#status + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<CouponResponseDTO> findAll(String status, Pageable pageable) {
         if (status != null && !status.isBlank()) {
-            return couponRepository.findByStatusIgnoreCase(status.toUpperCase(), pageable);
+            try {
+                CouponStatus couponStatus = CouponStatus.valueOf(status.toUpperCase());
+                return couponRepository.findByStatus(couponStatus, pageable);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Status inválido. Valores permitidos: DISPONIVEL, RESGATADO, UTILIZADO");
+            }
         }
         return couponRepository.findAllProjected(pageable);
     }
@@ -123,7 +128,7 @@ public class CouponService {
         return CouponResponseDTO.builder()
                 .id(coupon.getId())
                 .code(coupon.getCode())
-                .status(coupon.getStatus().name())
+                .status(coupon.getStatus())
                 .expirationDate(coupon.getExpirationDate())
                 .discountValue(coupon.getDiscountValue())
                 .pointsRequired(coupon.getPointsRequired())
