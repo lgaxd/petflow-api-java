@@ -48,22 +48,18 @@ public class PetService {
         return toResponseDTO(pet);
     }
 
+    @Cacheable(value = "pets", key = "#name + '_' + #tutorId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<PetResponseDTO> findAll(String name, Long tutorId, Pageable pageable) {
-        Page<Pet> page;
-
-        if (name != null) {
-            page = petRepository.findByNameContainingIgnoreCase(name, pageable);
+        if (name != null && !name.isBlank()) {
+            return petRepository.findByNameProjected(name, pageable);
         } else if (tutorId != null) {
-            page = petRepository.findByTutorId(tutorId, pageable);
-        } else {
-            page = petRepository.findAll(pageable);
+            return petRepository.findByTutorIdProjected(tutorId, pageable);
         }
-
-        return page.map(this::toResponseDTO);
+        return petRepository.findAllProjected(pageable);
     }
 
     @Transactional
-    @CacheEvict(value = "pets", key = "#id")
+    @CacheEvict(value = "pets", allEntries = true)
     public PetResponseDTO update(Long id, PetRequestDTO request) {
         Pet pet = petRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pet", id));
@@ -85,7 +81,7 @@ public class PetService {
     }
 
     @Transactional
-    @CacheEvict(value = "pets", key = "#id")
+    @CacheEvict(value = "pets", allEntries = true)
     public void delete(Long id) {
         if (!petRepository.existsById(id)) {
             throw new EntityNotFoundException("Pet", id);

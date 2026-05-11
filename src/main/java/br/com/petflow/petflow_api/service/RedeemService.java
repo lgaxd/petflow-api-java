@@ -5,6 +5,7 @@ import br.com.petflow.petflow_api.dto.RedeemResponseDTO;
 import br.com.petflow.petflow_api.entity.Coupon;
 import br.com.petflow.petflow_api.entity.Redeem;
 import br.com.petflow.petflow_api.entity.Tutor;
+import br.com.petflow.petflow_api.enums.CouponStatus;
 import br.com.petflow.petflow_api.exception.*;
 import br.com.petflow.petflow_api.repository.CouponRepository;
 import br.com.petflow.petflow_api.repository.RedeemRepository;
@@ -27,9 +28,6 @@ public class RedeemService {
     private final TutorRepository tutorRepository;
     private final CouponRepository couponRepository;
 
-    private static final String COUPON_STATUS_DISPONIVEL = "DISPONIVEL";
-    private static final String COUPON_STATUS_RESGATADO = "RESGATADO";
-
     @Transactional
     @CacheEvict(value = "redeems", allEntries = true)
     public RedeemResponseDTO create(RedeemRequestDTO request) {
@@ -39,8 +37,8 @@ public class RedeemService {
         Coupon coupon = couponRepository.findById(request.getCouponId())
                 .orElseThrow(() -> new EntityNotFoundException("Cupom", request.getCouponId()));
 
-        if (!COUPON_STATUS_DISPONIVEL.equals(coupon.getStatus())) {
-            if (COUPON_STATUS_RESGATADO.equals(coupon.getStatus())) {
+        if (coupon.getStatus() != CouponStatus.DISPONIVEL) {
+            if (coupon.getStatus() == CouponStatus.RESGATADO) {
                 throw new CouponAlreadyRedeemedException(coupon.getCode());
             }
             throw new BusinessRuleException("Cupom não está disponível para resgate");
@@ -61,7 +59,7 @@ public class RedeemService {
 
         redeem = redeemRepository.save(redeem);
 
-        coupon.setStatus(COUPON_STATUS_RESGATADO);
+        coupon.setStatus(CouponStatus.RESGATADO);
         couponRepository.save(coupon);
 
         return toResponseDTO(redeem);
@@ -74,6 +72,7 @@ public class RedeemService {
         return toResponseDTO(redeem);
     }
 
+    @Cacheable(value = "redeems", key = "#tutorId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<RedeemResponseDTO> findAll(Long tutorId, Pageable pageable) {
         if (tutorId != null) {
             return redeemRepository.findByTutorId(tutorId, pageable);

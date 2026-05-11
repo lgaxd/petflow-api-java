@@ -45,12 +45,17 @@ public class TutorService {
         return toResponseDTO(tutor);
     }
 
-    public Page<TutorResponseDTO> findAll(Pageable pageable) {
+    @Cacheable(value = "tutors", key = "#pageable.pageNumber + '_' + #pageable.pageSize + '_' + (#name != null ? #name : 'all')")
+    public Page<TutorResponseDTO> findAll(String name, Pageable pageable) {
+        if (name != null && !name.isBlank()) {
+            return tutorRepository.findByNameContainingIgnoreCase(name, pageable)
+                    .map(this::toResponseDTO);
+        }
         return tutorRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     @Transactional
-    @CacheEvict(value = "tutors", key = "#id")
+    @CacheEvict(value = "tutors", allEntries = true)
     public TutorResponseDTO update(Long id, TutorRequestDTO request) {
         Tutor tutor = tutorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Tutor", id));
@@ -73,7 +78,7 @@ public class TutorService {
     }
 
     @Transactional
-    @CacheEvict(value = "tutors", key = "#id")
+    @CacheEvict(value = "tutors", allEntries = true)
     public void delete(Long id) {
         if (!tutorRepository.existsById(id)) {
             throw new EntityNotFoundException("Tutor", id);

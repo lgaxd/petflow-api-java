@@ -6,6 +6,7 @@ import br.com.petflow.petflow_api.entity.Clinic;
 import br.com.petflow.petflow_api.entity.HealthEvent;
 import br.com.petflow.petflow_api.entity.Pet;
 import br.com.petflow.petflow_api.enums.EventType;
+import br.com.petflow.petflow_api.enums.HealthEventStatus;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
 import br.com.petflow.petflow_api.exception.InvalidStatusTransitionException;
 import br.com.petflow.petflow_api.repository.ClinicRepository;
@@ -27,10 +28,6 @@ public class HealthEventService {
     private final PetRepository petRepository;
     private final ClinicRepository clinicRepository;
 
-    private static final String STATUS_AGENDADO = "AGENDADO";
-    private static final String STATUS_REALIZADO = "REALIZADO";
-    private static final String STATUS_CANCELADO = "CANCELADO";
-
     @Transactional
     @CacheEvict(value = "healthEvents", allEntries = true)
     public HealthEventResponseDTO create(HealthEventRequestDTO request) {
@@ -44,6 +41,15 @@ public class HealthEventService {
             throw new IllegalArgumentException("Tipo de evento inválido. Valores permitidos: VACCINE, EXAM, CONSULTATION, SURGERY");
         }
 
+        HealthEventStatus status = HealthEventStatus.AGENDADO;
+        if (request.getStatus() != null && !request.getStatus().isBlank()) {
+            try {
+                status = HealthEventStatus.valueOf(request.getStatus().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Status inválido. Valores permitidos: AGENDADO, REALIZADO, CANCELADO");
+            }
+        }
+
         Clinic clinic = null;
         if (request.getClinicId() != null) {
             clinic = clinicRepository.findById(request.getClinicId())
@@ -53,7 +59,7 @@ public class HealthEventService {
         HealthEvent healthEvent = HealthEvent.builder()
                 .description(request.getDescription())
                 .eventDate(request.getEventDate())
-                .status(request.getStatus() != null ? request.getStatus() : STATUS_AGENDADO)
+                .status(status)
                 .pet(pet)
                 .eventType(eventType)
                 .clinic(clinic)
@@ -70,44 +76,48 @@ public class HealthEventService {
         return toResponseDTO(healthEvent);
     }
 
+    @Cacheable(value = "healthEvents", key = "#petId + '_' + #eventType + '_' + #status + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<HealthEventResponseDTO> findAll(Long petId, String eventType, String status, Pageable pageable) {
-        Page<HealthEvent> page;
+        Page<HealthEventResponseDTO> page;
 
         if (petId != null) {
-            page = healthEventRepository.findByPetId(petId, pageable);
-        } else if (status != null) {
-            page = healthEventRepository.findByStatusIgnoreCase(status, pageable);
+            page = healthEventRepository.findByPetIdProjected(petId, pageable);
+        } else if (status != null && !status.isBlank()) {
+            page = healthEventRepository.findByStatusProjected(status.toUpperCase(), pageable);
         } else {
-            page = healthEventRepository.findAll(pageable);
+            page = healthEventRepository.findAllProjected(pageable);
         }
-
-        if (eventType != null && !eventType.isBlank() && page.hasContent()) {
-            page = filterByEventType(page, eventType, pageable);
-        }
-
-        return page.map(this::toResponseDTO);
-    }
-
-    private Page<HealthEvent> filterByEventType(Page<HealthEvent> page, String eventType, Pageable pageable) {
-        java.util.List<HealthEvent> filtered = page.getContent().stream()
-                .filter(he -> he.getEventType().name().equalsIgnoreCase(eventType))
-                .collect(java.util.stream.Collectors.toList());
         
-        return new org.springframework.data.domain.PageImpl<>(filtered, pageable, filtered.size());
+        if (eventType != null && !eventType.isBlank() && page.hasContent()) {
+            java.util.List<HealthEventResponseDTO> filtered = page.getContent().stream()
+                    .filter(dto -> dto.getEventType().equalsIgnoreCase(eventType))
+                    .collect(java.util.stream.Collectors.toList());
+            page = new org.springframework.data.domain.PageImpl<>(filtered, pageable, filtered.size());
+        }
+
+        return page;
     }
 
     @Transactional
-    @CacheEvict(value = "healthEvents", key = "#id")
+    @CacheEvict(value = "healthEvents", allEntries = true)
     public HealthEventResponseDTO update(Long id, HealthEventRequestDTO request) {
         HealthEvent healthEvent = healthEventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Evento de Saúde", id));
 
-        String oldStatus = healthEvent.getStatus();
-        String newStatus = request.getStatus();
-
-        if (newStatus != null && !oldStatus.equals(newStatus)) {
-            validateStatusTransition(oldStatus, newStatus);
-            healthEvent.setStatus(newStatus);
+        HealthEventStatus oldStatus = healthEvent.getStatus();
+        
+        if (request.getStatus() != null && !request.getStatus().isBlank()) {
+            HealthEventStatus newStatus;
+            try {
+                newStatus = HealthEventStatus.valueOf(request.getStatus().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Status inválido. Valores permitidos: AGENDADO, REALIZADO, CANCELADO");
+            }
+            
+            if (oldStatus != newStatus) {
+                validateStatusTransition(oldStatus, newStatus);
+                healthEvent.setStatus(newStatus);
+            }
         }
 
         healthEvent.setDescription(request.getDescription());
@@ -132,7 +142,7 @@ public class HealthEventService {
     }
 
     @Transactional
-    @CacheEvict(value = "healthEvents", key = "#id")
+    @CacheEvict(value = "healthEvents", allEntries = true)
     public void delete(Long id) {
         if (!healthEventRepository.existsById(id)) {
             throw new EntityNotFoundException("Evento de Saúde", id);
@@ -140,20 +150,19 @@ public class HealthEventService {
         healthEventRepository.deleteById(id);
     }
 
-    private void validateStatusTransition(String currentStatus, String newStatus) {
-        if (currentStatus.equals(newStatus)) {
+    private void validateStatusTransition(HealthEventStatus currentStatus, HealthEventStatus newStatus) {
+        if (currentStatus == newStatus) {
             return;
         }
 
         boolean isValid = switch (currentStatus) {
-            case STATUS_AGENDADO -> 
-                STATUS_REALIZADO.equals(newStatus) || STATUS_CANCELADO.equals(newStatus);
-            case STATUS_REALIZADO, STATUS_CANCELADO -> false;
-            default -> false;
+            case AGENDADO -> newStatus == HealthEventStatus.REALIZADO || newStatus == HealthEventStatus.CANCELADO;
+            case REALIZADO, CANCELADO -> false;
         };
 
         if (!isValid) {
-            throw new InvalidStatusTransitionException("HealthEvent", currentStatus, newStatus);
+            throw new InvalidStatusTransitionException(
+                    "HealthEvent", currentStatus.name(), newStatus.name());
         }
     }
 
@@ -162,7 +171,7 @@ public class HealthEventService {
                 .id(healthEvent.getId())
                 .description(healthEvent.getDescription())
                 .eventDate(healthEvent.getEventDate())
-                .status(healthEvent.getStatus())
+                .status(healthEvent.getStatus().name())
                 .createdAt(healthEvent.getCreatedAt())
                 .petId(healthEvent.getPet().getId())
                 .petName(healthEvent.getPet().getName())

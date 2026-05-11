@@ -48,33 +48,16 @@ public class PlanService {
         return toResponseDTO(plan);
     }
 
-    public Page<PlanResponseDTO> findAll(Pageable pageable) {
-        return planRepository.findAll(pageable).map(this::toResponseDTO);
-    }
-
+    @Cacheable(value = "plans", key = "#clinicId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<PlanResponseDTO> findAll(Long clinicId, Pageable pageable) {
         if (clinicId != null) {
-            return planRepository.findByClinicId(clinicId, pageable)
-                    .map(this::toResponseDTO);
+            return planRepository.findByClinicIdProjected(clinicId, pageable);
         }
-        return planRepository.findAll(pageable).map(this::toResponseDTO);
-    }
-
-    public Page<PlanResponseDTO> findByName(String name, Pageable pageable) {
-        return planRepository.findByNameContainingIgnoreCase(name, pageable)
-                .map(this::toResponseDTO);
-    }
-
-    public Page<PlanResponseDTO> findByClinicId(Long clinicId, Pageable pageable) {
-        if (!clinicRepository.existsById(clinicId)) {
-            throw new EntityNotFoundException("Clínica", clinicId);
-        }
-        return planRepository.findByClinicId(clinicId, pageable)
-                .map(this::toResponseDTO);
+        return planRepository.findAllProjected(pageable);
     }
 
     @Transactional
-    @CacheEvict(value = "plans", key = "#id")
+    @CacheEvict(value = "plans", allEntries = true)
     public PlanResponseDTO update(Long id, PlanRequestDTO request) {
         Plan plan = planRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Plano", id));
@@ -96,7 +79,7 @@ public class PlanService {
     }
 
     @Transactional
-    @CacheEvict(value = "plans", key = "#id")
+    @CacheEvict(value = "plans", allEntries = true)
     public void delete(Long id) {
         if (!planRepository.existsById(id)) {
             throw new EntityNotFoundException("Plano", id);

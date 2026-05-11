@@ -3,6 +3,7 @@ package br.com.petflow.petflow_api.service;
 import br.com.petflow.petflow_api.dto.CouponRequestDTO;
 import br.com.petflow.petflow_api.dto.CouponResponseDTO;
 import br.com.petflow.petflow_api.entity.Coupon;
+import br.com.petflow.petflow_api.enums.CouponStatus;
 import br.com.petflow.petflow_api.exception.BusinessRuleException;
 import br.com.petflow.petflow_api.exception.DuplicateResourceException;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
@@ -23,10 +24,6 @@ public class CouponService {
 
     private final CouponRepository couponRepository;
 
-    private static final String STATUS_DISPONIVEL = "DISPONIVEL";
-    private static final String STATUS_UTILIZADO = "UTILIZADO";
-    private static final String STATUS_RESGATADO = "RESGATADO";
-
     @Transactional
     @CacheEvict(value = "coupons", allEntries = true)
     public CouponResponseDTO create(CouponRequestDTO request) {
@@ -35,9 +32,18 @@ public class CouponService {
             throw new DuplicateResourceException("Cupom", "código", request.getCode());
         }
 
+        CouponStatus status = CouponStatus.DISPONIVEL;
+        if (request.getStatus() != null && !request.getStatus().isBlank()) {
+            try {
+                status = CouponStatus.valueOf(request.getStatus().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Status inválido. Valores permitidos: DISPONIVEL, RESGATADO, UTILIZADO");
+            }
+        }
+
         Coupon coupon = Coupon.builder()
                 .code(request.getCode())
-                .status(request.getStatus() != null ? request.getStatus() : STATUS_DISPONIVEL)
+                .status(status)
                 .expirationDate(request.getExpirationDate())
                 .discountValue(request.getDiscountValue())
                 .pointsRequired(request.getPointsRequired())
@@ -54,18 +60,26 @@ public class CouponService {
         return toResponseDTO(coupon);
     }
 
+    @Cacheable(value = "coupons", key = "#status + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<CouponResponseDTO> findAll(String status, Pageable pageable) {
-        if (status != null) {
-            return couponRepository.findByStatusIgnoreCase(status, pageable);
+        if (status != null && !status.isBlank()) {
+            return couponRepository.findByStatusIgnoreCase(status.toUpperCase(), pageable);
         }
         return couponRepository.findAllProjected(pageable);
     }
 
     @Transactional
-    @CacheEvict(value = "coupons", key = "#id")
-    public CouponResponseDTO updateStatus(Long id, String newStatus) {
+    @CacheEvict(value = "coupons", allEntries = true)
+    public CouponResponseDTO updateStatus(Long id, String newStatusStr) {
         Coupon coupon = couponRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Cupom", id));
+
+        CouponStatus newStatus;
+        try {
+            newStatus = CouponStatus.valueOf(newStatusStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Status inválido. Valores permitidos: DISPONIVEL, RESGATADO, UTILIZADO");
+        }
 
         validateStatusTransition(coupon.getStatus(), newStatus);
         coupon.setStatus(newStatus);
@@ -75,7 +89,7 @@ public class CouponService {
     }
 
     @Transactional
-    @CacheEvict(value = "coupons", key = "#id")
+    @CacheEvict(value = "coupons", allEntries = true)
     public void delete(Long id) {
         if (!couponRepository.existsById(id)) {
             throw new EntityNotFoundException("Cupom", id);
@@ -83,23 +97,23 @@ public class CouponService {
         couponRepository.deleteById(id);
     }
 
-    private void validateStatusTransition(String currentStatus, String newStatus) {
-        if (currentStatus.equals(newStatus)) {
+    private void validateStatusTransition(CouponStatus currentStatus, CouponStatus newStatus) {
+        if (currentStatus == newStatus) {
             return;
         }
 
-        if (!STATUS_DISPONIVEL.equals(currentStatus)) {
+        if (currentStatus != CouponStatus.DISPONIVEL) {
             throw new BusinessRuleException(
                     String.format("Cupom com status '%s' não pode ser alterado para '%s'", 
-                            currentStatus, newStatus),
+                            currentStatus.name(), newStatus.name()),
                     "INVALID_COUPON_STATUS_TRANSITION"
             );
         }
 
-        if (!STATUS_UTILIZADO.equals(newStatus) && !STATUS_RESGATADO.equals(newStatus)) {
+        if (newStatus != CouponStatus.UTILIZADO && newStatus != CouponStatus.RESGATADO) {
             throw new BusinessRuleException(
                     String.format("Status inválido para cupom: %s. Transições permitidas: %s, %s", 
-                            newStatus, STATUS_UTILIZADO, STATUS_RESGATADO),
+                            newStatus.name(), CouponStatus.UTILIZADO.name(), CouponStatus.RESGATADO.name()),
                     "INVALID_COUPON_STATUS_TRANSITION"
             );
         }
@@ -109,7 +123,7 @@ public class CouponService {
         return CouponResponseDTO.builder()
                 .id(coupon.getId())
                 .code(coupon.getCode())
-                .status(coupon.getStatus())
+                .status(coupon.getStatus().name())
                 .expirationDate(coupon.getExpirationDate())
                 .discountValue(coupon.getDiscountValue())
                 .pointsRequired(coupon.getPointsRequired())

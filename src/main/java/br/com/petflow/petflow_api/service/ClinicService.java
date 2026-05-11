@@ -2,12 +2,10 @@ package br.com.petflow.petflow_api.service;
 
 import br.com.petflow.petflow_api.dto.ClinicRequestDTO;
 import br.com.petflow.petflow_api.dto.ClinicResponseDTO;
-import br.com.petflow.petflow_api.dto.PlanResponseDTO;
 import br.com.petflow.petflow_api.entity.Clinic;
 import br.com.petflow.petflow_api.exception.DuplicateResourceException;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
 import br.com.petflow.petflow_api.repository.ClinicRepository;
-import br.com.petflow.petflow_api.repository.PlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -21,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ClinicService {
 
     private final ClinicRepository clinicRepository;
-    private final PlanRepository planRepository;
 
     @Transactional
     @CacheEvict(value = "clinics", allEntries = true)
@@ -48,17 +45,16 @@ public class ClinicService {
         return toResponseDTO(clinic);
     }
 
-    public Page<ClinicResponseDTO> findAll(Pageable pageable) {
-        return clinicRepository.findAll(pageable).map(this::toResponseDTO);
-    }
-
-    public Page<ClinicResponseDTO> findByName(String name, Pageable pageable) {
-        return clinicRepository.findByNameContainingIgnoreCase(name, pageable)
-                .map(this::toResponseDTO);
+    @Cacheable(value = "clinics", key = "#name + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
+    public Page<ClinicResponseDTO> findAll(String name, Pageable pageable) {
+        if (name != null && !name.isBlank()) {
+            return clinicRepository.findByNameProjected(name, pageable);
+        }
+        return clinicRepository.findAllProjected(pageable);
     }
 
     @Transactional
-    @CacheEvict(value = "clinics", key = "#id")
+    @CacheEvict(value = "clinics", allEntries = true)
     public ClinicResponseDTO update(Long id, ClinicRequestDTO request) {
         Clinic clinic = clinicRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Clínica", id));
@@ -78,7 +74,7 @@ public class ClinicService {
     }
 
     @Transactional
-    @CacheEvict(value = "clinics", key = "#id")
+    @CacheEvict(value = "clinics", allEntries = true)
     public void delete(Long id) {
         if (!clinicRepository.existsById(id)) {
             throw new EntityNotFoundException("Clínica", id);
@@ -94,19 +90,6 @@ public class ClinicService {
                 .phone(clinic.getPhone())
                 .cnpj(clinic.getCnpj())
                 .createdAt(clinic.getCreatedAt())
-                .build();
-    }
-
-    private PlanResponseDTO toPlanResponseDTO(br.com.petflow.petflow_api.entity.Plan plan) {
-        return PlanResponseDTO.builder()
-                .id(plan.getId())
-                .name(plan.getName())
-                .description(plan.getDescription())
-                .price(plan.getPrice())
-                .durationDays(plan.getDurationDays())
-                .pointsPerEvent(plan.getPointsPerEvent())
-                .clinicId(plan.getClinic().getId())
-                .clinicName(plan.getClinic().getName())
                 .build();
     }
 }
