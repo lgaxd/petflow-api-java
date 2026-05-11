@@ -3,37 +3,39 @@
 [![Java](https://img.shields.io/badge/Java-21-blue.svg)](https://adoptium.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.6-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Oracle](https://img.shields.io/badge/Oracle-Database-red.svg)](https://www.oracle.com/database/)
+[![Swagger](https://img.shields.io/badge/Swagger-OpenAPI-85EA2D.svg)](https://swagger.io/)
 
 ## 📋 Sumário
 
 - [Sobre o Projeto](#-sobre-o-projeto)
-- [Desenvolvedores](#-desenvolvedores)
+- [Equipe](#-equipe)
 - [Objetivo do Challenge](#-objetivo-do-challenge)
 - [Tecnologias Utilizadas](#️-tecnologias-utilizadas)
 - [Arquitetura do Projeto](#-arquitetura-do-projeto)
-- [Funcionalidades Implementadas](#-funcionalidades-implementadas)
-- [Banco de Dados](#️-banco-de-dados)
-- [Documentação Swagger](#-documentação-swagger)
-- [Configuração do Projeto](#️-configuração-do-projeto)
-- [Testes da API](#-testes-da-api)
+- [Requisitos Técnicos Atendidos](#-requisitos-técnicos-atendidos)
+- [Visão de Domínio](#-vis%C3%A3o-de-dom%C3%ADnio)
 - [Endpoints da API](#-endpoints-da-api)
-- [Conceitos Aplicados](#-conceitos-aplicados)
-- [Documentação Complementar](#-documentação-complementar)
+- [Banco de Dados](#️-banco-de-dados)
+- [Swagger / OpenAPI](#-swagger--openapi)
+- [Como Executar](#-como-executar)
+- [Testes da API](#-testes-da-api)
+- [Documentação Complementar](#-documenta%C3%A7%C3%A3o-complementar)
+- [Observações Finais](#-observa%C3%A7%C3%B5es-finais)
 
 ## 📌 Sobre o Projeto
 
-O **PetFlow** é uma API REST desenvolvida em Java com Spring Boot para gerenciamento de saúde preventiva pet. A plataforma oferece um ecossistema completo que conecta tutores, pets, clínicas veterinárias, planos de saúde, sistema de gamificação (pontuação e recompensas), cupons de desconto e análise de risco animal.
+O **PetFlow** é uma API REST desenvolvida em Java com Spring Boot para gerenciamento de saúde preventiva pet. A solução centraliza o relacionamento entre tutores, pets, clínicas veterinárias, planos, assinaturas, eventos de saúde e cupons de resgate.
 
-O objetivo do projeto é centralizar o acompanhamento da saúde dos pets, facilitar a comunicação entre tutores e clínicas veterinárias e incentivar ações preventivas através de um sistema de recompensas.
+O foco do projeto é demonstrar uma aplicação backend organizada em camadas, com persistência relacional, validação de dados, documentação automática e boas práticas de APIs RESTful.
 
-## 👨‍💻 Desenvolvedores
+## 👥 Equipe
 
-| Nome                          | RM     |
-|-------------------------------|--------|
-| Lucas Grillo Alcântara        | 561413 |
+| Nome | RM |
+|---|---:|
+| Lucas Grillo Alcântara | 561413 |
 | Pietro Ferreira Gomes Abrahamian | 561469 |
-| Pedro Peres Benitez           | 561792 |
-| Lucca Ramos Mussumecci        | 562027 |
+| Pedro Peres Benitez | 561792 |
+| Lucca Ramos Mussumecci | 562027 |
 
 **Turma:** 2TDSPX
 
@@ -41,46 +43,48 @@ O objetivo do projeto é centralizar o acompanhamento da saúde dos pets, facili
 
 Desenvolver uma solução utilizando Java e Spring Boot capaz de:
 
-- Persistir dados em banco relacional
-- Gerenciar informações de saúde pet
-- Implementar boas práticas de APIs REST
-- Utilizar Programação Orientada a Objetos
-- Aplicar conceitos de arquitetura em camadas
-- Utilizar JPA e relacionamentos entre entidades
-- Garantir validações e tratamento de exceções
-- Disponibilizar documentação da API
+- persistir dados em banco relacional;
+- gerenciar informações de saúde pet;
+- aplicar conceitos de Programação Orientada a Objetos;
+- utilizar JPA e relacionamentos entre entidades;
+- garantir validações e tratamento de exceções;
+- respeitar os fundamentos de APIs REST;
+- disponibilizar documentação da API;
+- atender aos requisitos técnicos da disciplina Java Advanced.
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Java 21**
-- **Spring Boot**
-- **Spring Data JPA**
-- **Spring Validation**
-- **Spring Cache**
-- **Oracle Database**
-- **Lombok**
-- **Swagger / OpenAPI**
-- **Maven**
+- Java 21
+- Spring Boot
+- Spring Data JPA
+- Spring Validation
+- Spring Cache
+- Oracle Database
+- H2 Database
+- Lombok
+- Swagger / OpenAPI
+- Maven
 
 ## 🧱 Arquitetura do Projeto
 
-O projeto segue uma arquitetura em camadas bem definida:
+O projeto segue uma arquitetura em camadas:
 
-```
+```text
 src/main/java/br/com/petflow/petflow_api/
-├── config/          # Configurações do Swagger
-├── controller/      # Controladores REST
-├── dto/             # Data Transfer Objects
-├── entity/          # Entidades JPA
-├── exception/       # Tratamento de exceções
-├── repository/      # Repositórios de dados
-├── service/         # Lógica de negócio
-└── PetflowApiApplication.java  # Classe principal
+├── config/
+├── controller/
+├── dto/
+├── entity/
+├── enums/
+├── exception/
+├── repository/
+├── service/
+└── PetflowApiApplication.java
 ```
 
-## 📚 Funcionalidades Implementadas
+## ✅ Requisitos Técnicos Atendidos
 
-### ✅ Requisitos Técnicos Atendidos
+A solução contempla os requisitos obrigatórios da disciplina:
 
 - Bean Validation
 - Paginação de resultados
@@ -89,297 +93,186 @@ src/main/java/br/com/petflow/petflow_api/
 - Cache com `@Cacheable`
 - Tratamento global de exceções
 - Utilização de DTOs
-- Documentação Swagger/OpenAPI
+- Documentação com Swagger/OpenAPI
 - Relacionamentos JPA
 - API RESTful
 
-### 🔥 Funcionalidades da Plataforma
+---
 
-#### 👤 Tutores
-- Cadastro de tutores
-- Atualização de dados
-- Histórico de pets
-- Histórico de pontos
-- Histórico de resgates
+## 🧠 Visão de Domínio
 
-#### 🐾 Pets
-- Cadastro de pets
-- Histórico médico
-- Histórico de eventos
-- Histórico de risco
-- Controle de assinaturas
+### 👤 Tutores
+Gerencia os responsáveis pelos pets.
 
-#### 🏥 Clínicas
-- Cadastro de clínicas
-- Gerenciamento de planos
-- Controle de descontos parceiros
+### 🐾 Pets
+Armazena os dados principais dos animais cadastrados e seu vínculo com o tutor.
 
-#### ❤️ Sistema de Saúde Preventiva
-- Registro de eventos de saúde
-- Tipos de eventos
-- Scores de risco
-- Níveis de risco
+### 🏥 Clínicas
+Representa as clínicas veterinárias parceiras do sistema.
 
-#### 🎁 Sistema de Recompensas
-- Pontuação por ações
-- Resgate de cupons
-- Cupons de desconto
-- Templates de cupons
+### 📄 Planos
+Controla os planos de saúde/prevenção ligados às clínicas.
+
+### 📅 Assinaturas
+Registra a contratação de planos por pets.
+
+### ❤️ Eventos de Saúde
+Armazena o histórico clínico e preventivo dos pets.
+
+### 🎟️ Cupons
+Gerencia cupons emitidos para resgate.
+
+### 🎫 Resgates
+Registra o uso de cupons pelos tutores.
+
+---
+
+## 📦 Endpoints da API
+
+### 👤 Tutores
+
+| Método | Endpoint |
+| --- | --- |
+| GET | `/tutors` |
+| GET | `/tutors/{id}` |
+| POST | `/tutors` |
+| PUT | `/tutors/{id}` |
+| DELETE | `/tutors/{id}` |
+
+### 🐾 Pets
+
+| Método | Endpoint |
+| --- | --- |
+| GET | `/pets` |
+| GET | `/pets/{id}` |
+| POST | `/pets` |
+| PUT | `/pets/{id}` |
+| DELETE | `/pets/{id}` |
+
+### 🏥 Clínicas
+
+| Método | Endpoint |
+| --- | --- |
+| GET | `/clinics` |
+| GET | `/clinics/{id}` |
+| POST | `/clinics` |
+| PUT | `/clinics/{id}` |
+| DELETE | `/clinics/{id}` |
+
+### 📄 Planos
+
+| Método | Endpoint |
+| --- | --- |
+| GET | `/plans` |
+| GET | `/plans/{id}` |
+| POST | `/plans` |
+| PUT | `/plans/{id}` |
+| DELETE | `/plans/{id}` |
+
+### 📅 Assinaturas
+
+| Método | Endpoint |
+| --- | --- |
+| GET | `/subscriptions` |
+| GET | `/subscriptions/{id}` |
+| POST | `/subscriptions` |
+| PUT | `/subscriptions/{id}` |
+| DELETE | `/subscriptions/{id}` |
+
+### ❤️ Eventos de Saúde
+
+| Método | Endpoint |
+| --- | --- |
+| GET | `/health-events` |
+| GET | `/health-events/{id}` |
+| POST | `/health-events` |
+| PUT | `/health-events/{id}` |
+| DELETE | `/health-events/{id}` |
+
+### 🎟️ Cupons
+
+| Método | Endpoint |
+| --- | --- |
+| GET | `/coupons` |
+| GET | `/coupons/{id}` |
+| POST | `/coupons` |
+| PUT | `/coupons/{id}` |
+| DELETE | `/coupons/{id}` |
+
+### 🎫 Resgates
+
+| Método | Endpoint |
+| --- | --- |
+| GET | `/redeems` |
+| GET | `/redeems/{id}` |
+| POST | `/redeems` |
+
+---
 
 ## 🗃️ Banco de Dados
 
-O projeto utiliza:
+O projeto utiliza banco relacional com suporte a:
 
-- **Oracle Database** para persistência relacional em produção
+- Oracle Database
+- H2 Database para testes e desenvolvimento local
 
-Os relacionamentos foram implementados utilizando anotações JPA:
+O modelo foi estruturado com JPA e relacionamentos entre entidades para garantir integridade e organização dos dados.
 
-- `@OneToMany`
-- `@ManyToOne`
-- `@OneToOne`
-- `@ManyToMany`
+---
 
-## 📖 Documentação Swagger
+## 📖 Swagger / OpenAPI
 
-A documentação interativa da API pode ser acessada em:
+A documentação interativa da API está disponível em:
 
-```
+```text
 /swagger-ui/index.html
 ```
 
-## ⚙️ Configuração do Projeto
+---
+
+## 🚀 Como Executar
 
 ### Pré-requisitos
 
 - Java 21
 - Maven 3.6+
 
-### Instalação
+### Execução local
 
-1. **Clonar o repositório:**
-   ```bash
-   git clone https://github.com/seu-repositorio/petflow-api.git
-   ```
+```bash
+./mvnw spring-boot:run
+```
 
-2. **Entrar na pasta do projeto:**
-   ```bash
-   cd petflow-api
-   ```
-
-3. **Executar o projeto:**
-   ```bash
-   ./mvnw spring-boot:run
-   ```
-
-### Configuração do `application.properties`
-
-#### Para Oracle Database
-Configure as variáveis de ambiente:
-- `DATABASE_URL`
-- `DATABASE_USERNAME`
-- `DATABASE_PASSWORD`
+> Antes de executar, ajuste as credenciais e a URL do banco no arquivo de configuração da aplicação conforme o ambiente utilizado.
 
 ## 🧪 Testes da API
 
-Os endpoints foram testados utilizando:
+Os endpoints podem ser testados com Postman, Insomnia ou outra ferramenta de API.
 
-- **Postman**
-- **Swagger UI**
-
-Os arquivos de coleção das requisições devem ser disponibilizados na pasta `/documentos`.
-
-## 📦 Endpoints da API
-
-### 🐾 Pets
-
-| Método  | Endpoint                  | Descrição              |
-|---------|---------------------------|------------------------|
-| GET     | `/pets`                   | Listar pets            |
-| GET     | `/pets/{id}`              | Buscar pet por ID      |
-| POST    | `/pets`                   | Cadastrar pet          |
-| PUT     | `/pets/{id}`              | Atualizar pet          |
-| DELETE  | `/pets/{id}`              | Remover pet            |
-| GET     | `/pets/{id}/subscriptions` | Histórico de assinaturas |
-| GET     | `/pets/{id}/risk-scores`  | Histórico de risco     |
-| GET     | `/pets/{id}/health-events`| Histórico de eventos   |
-
-### 👤 Tutores
-
-| Método  | Endpoint              | Descrição              |
-|---------|-----------------------|------------------------|
-| GET     | `/tutors`             | Listar tutores         |
-| GET     | `/tutors/{id}`        | Buscar tutor por ID    |
-| POST    | `/tutors`             | Cadastrar tutor        |
-| PUT     | `/tutors/{id}`        | Atualizar tutor        |
-| DELETE  | `/tutors/{id}`        | Remover tutor          |
-| GET     | `/tutors/{id}/redeems`| Histórico de resgates  |
-| GET     | `/tutors/{id}/points` | Histórico de pontos    |
-| GET     | `/tutors/{id}/pets`   | Pets do tutor          |
-
-### 🏥 Clínicas
-
-| Método  | Endpoint              | Descrição              |
-|---------|-----------------------|------------------------|
-| GET     | `/clinics`            | Listar clínicas        |
-| GET     | `/clinics/{id}`       | Buscar clínica por ID  |
-| POST    | `/clinics`            | Cadastrar clínica      |
-| PUT     | `/clinics/{id}`       | Atualizar clínica      |
-| DELETE  | `/clinics/{id}`       | Remover clínica        |
-| GET     | `/clinics/{id}/plans` | Planos da clínica      |
-
-### 📄 Planos
-
-| Método  | Endpoint      | Descrição          |
-|---------|---------------|--------------------|
-| GET     | `/plans`      | Listar planos      |
-| GET     | `/plans/{id}` | Buscar plano por ID|
-| POST    | `/plans`      | Criar plano        |
-| PUT     | `/plans/{id}` | Atualizar plano    |
-| DELETE  | `/plans/{id}` | Remover plano      |
-
-### ❤️ Eventos de Saúde
-
-| Método  | Endpoint              | Descrição                  |
-|---------|-----------------------|----------------------------|
-| GET     | `/health-events`      | Listar eventos de saúde    |
-| GET     | `/health-events/{id}` | Buscar evento por ID       |
-| POST    | `/health-events`      | Criar evento de saúde      |
-| PUT     | `/health-events/{id}` | Atualizar evento de saúde  |
-| DELETE  | `/health-events/{id}` | Remover evento de saúde    |
-
-### ⚠️ Scores de Risco
-
-| Método  | Endpoint              | Descrição              |
-|---------|-----------------------|------------------------|
-| GET     | `/risk-scores`        | Listar scores de risco |
-| GET     | `/risk-scores/{id}`   | Buscar score por ID    |
-| POST    | `/risk-scores`        | Criar score de risco   |
-
-### 📊 Níveis de Risco
-
-| Método  | Endpoint                      | Descrição                  |
-|---------|-------------------------------|----------------------------|
-| GET     | `/risk-levels`                | Listar níveis de risco     |
-| GET     | `/risk-levels/{id}`           | Buscar nível por ID        |
-| POST    | `/risk-levels`                | Criar nível de risco       |
-| PUT     | `/risk-levels/{id}`           | Atualizar nível de risco   |
-| DELETE  | `/risk-levels/{id}`           | Remover nível de risco     |
-| GET     | `/risk-levels/search/name`    | Buscar por nome            |
-
-### 🎟️ Cupons
-
-| Método  | Endpoint          | Descrição          |
-|---------|-------------------|--------------------|
-| GET     | `/coupons`        | Listar cupons      |
-| GET     | `/coupons/{id}`   | Buscar cupom por ID|
-| POST    | `/coupons`        | Criar cupom        |
-| PUT     | `/coupons/{id}`   | Atualizar cupom    |
-| DELETE  | `/coupons/{id}`   | Remover cupom      |
-
-### 🎁 Templates de Cupom
-
-| Método  | Endpoint                  | Descrição                  |
-|---------|---------------------------|----------------------------|
-| GET     | `/coupon-templates`       | Listar templates de cupom  |
-| GET     | `/coupon-templates/{id}`  | Buscar template por ID     |
-| POST    | `/coupon-templates`       | Criar template de cupom    |
-| PUT     | `/coupon-templates/{id}`  | Atualizar template de cupom|
-| DELETE  | `/coupon-templates/{id}`  | Remover template de cupom  |
-
-### 🪙 Pontos de Recompensa
-
-| Método  | Endpoint              | Descrição                  |
-|---------|-----------------------|----------------------------|
-| GET     | `/reward-points`      | Listar pontos de recompensa|
-| GET     | `/reward-points/{id}` | Buscar ponto por ID        |
-| POST    | `/reward-points`      | Criar ponto de recompensa  |
-| PUT     | `/reward-points/{id}` | Atualizar ponto de recompensa|
-| DELETE  | `/reward-points/{id}` | Remover ponto de recompensa|
-
-### ⭐ Ações de Recompensa
-
-| Método  | Endpoint              | Descrição                  |
-|---------|-----------------------|----------------------------|
-| GET     | `/reward-actions`     | Listar ações de recompensa |
-| GET     | `/reward-actions/{id}`| Buscar ação por ID         |
-| POST    | `/reward-actions`     | Criar ação de recompensa   |
-| PUT     | `/reward-actions/{id}`| Atualizar ação de recompensa|
-| DELETE  | `/reward-actions/{id}`| Remover ação de recompensa |
-
-### 🎫 Resgates
-
-| Método  | Endpoint      | Descrição      |
-|---------|---------------|----------------|
-| GET     | `/redeems`    | Listar resgates |
-| GET     | `/redeems/{id}`| Buscar resgate por ID|
-| POST    | `/redeems`    | Criar resgate   |
-
-### 🤝 Descontos de Parceiros
-
-| Método  | Endpoint                              | Descrição                      |
-|---------|---------------------------------------|--------------------------------|
-| GET     | `/partner-discounts`                  | Listar descontos de parceiros  |
-| GET     | `/partner-discounts/{id}`             | Buscar desconto por ID         |
-| POST    | `/partner-discounts`                  | Criar desconto de parceiro     |
-| PUT     | `/partner-discounts/{id}`             | Atualizar desconto de parceiro |
-| DELETE  | `/partner-discounts/{id}`             | Remover desconto de parceiro   |
-| GET     | `/partner-discounts/search/category`  | Buscar por categoria           |
-| GET     | `/partner-discounts/by-clinic/{clinicId}` | Descontos por clínica         |
-
-### 🧬 Espécies
-
-| Método  | Endpoint      | Descrição          |
-|---------|---------------|--------------------|
-| GET     | `/species`    | Listar espécies    |
-| GET     | `/species/{id}`| Buscar espécie por ID|
-| POST    | `/species`    | Criar espécie      |
-| PUT     | `/species/{id}`| Atualizar espécie  |
-| DELETE  | `/species/{id}`| Remover espécie    |
-
-### 📅 Assinaturas
-
-| Método  | Endpoint          | Descrição          |
-|---------|-------------------|--------------------|
-| GET     | `/subscriptions`  | Listar assinaturas |
-| GET     | `/subscriptions/{id}`| Buscar assinatura por ID|
-| POST    | `/subscriptions`  | Criar assinatura   |
-| PUT     | `/subscriptions/{id}`| Atualizar assinatura|
-| DELETE  | `/subscriptions/{id}`| Remover assinatura |
-
-### 📌 Tipos de Evento
-
-| Método  | Endpoint          | Descrição              |
-|---------|-------------------|------------------------|
-| GET     | `/event-types`    | Listar tipos de evento |
-| GET     | `/event-types/{id}`| Buscar tipo por ID     |
-| POST    | `/event-types`    | Criar tipo de evento   |
-| PUT     | `/event-types/{id}`| Atualizar tipo de evento|
-| DELETE  | `/event-types/{id}`| Remover tipo de evento |
-
-## 🧠 Conceitos Aplicados
-
-- Programação Orientada a Objetos
-- APIs RESTful
-- DTO Pattern
-- Repository Pattern
-- Service Layer Pattern
-- Tratamento global de exceções
-- Bean Validation
-- Cache de requisições
-- Relacionamentos JPA
-- Paginação e ordenação
-- Consultas parametrizadas
+- Validar chamados CRUD para cada recurso
+- Verificar regras de negócio e mensagens de erro
+- Testar paginação e ordenação
+- Checar fluxo de cupons e resgates
 
 ## 📄 Documentação Complementar
 
-O projeto também contém:
+A entrega final deve incluir:
 
-- **DER (Diagrama Entidade Relacionamento)**
-- **Diagrama de Classes**
-- **Cronograma do projeto**
-- **Coleção Postman**
-- **Evidências de testes**
+- coleção exportada das requisições
+- exemplos de payloads
+- evidências de resposta dos endpoints
+- cronograma de desenvolvimento
+- diagrama de classes
+- DER
 
----
+## 🧭 Observações Finais
 
-*Desenvolvido como parte do Challenge 2TDSPX - FIAP*
+Esta versão do PetFlow foi organizada para manter foco em:
+
+- consistência arquitetural
+- clareza de domínio
+- aderência aos requisitos técnicos
+- manutenção mais simples
+- apresentação objetiva do projeto
+
+Desenvolvido como parte do Challenge 2TDSPX - FIAP
