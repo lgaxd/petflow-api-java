@@ -25,21 +25,15 @@ public class Pet {
     @Column(name = "ID")
     private Long id;
  
-    @NotBlank(message = "O nome do pet é obrigatório")
-    @Size(max = 100, message = "O nome deve ter no máximo 100 caracteres")
     @Column(name = "NAME", length = 100, nullable = false)
     private String name;
  
-    @Size(max = 50, message = "A raça deve ter no máximo 50 caracteres")
     @Column(name = "BREED", length = 50)
     private String breed;
- 
-    @Past(message = "A data de nascimento deve ser uma data passada")
+
     @Column(name = "BIRTH_DATE")
     private LocalDate birthDate;
  
-    @DecimalMin(value = "0.0", inclusive = false, message = "O peso deve ser positivo")
-    @Digits(integer = 3, fraction = 2, message = "Formato de peso inválido (máximo 5 dígitos, 2 decimais)")
     @Column(name = "WEIGHT", precision = 5, scale = 2)
     private BigDecimal weight;
  

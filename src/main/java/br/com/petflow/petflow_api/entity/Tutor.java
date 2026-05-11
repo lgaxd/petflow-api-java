@@ -20,22 +20,19 @@ import java.util.List;
 @EqualsAndHashCode(of = "id")
 @ToString(exclude = {"pets", "redeems"})
 public class Tutor {
-    @Id
+     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank @Size(max = 100)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @NotBlank @Email @Size(max = 100)
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 100)
     private String email;
 
-    @Size(max = 20)
+    @Column(length = 20)
     private String phone;
 
-    @NotBlank
     @Column(name = "PASSWORD_HASH", nullable = false)
     private String passwordHash;
 

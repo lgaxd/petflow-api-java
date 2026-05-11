@@ -21,8 +21,6 @@ public class Redeem {
     @Column(name = "ID")
     private Long id;
  
-    @NotNull(message = "Os pontos utilizados são obrigatórios")
-    @Positive(message = "Os pontos utilizados devem ser positivos")
     @Column(name = "POINTS_USED", nullable = false)
     private Integer pointsUsed;
  
@@ -31,12 +29,10 @@ public class Redeem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TUTOR_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_REDEEM_TUTOR"))
-    @NotNull(message = "O tutor é obrigatório")
     private Tutor tutor;
  
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COUPON_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_REDEEM_COUPON"))
-    @NotNull(message = "O cupom é obrigatório")
     private Coupon coupon;
 
     @PrePersist

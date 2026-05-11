@@ -22,7 +22,6 @@ public class Subscription {
     @Column(name = "ID")
     private Long id;
  
-    @NotNull(message = "A data de início é obrigatória")
     @Column(name = "START_DATE", nullable = false)
     private LocalDate startDate;
  
@@ -38,12 +37,10 @@ public class Subscription {
  
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PET_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_SUB_PET"))
-    @NotNull(message = "O pet é obrigatório")
     private Pet pet;
  
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PLAN_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_SUB_PLAN"))
-    @NotNull(message = "O plano é obrigatório")
     private Plan plan;
 
     @PrePersist

@@ -22,19 +22,16 @@ public class HealthEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
- 
-    @Size(max = 200, message = "A descrição deve ter no máximo 200 caracteres")
+
     @Column(name = "DESCRIPTION", length = 200)
     private String description;
- 
-    @NotNull(message = "A data do evento é obrigatória")
+
     @Column(name = "EVENT_DATE", nullable = false)
     private LocalDate eventDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private HealthEventStatus status;
-
  
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;
