@@ -24,56 +24,26 @@ public class PlanController {
     private final PlanService planService;
 
     @PostMapping
-    @Operation(summary = "Criar um novo plano")
+    @Operation(summary = "Criar novo plano")
     public ResponseEntity<PlanResponseDTO> create(@Valid @RequestBody PlanRequestDTO request) {
         PlanResponseDTO response = planService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping
+    @Operation(summary = "Listar planos com filtro opcional por clínica")
+    public ResponseEntity<Page<PlanResponseDTO>> findAll(
+            @RequestParam(required = false) Long clinicId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
+        return ResponseEntity.ok(planService.findAll(clinicId, pageable));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Buscar plano por ID")
     public ResponseEntity<PlanResponseDTO> findById(@PathVariable Long id) {
-        PlanResponseDTO response = planService.findById(id);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping
-    @Operation(summary = "Listar todos os planos com paginação")
-    public ResponseEntity<Page<PlanResponseDTO>> findAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "name") String sortBy,
-            @RequestParam(defaultValue = "asc") String direction) {
-        
-        Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-        
-        Page<PlanResponseDTO> response = planService.findAll(pageable);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/search/name")
-    @Operation(summary = "Buscar planos por nome")
-    public ResponseEntity<Page<PlanResponseDTO>> findByName(
-            @RequestParam String name,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
-        Page<PlanResponseDTO> response = planService.findByName(name, pageable);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/by-clinic/{clinicId}")
-    @Operation(summary = "Buscar planos por ID da clínica")
-    public ResponseEntity<Page<PlanResponseDTO>> findByClinicId(
-            @PathVariable Long clinicId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
-        Page<PlanResponseDTO> response = planService.findByClinicId(clinicId, pageable);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(planService.findById(id));
     }
 
     @PutMapping("/{id}")
@@ -81,12 +51,11 @@ public class PlanController {
     public ResponseEntity<PlanResponseDTO> update(
             @PathVariable Long id,
             @Valid @RequestBody PlanRequestDTO request) {
-        PlanResponseDTO response = planService.update(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(planService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Deletar plano")
+    @Operation(summary = "Remover plano")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         planService.delete(id);
         return ResponseEntity.noContent().build();

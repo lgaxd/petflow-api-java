@@ -18,73 +18,46 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/subscriptions")
 @RequiredArgsConstructor
-@Tag(name = "Assinaturas", description = "Endpoints para gerenciamento de assinaturas de planos")
+@Tag(name = "Assinaturas", description = "Endpoints para gerenciamento de assinaturas")
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
 
     @PostMapping
-    @Operation(summary = "Criar uma nova assinatura")
+    @Operation(summary = "Criar nova assinatura")
     public ResponseEntity<SubscriptionResponseDTO> create(@Valid @RequestBody SubscriptionRequestDTO request) {
         SubscriptionResponseDTO response = subscriptionService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping
+    @Operation(summary = "Listar assinaturas com filtros")
+    public ResponseEntity<Page<SubscriptionResponseDTO>> findAll(
+            @RequestParam(required = false) Long petId,
+            @RequestParam(required = false) Long planId,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return ResponseEntity.ok(subscriptionService.findAll(petId, planId, status, pageable));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Buscar assinatura por ID")
     public ResponseEntity<SubscriptionResponseDTO> findById(@PathVariable Long id) {
-        SubscriptionResponseDTO response = subscriptionService.findById(id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(subscriptionService.findById(id));
     }
 
-    @GetMapping
-    @Operation(summary = "Listar todas as assinaturas com paginação")
-    public ResponseEntity<Page<SubscriptionResponseDTO>> findAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction) {
-        
-        Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-        
-        Page<SubscriptionResponseDTO> response = subscriptionService.findAll(pageable);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/search/status")
-    @Operation(summary = "Buscar assinaturas por status")
-    public ResponseEntity<Page<SubscriptionResponseDTO>> findByStatus(
-            @RequestParam String status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<SubscriptionResponseDTO> response = subscriptionService.findByStatus(status, pageable);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/by-pet/{petId}")
-    @Operation(summary = "Buscar assinaturas por ID do pet")
-    public ResponseEntity<Page<SubscriptionResponseDTO>> findByPetId(
-            @PathVariable Long petId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<SubscriptionResponseDTO> response = subscriptionService.findByPetId(petId, pageable);
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/{id}/cancel")
-    @Operation(summary = "Cancelar assinatura")
-    public ResponseEntity<SubscriptionResponseDTO> cancel(@PathVariable Long id) {
-        SubscriptionResponseDTO response = subscriptionService.cancel(id);
-        return ResponseEntity.ok(response);
+    @PutMapping("/{id}")
+    @Operation(summary = "Atualizar status da assinatura (ATIVO → ENCERRADO)")
+    public ResponseEntity<SubscriptionResponseDTO> updateStatus(
+            @PathVariable Long id,
+            @RequestParam String status) {
+        return ResponseEntity.ok(subscriptionService.updateStatus(id, status));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Deletar assinatura")
+    @Operation(summary = "Remover assinatura")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         subscriptionService.delete(id);
         return ResponseEntity.noContent().build();

@@ -24,81 +24,69 @@ public class PetController {
     private final PetService petService;
 
     @PostMapping
-    @Operation(summary = "Criar um novo pet")
+    @Operation(summary = "Cadastrar novo pet")
     public ResponseEntity<PetResponseDTO> create(@Valid @RequestBody PetRequestDTO request) {
         PetResponseDTO response = petService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping
+    @Operation(summary = "Listar todos os pets com filtros opcionais")
+    public ResponseEntity<Page<PetResponseDTO>> findAll(
+            @RequestParam(required = false) Long tutorId,
+            @RequestParam(required = false) Long speciesId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
+        return ResponseEntity.ok(petService.findAll(tutorId, speciesId, pageable));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Buscar pet por ID")
     public ResponseEntity<PetResponseDTO> findById(@PathVariable Long id) {
-        PetResponseDTO response = petService.findById(id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(petService.findById(id));
     }
 
-    @GetMapping
-    @Operation(summary = "Listar todos os pets com paginação")
-    public ResponseEntity<Page<PetResponseDTO>> findAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "name") String sortBy,
-            @RequestParam(defaultValue = "asc") String direction) {
-        
-        Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-        
-        Page<PetResponseDTO> response = petService.findAll(pageable);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/search/name")
-    @Operation(summary = "Buscar pets por nome")
-    public ResponseEntity<Page<PetResponseDTO>> findByName(
-            @RequestParam String name,
+    @GetMapping("/{id}/health-events")
+    @Operation(summary = "Histórico de eventos de saúde do pet")
+    public ResponseEntity<Page<HealthEventResponseDTO>> findHealthEventsByPetId(
+            @PathVariable Long id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
-        Page<PetResponseDTO> response = petService.findByName(name, pageable);
-        return ResponseEntity.ok(response);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventDate"));
+        return ResponseEntity.ok(petService.findHealthEventsByPetId(id, pageable));
     }
 
-    @GetMapping("/by-tutor/{tutorId}")
-    @Operation(summary = "Buscar pets por ID do tutor")
-    public ResponseEntity<Page<PetResponseDTO>> findByTutorId(
-            @PathVariable Long tutorId,
+    @GetMapping("/{id}/risk-scores")
+    @Operation(summary = "Histórico de scores de risco do pet")
+    public ResponseEntity<Page<RiskScoreResponseDTO>> findRiskScoresByPetId(
+            @PathVariable Long id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
-        Page<PetResponseDTO> response = petService.findByTutorId(tutorId, pageable);
-        return ResponseEntity.ok(response);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "calculatedAt"));
+        return ResponseEntity.ok(petService.findRiskScoresByPetId(id, pageable));
     }
 
-    @GetMapping("/by-species/{speciesId}")
-    @Operation(summary = "Buscar pets por ID da espécie")
-    public ResponseEntity<Page<PetResponseDTO>> findBySpeciesId(
-            @PathVariable Long speciesId,
+    @GetMapping("/{id}/subscriptions")
+    @Operation(summary = "Assinaturas ativas e anteriores do pet")
+    public ResponseEntity<Page<SubscriptionResponseDTO>> findSubscriptionsByPetId(
+            @PathVariable Long id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
-        Page<PetResponseDTO> response = petService.findBySpeciesId(speciesId, pageable);
-        return ResponseEntity.ok(response);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return ResponseEntity.ok(petService.findSubscriptionsByPetId(id, pageable));
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Atualizar pet")
+    @Operation(summary = "Atualizar dados do pet")
     public ResponseEntity<PetResponseDTO> update(
             @PathVariable Long id,
             @Valid @RequestBody PetRequestDTO request) {
-        PetResponseDTO response = petService.update(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(petService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Deletar pet")
+    @Operation(summary = "Remover pet")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         petService.delete(id);
         return ResponseEntity.noContent().build();

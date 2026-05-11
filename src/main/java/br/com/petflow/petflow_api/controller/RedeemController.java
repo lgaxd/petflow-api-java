@@ -24,43 +24,25 @@ public class RedeemController {
     private final RedeemService redeemService;
 
     @PostMapping
-    @Operation(summary = "Resgatar um cupom")
+    @Operation(summary = "Registrar resgate de cupom")
     public ResponseEntity<RedeemResponseDTO> create(@Valid @RequestBody RedeemRequestDTO request) {
         RedeemResponseDTO response = redeemService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping
+    @Operation(summary = "Listar resgates com filtros")
+    public ResponseEntity<Page<RedeemResponseDTO>> findAll(
+            @RequestParam(required = false) Long tutorId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return ResponseEntity.ok(redeemService.findAll(tutorId, pageable));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Buscar resgate por ID")
     public ResponseEntity<RedeemResponseDTO> findById(@PathVariable Long id) {
-        RedeemResponseDTO response = redeemService.findById(id);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping
-    @Operation(summary = "Listar todos os resgates com paginação")
-    public ResponseEntity<Page<RedeemResponseDTO>> findAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction) {
-        
-        Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-        
-        Page<RedeemResponseDTO> response = redeemService.findAll(pageable);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/by-tutor/{tutorId}")
-    @Operation(summary = "Buscar resgates por ID do tutor")
-    public ResponseEntity<Page<RedeemResponseDTO>> findByTutorId(
-            @PathVariable Long tutorId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<RedeemResponseDTO> response = redeemService.findByTutorId(tutorId, pageable);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(redeemService.findById(id));
     }
 }

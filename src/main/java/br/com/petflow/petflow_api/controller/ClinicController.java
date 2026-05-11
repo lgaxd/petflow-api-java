@@ -2,6 +2,7 @@ package br.com.petflow.petflow_api.controller;
 
 import br.com.petflow.petflow_api.dto.ClinicRequestDTO;
 import br.com.petflow.petflow_api.dto.ClinicResponseDTO;
+import br.com.petflow.petflow_api.dto.PlanResponseDTO;
 import br.com.petflow.petflow_api.service.ClinicService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,50 +19,41 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/clinics")
 @RequiredArgsConstructor
-@Tag(name = "Clínicas", description = "Endpoints para gerenciamento de clínicas veterinárias")
+@Tag(name = "Clínicas", description = "Endpoints para gerenciamento de clínicas")
 public class ClinicController {
 
     private final ClinicService clinicService;
 
     @PostMapping
-    @Operation(summary = "Criar uma nova clínica")
+    @Operation(summary = "Cadastrar nova clínica")
     public ResponseEntity<ClinicResponseDTO> create(@Valid @RequestBody ClinicRequestDTO request) {
         ClinicResponseDTO response = clinicService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping
+    @Operation(summary = "Listar todas as clínicas")
+    public ResponseEntity<Page<ClinicResponseDTO>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
+        return ResponseEntity.ok(clinicService.findAll(pageable));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Buscar clínica por ID")
     public ResponseEntity<ClinicResponseDTO> findById(@PathVariable Long id) {
-        ClinicResponseDTO response = clinicService.findById(id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(clinicService.findById(id));
     }
 
-    @GetMapping
-    @Operation(summary = "Listar todas as clínicas com paginação")
-    public ResponseEntity<Page<ClinicResponseDTO>> findAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "name") String sortBy,
-            @RequestParam(defaultValue = "asc") String direction) {
-        
-        Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-        
-        Page<ClinicResponseDTO> response = clinicService.findAll(pageable);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/search/name")
-    @Operation(summary = "Buscar clínicas por nome")
-    public ResponseEntity<Page<ClinicResponseDTO>> findByName(
-            @RequestParam String name,
+    @GetMapping("/{id}/plans")
+    @Operation(summary = "Listar planos de uma clínica")
+    public ResponseEntity<Page<PlanResponseDTO>> findPlansByClinicId(
+            @PathVariable Long id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
-        Page<ClinicResponseDTO> response = clinicService.findByName(name, pageable);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(clinicService.findPlansByClinicId(id, pageable));
     }
 
     @PutMapping("/{id}")
@@ -69,12 +61,11 @@ public class ClinicController {
     public ResponseEntity<ClinicResponseDTO> update(
             @PathVariable Long id,
             @Valid @RequestBody ClinicRequestDTO request) {
-        ClinicResponseDTO response = clinicService.update(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(clinicService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Deletar clínica")
+    @Operation(summary = "Remover clínica")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         clinicService.delete(id);
         return ResponseEntity.noContent().build();
