@@ -173,20 +173,7 @@ A documentação interativa da API pode ser acessada em:
 
 ### Configuração do `application.properties`
 
-#### Para H2 Database
-```properties
-spring.datasource.url=jdbc:h2:mem:petflow
-spring.datasource.driverClassName=org.h2.Driver
-spring.datasource.username=sa
-spring.datasource.password=
-
-spring.jpa.hibernate.ddl-auto=update
-
-spring.h2.console.enabled=true
-spring.h2.console.path=/h2-console
-```
-
-#### Para Oracle Database (Produção)
+#### Para Oracle Database
 Configure as variáveis de ambiente:
 - `DATABASE_URL`
 - `DATABASE_USERNAME`
