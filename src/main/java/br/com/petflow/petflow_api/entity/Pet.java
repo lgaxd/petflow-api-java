@@ -49,17 +49,17 @@ public class Pet {
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TUTOR_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_PET_TUTOR"))
-    @NotNull(message = "O tutor é obrigatório")
+    @JoinColumn(name = "TUTOR_ID", nullable = false)
     private Tutor tutor;
  
+    @JsonIgnore
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
     private List<HealthEvent> healthEvents = new ArrayList<>();
- 
+
+    @JsonIgnore
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
     private List<Subscription> subscriptions = new ArrayList<>();
 
     @PrePersist

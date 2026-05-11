@@ -1,12 +1,15 @@
 package br.com.petflow.petflow_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
- 
+
 @Entity
 @Table(name = "TUTOR")
 @Getter
@@ -15,46 +18,38 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(of = "id")
-@ToString(of = {"id", "name", "email"})
+@ToString(exclude = {"pets", "redeems"})
 public class Tutor {
- 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID")
     private Long id;
- 
-    @NotBlank(message = "O nome do tutor é obrigatório")
-    @Size(max = 100, message = "O nome deve ter no máximo 100 caracteres")
-    @Column(name = "NAME", length = 100, nullable = false)
+
+    @NotBlank @Size(max = 100)
+    @Column(nullable = false)
     private String name;
- 
-    @NotBlank(message = "O e-mail é obrigatório")
-    @Email(message = "Formato de e-mail inválido")
-    @Size(max = 100, message = "O e-mail deve ter no máximo 100 caracteres")
-    @Column(name = "EMAIL", length = 100, nullable = false, unique = true)
+
+    @NotBlank @Email @Size(max = 100)
+    @Column(unique = true, nullable = false)
     private String email;
- 
-    @Size(max = 20, message = "O telefone deve ter no máximo 20 caracteres")
-    @Column(name = "PHONE", length = 20)
+
+    @Size(max = 20)
     private String phone;
- 
-    @NotBlank(message = "A senha é obrigatória")
+
+    @NotBlank
     @Column(name = "PASSWORD_HASH", nullable = false)
     private String passwordHash;
- 
-    @Column(name = "CREATED_AT", updatable = false)
+
+    @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Pet> pets = new ArrayList<>();
- 
+
+    @JsonIgnore
     @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Redeem> redeems = new ArrayList<>();
-
-    @PrePersist
-    private void prePersist() {
-        this.createdAt = LocalDateTime.now();
-    }
 }

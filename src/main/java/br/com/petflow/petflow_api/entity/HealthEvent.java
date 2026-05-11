@@ -31,17 +31,17 @@ public class HealthEvent {
     @Column(name = "EVENT_DATE", nullable = false)
     private LocalDate eventDate;
 
-    @NotBlank(message = "O status é obrigatório")
-    @Size(max = 20, message = "O status deve ter no máximo 20 caracteres")
-    @Column(name = "STATUS", length = 20, nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private HealthEventStatus status;
+
  
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PET_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_HE_PET"))
-    @NotNull(message = "O pet é obrigatório")
+    @JoinColumn(name = "PET_ID", nullable = false)
     private Pet pet;
  
     @Enumerated(EnumType.STRING)

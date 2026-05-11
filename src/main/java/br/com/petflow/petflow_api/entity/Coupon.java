@@ -28,10 +28,9 @@ public class Coupon {
     @Column(name = "CODE", length = 50, nullable = false, unique = true)
     private String code;
  
-    @NotBlank(message = "O status é obrigatório")
-    @Size(max = 20, message = "O status deve ter no máximo 20 caracteres")
-    @Column(name = "STATUS", length = 20, nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CouponStatus status;
  
     @Future(message = "A data de expiração deve ser uma data futura")
     @Column(name = "EXPIRATION_DATE")

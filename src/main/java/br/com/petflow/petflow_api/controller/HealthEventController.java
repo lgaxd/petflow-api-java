@@ -4,6 +4,8 @@ import br.com.petflow.petflow_api.dto.HealthEventRequestDTO;
 import br.com.petflow.petflow_api.dto.HealthEventResponseDTO;
 import br.com.petflow.petflow_api.service.HealthEventService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,55 +15,68 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/health-events")
-@Validated
 @RequiredArgsConstructor
-@Tag(name = "Eventos de Saúde", description = "Endpoints para gerenciamento de eventos de saúde")
+@Tag(name = "Eventos de Saúde", description = "Endpoints para gerenciamento de eventos de saúde dos pets")
 public class HealthEventController {
 
     private final HealthEventService healthEventService;
 
     @PostMapping
-    @Operation(summary = "Registrar novo evento de saúde")
+    @Operation(summary = "Registrar evento de saúde", description = "Cria um novo evento de saúde para um pet")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Evento criado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+        @ApiResponse(responseCode = "404", description = "Pet ou clínica não encontrado")
+    })
     public ResponseEntity<HealthEventResponseDTO> create(@Valid @RequestBody HealthEventRequestDTO request) {
-        HealthEventResponseDTO response = healthEventService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(healthEventService.create(request));
     }
 
     @GetMapping
-    @Operation(summary = "Listar eventos de saúde com filtros")
+    @Operation(summary = "Listar eventos de saúde", description = "Retorna lista paginada de eventos com filtros")
     public ResponseEntity<Page<HealthEventResponseDTO>> findAll(
-        @RequestParam(required = false) Long petId,
-        @RequestParam(required = false) String eventType,
-        @RequestParam(required = false) String status,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        @RequestParam(defaultValue = "eventDate") String sortBy,
-        @RequestParam(defaultValue = "desc") String direction) {
-    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sortBy));
-    return ResponseEntity.ok(healthEventService.findAll(petId, eventType, status, pageable));
+            @RequestParam(required = false) Long petId,
+            @RequestParam(required = false) String eventType,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "eventDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sortBy));
+        return ResponseEntity.ok(healthEventService.findAll(petId, eventType, status, pageable));
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar evento de saúde por ID")
+    @Operation(summary = "Buscar evento por ID", description = "Retorna os dados de um evento de saúde específico")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Evento encontrado"),
+        @ApiResponse(responseCode = "404", description = "Evento não encontrado")
+    })
     public ResponseEntity<HealthEventResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(healthEventService.findById(id));
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Atualizar evento de saúde (ex: marcar como REALIZADO)")
-    public ResponseEntity<HealthEventResponseDTO> update(
-            @PathVariable Long id,
-            @Valid @RequestBody HealthEventRequestDTO request) {
+    @Operation(summary = "Atualizar evento de saúde", description = "Atualiza os dados de um evento existente")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Evento atualizado com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Evento não encontrado"),
+        @ApiResponse(responseCode = "422", description = "Transição de status inválida")
+    })
+    public ResponseEntity<HealthEventResponseDTO> update(@PathVariable Long id, @Valid @RequestBody HealthEventRequestDTO request) {
         return ResponseEntity.ok(healthEventService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Remover evento de saúde")
+    @Operation(summary = "Remover evento de saúde", description = "Remove um evento de saúde do sistema")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Evento removido com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Evento não encontrado")
+    })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         healthEventService.delete(id);
         return ResponseEntity.noContent().build();

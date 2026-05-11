@@ -29,10 +29,9 @@ public class Subscription {
     @Column(name = "END_DATE")
     private LocalDate endDate;
 
-    @NotBlank(message = "O status é obrigatório")
-    @Size(max = 20, message = "O status deve ter no máximo 20 caracteres")
-    @Column(name = "STATUS", length = 20, nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SubscriptionStatus status;
  
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;
