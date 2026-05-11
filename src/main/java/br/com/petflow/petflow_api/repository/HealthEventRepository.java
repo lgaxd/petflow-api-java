@@ -14,7 +14,7 @@ public interface HealthEventRepository extends JpaRepository<HealthEvent, Long> 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.HealthEventResponseDTO(
                 h.id, h.description, h.eventDate, h.status, h.createdAt,
-                h.pet.id, h.pet.name, h.eventType, h.clinic.id, h.clinic.name
+                h.pet.id, h.pet.name, h.clinic.id, h.clinic.name
             )
             FROM HealthEvent h
             WHERE h.pet.id = :petId
@@ -24,7 +24,7 @@ public interface HealthEventRepository extends JpaRepository<HealthEvent, Long> 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.HealthEventResponseDTO(
                 h.id, h.description, h.eventDate, h.status, h.createdAt,
-                h.pet.id, h.pet.name, h.eventType, h.clinic.id, h.clinic.name
+                h.pet.id, h.pet.name, h.clinic.id, h.clinic.name
             )
             FROM HealthEvent h
             WHERE h.status = :status
@@ -34,7 +34,7 @@ public interface HealthEventRepository extends JpaRepository<HealthEvent, Long> 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.HealthEventResponseDTO(
                 h.id, h.description, h.eventDate, h.status, h.createdAt,
-                h.pet.id, h.pet.name, h.eventType, h.clinic.id, h.clinic.name
+                h.pet.id, h.pet.name, h.clinic.id, h.clinic.name
             )
             FROM HealthEvent h
             """)

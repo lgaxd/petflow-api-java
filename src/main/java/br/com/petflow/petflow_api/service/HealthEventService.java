@@ -5,7 +5,6 @@ import br.com.petflow.petflow_api.dto.HealthEventResponseDTO;
 import br.com.petflow.petflow_api.entity.Clinic;
 import br.com.petflow.petflow_api.entity.HealthEvent;
 import br.com.petflow.petflow_api.entity.Pet;
-import br.com.petflow.petflow_api.enums.EventType;
 import br.com.petflow.petflow_api.enums.HealthEventStatus;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
 import br.com.petflow.petflow_api.exception.InvalidStatusTransitionException;
@@ -16,13 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,13 +32,6 @@ public class HealthEventService {
     public HealthEventResponseDTO create(HealthEventRequestDTO request) {
         Pet pet = petRepository.findById(request.getPetId())
                 .orElseThrow(() -> new EntityNotFoundException("Pet", request.getPetId()));
-
-        EventType eventType;
-        try {
-            eventType = EventType.valueOf(request.getEventType().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Tipo de evento inválido. Valores permitidos: VACCINE, EXAM, CONSULTATION, SURGERY");
-        }
 
         HealthEventStatus status = HealthEventStatus.AGENDADO;
         if (request.getStatus() != null && !request.getStatus().isBlank()) {
@@ -65,7 +53,6 @@ public class HealthEventService {
                 .eventDate(request.getEventDate())
                 .status(status)
                 .pet(pet)
-                .eventType(eventType)
                 .clinic(clinic)
                 .build();
 
@@ -80,39 +67,19 @@ public class HealthEventService {
         return toResponseDTO(healthEvent);
     }
 
-    @Cacheable(value = "healthEvents", key = "#petId + '_' + #eventType + '_' + #status + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
-    public Page<HealthEventResponseDTO> findAll(Long petId, String eventType, String status, Pageable pageable) {
-        Page<HealthEventResponseDTO> page;
-
+    @Cacheable(value = "healthEvents", key = "#petId + '_' + #status + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
+    public Page<HealthEventResponseDTO> findAll(Long petId, String status, Pageable pageable) {
         if (petId != null) {
-            page = healthEventRepository.findByPetIdProjected(petId, pageable);
+            return healthEventRepository.findByPetIdProjected(petId, pageable);
         } else if (status != null && !status.isBlank()) {
             try {
                 HealthEventStatus healthStatus = HealthEventStatus.valueOf(status.toUpperCase());
-                page = healthEventRepository.findByStatusProjected(healthStatus, pageable);
+                return healthEventRepository.findByStatusProjected(healthStatus, pageable);
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Status inválido. Valores permitidos: AGENDADO, REALIZADO, CANCELADO");
             }
-        } else {
-            page = healthEventRepository.findAllProjected(pageable);
         }
-        
-        // Filtrar por eventType se necessário (em memória)
-        if (eventType != null && !eventType.isBlank() && page.hasContent()) {
-            EventType targetEventType;
-            try {
-                targetEventType = EventType.valueOf(eventType.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Tipo de evento inválido. Valores permitidos: VACCINE, EXAM, CONSULTATION, SURGERY");
-            }
-            
-            List<HealthEventResponseDTO> filtered = page.getContent().stream()
-                    .filter(dto -> dto.getEventType() == targetEventType)
-                    .collect(Collectors.toList());
-            page = new PageImpl<>(filtered, pageable, filtered.size());
-        }
-
-        return page;
+        return healthEventRepository.findAllProjected(pageable);
     }
 
     @Transactional
@@ -139,14 +106,6 @@ public class HealthEventService {
 
         healthEvent.setDescription(request.getDescription());
         healthEvent.setEventDate(request.getEventDate());
-
-        if (request.getEventType() != null && !request.getEventType().isBlank()) {
-            try {
-                healthEvent.setEventType(EventType.valueOf(request.getEventType().toUpperCase()));
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Tipo de evento inválido. Valores permitidos: VACCINE, EXAM, CONSULTATION, SURGERY");
-            }
-        }
 
         if (request.getClinicId() != null) {
             Clinic clinic = clinicRepository.findById(request.getClinicId())
@@ -192,7 +151,6 @@ public class HealthEventService {
                 .createdAt(healthEvent.getCreatedAt())
                 .petId(healthEvent.getPet().getId())
                 .petName(healthEvent.getPet().getName())
-                .eventType(healthEvent.getEventType())
                 .clinicId(healthEvent.getClinic() != null ? healthEvent.getClinic().getId() : null)
                 .clinicName(healthEvent.getClinic() != null ? healthEvent.getClinic().getName() : null)
                 .build();

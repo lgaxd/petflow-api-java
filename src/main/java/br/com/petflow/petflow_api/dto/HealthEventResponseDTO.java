@@ -1,6 +1,5 @@
 package br.com.petflow.petflow_api.dto;
 
-import br.com.petflow.petflow_api.enums.EventType;
 import br.com.petflow.petflow_api.enums.HealthEventStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -34,9 +33,6 @@ public class HealthEventResponseDTO {
 
     @Schema(description = "Nome do pet", example = "Rex")
     private String petName;
-
-    @Schema(description = "Tipo do evento", example = "VACCINE", allowableValues = {"VACCINE", "EXAM", "CONSULTATION", "SURGERY"})
-    private EventType eventType;
 
     @Schema(description = "ID da clínica (opcional)", example = "5")
     private Long clinicId;

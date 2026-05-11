@@ -45,8 +45,6 @@ public class CouponService {
                 .code(request.getCode())
                 .status(status)
                 .expirationDate(request.getExpirationDate())
-                .discountValue(request.getDiscountValue())
-                .pointsRequired(request.getPointsRequired())
                 .build();
 
         coupon = couponRepository.save(coupon);
@@ -130,8 +128,6 @@ public class CouponService {
                 .code(coupon.getCode())
                 .status(coupon.getStatus())
                 .expirationDate(coupon.getExpirationDate())
-                .discountValue(coupon.getDiscountValue())
-                .pointsRequired(coupon.getPointsRequired())
                 .createdAt(coupon.getCreatedAt())
                 .build();
     }

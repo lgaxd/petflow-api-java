@@ -2,7 +2,6 @@ package br.com.petflow.petflow_api.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import br.com.petflow.petflow_api.enums.CouponStatus;
@@ -27,18 +26,12 @@ public class Coupon {
     private String code;
  
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "STATUS", nullable = false)
     private CouponStatus status;
 
     @Column(name = "EXPIRATION_DATE")
     private LocalDate expirationDate;
 
-    @Column(name = "DISCOUNT_VALUE", nullable = false)
-    private BigDecimal discountValue;
-
-    @Column(name = "POINTS_REQUIRED", nullable = false)
-    private Integer pointsRequired;
- 
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;
 

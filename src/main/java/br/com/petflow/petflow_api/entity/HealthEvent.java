@@ -1,6 +1,5 @@
 package br.com.petflow.petflow_api.entity;
 
-import br.com.petflow.petflow_api.enums.EventType;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
@@ -41,10 +40,6 @@ public class HealthEvent {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PET_ID", nullable = false)
     private Pet pet;
- 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "EVENT_TYPE", nullable = false)
-    private EventType eventType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CLINIC_ID", foreignKey = @ForeignKey(name = "FK_HE_CLINIC"))

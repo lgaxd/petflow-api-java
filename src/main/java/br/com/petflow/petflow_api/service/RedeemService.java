@@ -49,7 +49,7 @@ public class RedeemService {
             throw new ExpiredCouponException(coupon.getCode(), coupon.getExpirationDate());
         }
 
-        Integer pointsRequired = coupon.getPointsRequired();
+        Integer pointsRequired = 15;
 
         Redeem redeem = Redeem.builder()
                 .pointsUsed(pointsRequired)
