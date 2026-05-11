@@ -18,8 +18,7 @@ import java.math.BigDecimal;
 public class PartnerDiscount {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "partner_discount_seq")
-    @SequenceGenerator(name = "partner_discount_seq", sequenceName = "PARTNER_DISCOUNT_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  

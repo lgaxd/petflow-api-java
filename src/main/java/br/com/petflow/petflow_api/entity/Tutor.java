@@ -20,8 +20,7 @@ import java.util.List;
 public class Tutor {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tutor_seq")
-    @SequenceGenerator(name = "tutor_seq", sequenceName = "TUTOR_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  

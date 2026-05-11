@@ -18,8 +18,7 @@ import java.math.BigDecimal;
 public class Plan {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "plan_seq")
-    @SequenceGenerator(name = "plan_seq", sequenceName = "PLAN_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  

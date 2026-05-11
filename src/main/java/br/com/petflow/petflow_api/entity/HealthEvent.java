@@ -19,8 +19,7 @@ import java.time.LocalDateTime;
 public class HealthEvent {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "health_event_seq")
-    @SequenceGenerator(name = "health_event_seq", sequenceName = "HEALTH_EVENT_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  

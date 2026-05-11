@@ -19,8 +19,7 @@ import java.time.LocalDateTime;
 public class Coupon {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "coupon_seq")
-    @SequenceGenerator(name = "coupon_seq", sequenceName = "COUPON_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  

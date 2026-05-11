@@ -18,8 +18,7 @@ import java.time.LocalDateTime;
 public class RewardPoint {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reward_point_seq")
-    @SequenceGenerator(name = "reward_point_seq", sequenceName = "REWARD_POINT_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  

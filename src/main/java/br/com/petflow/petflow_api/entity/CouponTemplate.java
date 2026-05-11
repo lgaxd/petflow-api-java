@@ -18,8 +18,7 @@ import java.math.BigDecimal;
 public class CouponTemplate {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "coupon_template_seq")
-    @SequenceGenerator(name = "coupon_template_seq", sequenceName = "COUPON_TEMPLATE_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  

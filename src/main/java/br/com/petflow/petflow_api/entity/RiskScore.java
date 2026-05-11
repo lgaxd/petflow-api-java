@@ -18,8 +18,7 @@ import java.time.LocalDateTime;
 public class RiskScore {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "risk_score_seq")
-    @SequenceGenerator(name = "risk_score_seq", sequenceName = "RISK_SCORE_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  

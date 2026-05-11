@@ -17,8 +17,7 @@ import lombok.*;
 public class Species {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "species_seq")
-    @SequenceGenerator(name = "species_seq", sequenceName = "SPECIES_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  

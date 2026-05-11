@@ -16,8 +16,7 @@ import lombok.*;
 public class EventType {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_type_seq")
-    @SequenceGenerator(name = "event_type_seq", sequenceName = "EVENT_TYPE_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  

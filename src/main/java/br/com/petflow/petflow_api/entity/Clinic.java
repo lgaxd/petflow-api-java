@@ -20,8 +20,7 @@ import java.util.List;
 public class Clinic {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "clinic_seq")
-    @SequenceGenerator(name = "clinic_seq", sequenceName = "CLINIC_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  

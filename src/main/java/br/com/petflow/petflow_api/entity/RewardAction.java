@@ -16,8 +16,7 @@ import lombok.*;
 public class RewardAction {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reward_action_seq")
-    @SequenceGenerator(name = "reward_action_seq", sequenceName = "REWARD_ACTION_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  

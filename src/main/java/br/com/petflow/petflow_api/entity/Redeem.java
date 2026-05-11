@@ -18,8 +18,7 @@ import java.time.LocalDateTime;
 public class Redeem {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "redeem_seq")
-    @SequenceGenerator(name = "redeem_seq", sequenceName = "REDEEM_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  

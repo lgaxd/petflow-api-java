@@ -22,8 +22,7 @@ import java.util.List;
 public class Pet {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pet_seq")
-    @SequenceGenerator(name = "pet_seq", sequenceName = "PET_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  

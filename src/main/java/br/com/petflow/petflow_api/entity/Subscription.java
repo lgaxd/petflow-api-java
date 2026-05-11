@@ -19,8 +19,7 @@ import java.time.LocalDateTime;
 public class Subscription {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "subscription_seq")
-    @SequenceGenerator(name = "subscription_seq", sequenceName = "SUBSCRIPTION_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  

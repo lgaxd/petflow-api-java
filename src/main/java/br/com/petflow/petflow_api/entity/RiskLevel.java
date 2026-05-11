@@ -16,8 +16,7 @@ import lombok.*;
 public class RiskLevel {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "risk_level_seq")
-    @SequenceGenerator(name = "risk_level_seq", sequenceName = "RISK_LEVEL_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
  
