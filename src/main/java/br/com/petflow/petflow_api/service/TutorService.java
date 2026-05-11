@@ -45,13 +45,12 @@ public class TutorService {
         return toResponseDTO(tutor);
     }
 
-    @Cacheable(value = "tutors", key = "#pageable.pageNumber + '_' + #pageable.pageSize + '_' + (#name != null ? #name : 'all')")
+    @Cacheable(value = "tutors", key = "#name + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<TutorResponseDTO> findAll(String name, Pageable pageable) {
         if (name != null && !name.isBlank()) {
-            return tutorRepository.findByNameContainingIgnoreCase(name, pageable)
-                    .map(this::toResponseDTO);
+            return tutorRepository.findByNameProjected(name, pageable);
         }
-        return tutorRepository.findAll(pageable).map(this::toResponseDTO);
+        return tutorRepository.findAllProjected(pageable);
     }
 
     @Transactional
