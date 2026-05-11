@@ -1,11 +1,11 @@
 package br.com.petflow.petflow_api.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
- 
+import br.com.petflow.petflow_api.enums.SubscriptionStatus;
+
 @Entity
 @Table(name = "SUBSCRIPTION")
 @Getter
@@ -47,7 +47,7 @@ public class Subscription {
     private void prePersist() {
         this.createdAt = LocalDateTime.now();
         if (this.status == null) {
-            this.status = "ATIVO";
+            this.status = SubscriptionStatus.ATIVO;
         }
     }
 }

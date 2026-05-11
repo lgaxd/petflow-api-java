@@ -2,10 +2,11 @@ package br.com.petflow.petflow_api.entity;
 
 import br.com.petflow.petflow_api.enums.EventType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import br.com.petflow.petflow_api.enums.HealthEventStatus;
  
 @Entity
 @Table(name = "HEALTH_EVENT")
@@ -53,7 +54,7 @@ public class HealthEvent {
     private void prePersist() {
         this.createdAt = LocalDateTime.now();
         if (this.status == null) {
-            this.status = "AGENDADO";
+            this.status = HealthEventStatus.AGENDADO;
         }
     }
 }

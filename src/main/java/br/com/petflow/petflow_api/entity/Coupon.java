@@ -1,11 +1,11 @@
 package br.com.petflow.petflow_api.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import br.com.petflow.petflow_api.enums.CouponStatus;
  
 @Entity
 @Table(name = "COUPON")
@@ -46,7 +46,7 @@ public class Coupon {
     private void prePersist() {
         this.createdAt = LocalDateTime.now();
         if (this.status == null) {
-            this.status = "DISPONIVEL";
+            this.status = CouponStatus.DISPONIVEL;
         }
     }
 }
