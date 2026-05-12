@@ -30,8 +30,11 @@ public class HealthEvent {
     private LocalDate eventDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "STATUS", nullable = false)
     private HealthEventStatus status;
+
+    @Column(name = "EVENT_TYPE_ID", nullable = false)
+    private Long eventTypeId;
  
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;

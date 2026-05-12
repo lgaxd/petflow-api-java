@@ -52,6 +52,7 @@ public class HealthEventService {
                 .description(request.getDescription())
                 .eventDate(request.getEventDate())
                 .status(status)
+                .eventTypeId(request.getEventTypeId())
                 .pet(pet)
                 .clinic(clinic)
                 .build();
@@ -109,6 +110,10 @@ public class HealthEventService {
         healthEvent.setDescription(request.getDescription());
         healthEvent.setEventDate(request.getEventDate());
 
+        if (request.getEventTypeId() != null) {
+            healthEvent.setEventTypeId(request.getEventTypeId());
+        }
+
         if (request.getClinicId() != null) {
             Clinic clinic = clinicRepository.findById(request.getClinicId())
                     .orElseThrow(() -> new EntityNotFoundException("Clínica", request.getClinicId()));
@@ -153,6 +158,7 @@ public class HealthEventService {
                 .createdAt(healthEvent.getCreatedAt())
                 .petId(healthEvent.getPet().getId())
                 .petName(healthEvent.getPet().getName())
+                .eventTypeId(healthEvent.getEventTypeId())
                 .clinicId(healthEvent.getClinic() != null ? healthEvent.getClinic().getId() : null)
                 .clinicName(healthEvent.getClinic() != null ? healthEvent.getClinic().getName() : null)
                 .build();

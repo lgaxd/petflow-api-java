@@ -34,6 +34,9 @@ public class HealthEventResponseDTO {
     @Schema(description = "Nome do pet", example = "Rex")
     private String petName;
 
+    @Schema(description = "ID do tipo de evento", example = "1")
+    private Long eventTypeId;
+
     @Schema(description = "ID da clínica (opcional)", example = "5")
     private Long clinicId;
 
