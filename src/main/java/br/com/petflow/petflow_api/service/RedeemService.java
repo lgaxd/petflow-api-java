@@ -65,6 +65,7 @@ public class RedeemService {
         return toResponseDTO(redeem);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "redeems", key = "#id")
     public RedeemResponseDTO findById(Long id) {
         Redeem redeem = redeemRepository.findById(id)
@@ -72,6 +73,7 @@ public class RedeemService {
         return toResponseDTO(redeem);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "redeems", key = "#tutorId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<RedeemResponseDTO> findAll(Long tutorId, Pageable pageable) {
         if (tutorId != null) {

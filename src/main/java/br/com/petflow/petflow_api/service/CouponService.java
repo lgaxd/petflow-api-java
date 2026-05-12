@@ -51,6 +51,7 @@ public class CouponService {
         return toResponseDTO(coupon);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "coupons", key = "#id")
     public CouponResponseDTO findById(Long id) {
         Coupon coupon = couponRepository.findById(id)

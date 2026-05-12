@@ -60,6 +60,7 @@ public class HealthEventService {
         return toResponseDTO(healthEvent);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "healthEvents", key = "#id")
     public HealthEventResponseDTO findById(Long id) {
         HealthEvent healthEvent = healthEventRepository.findById(id)
@@ -67,6 +68,7 @@ public class HealthEventService {
         return toResponseDTO(healthEvent);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "healthEvents", key = "#petId + '_' + #status + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<HealthEventResponseDTO> findAll(Long petId, String status, Pageable pageable) {
         if (petId != null) {

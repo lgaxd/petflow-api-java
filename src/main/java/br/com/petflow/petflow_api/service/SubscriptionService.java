@@ -66,6 +66,7 @@ public class SubscriptionService {
         return toResponseDTO(subscription);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "subscriptions", key = "#id")
     public SubscriptionResponseDTO findById(Long id) {
         Subscription subscription = subscriptionRepository.findById(id)
@@ -73,6 +74,7 @@ public class SubscriptionService {
         return toResponseDTO(subscription);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "subscriptions", key = "#petId + '_' + #status + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<SubscriptionResponseDTO> findAll(Long petId, String status, Pageable pageable) {
         if (petId != null) {

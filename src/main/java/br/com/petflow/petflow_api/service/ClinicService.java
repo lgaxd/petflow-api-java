@@ -38,6 +38,7 @@ public class ClinicService {
         return toResponseDTO(clinic);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "clinics", key = "#id")
     public ClinicResponseDTO findById(Long id) {
         Clinic clinic = clinicRepository.findById(id)
@@ -45,6 +46,7 @@ public class ClinicService {
         return toResponseDTO(clinic);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "clinics", key = "#name + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<ClinicResponseDTO> findAll(String name, Pageable pageable) {
         if (name != null && !name.isBlank()) {

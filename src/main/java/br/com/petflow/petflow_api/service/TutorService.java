@@ -38,6 +38,7 @@ public class TutorService {
         return toResponseDTO(tutor);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "tutors", key = "#id")
     public TutorResponseDTO findById(Long id) {
         Tutor tutor = tutorRepository.findById(id)
@@ -45,6 +46,7 @@ public class TutorService {
         return toResponseDTO(tutor);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "tutors", key = "#name + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<TutorResponseDTO> findAll(String name, Pageable pageable) {
         if (name != null && !name.isBlank()) {
