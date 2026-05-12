@@ -40,13 +40,16 @@ public class PetService {
         return toResponseDTO(pet);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "pets", key = "#id")
     public PetResponseDTO findById(Long id) {
         Pet pet = petRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pet", id));
+        // O @Transactional mantém a sessão aberta, permitindo acesso aos dados lazy
         return toResponseDTO(pet);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "pets", key = "#name + '_' + #tutorId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<PetResponseDTO> findAll(String name, Long tutorId, Pageable pageable) {
         if (name != null && !name.isBlank()) {
