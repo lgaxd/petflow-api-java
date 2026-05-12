@@ -264,7 +264,7 @@ Os endpoints podem ser testados com Postman, Insomnia ou outra ferramenta de API
 
 ## 📄 Documentação Complementar
 
-A entrega final deve incluir:
+O repositório inclui:
 
 - coleção exportada das requisições
 - exemplos de payloads
