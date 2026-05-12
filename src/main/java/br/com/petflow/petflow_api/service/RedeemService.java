@@ -41,7 +41,7 @@ public class RedeemService {
             if (coupon.getStatus() == CouponStatus.RESGATADO) {
                 throw new CouponAlreadyRedeemedException(coupon.getCode());
             }
-            throw new BusinessRuleException("Cupom não está disponível para resgate");
+            throw new BusinessRuleException("Cupom não está disponível para resgate. Status atual: " + coupon.getStatus());
         }
 
         if (coupon.getExpirationDate() != null &&
@@ -49,10 +49,10 @@ public class RedeemService {
             throw new ExpiredCouponException(coupon.getCode(), coupon.getExpirationDate());
         }
 
-        Integer pointsRequired = 15;
-
+        // CORRIGIDO: "Integer pointsRequired = 15" era um valor hardcoded.
+        // Os pontos usados vêm do request, que é validado com @Positive no DTO.
         Redeem redeem = Redeem.builder()
-                .pointsUsed(pointsRequired)
+                .pointsUsed(request.getPointsUsed())
                 .tutor(tutor)
                 .coupon(coupon)
                 .build();
@@ -75,6 +75,9 @@ public class RedeemService {
     @Cacheable(value = "redeems", key = "#tutorId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<RedeemResponseDTO> findAll(Long tutorId, Pageable pageable) {
         if (tutorId != null) {
+            if (!tutorRepository.existsById(tutorId)) {
+                throw new EntityNotFoundException("Tutor", tutorId);
+            }
             return redeemRepository.findByTutorId(tutorId, pageable);
         }
         return redeemRepository.findAllProjected(pageable);

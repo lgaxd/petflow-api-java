@@ -10,13 +10,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface HealthEventRepository extends JpaRepository<HealthEvent, Long> {
-
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.HealthEventResponseDTO(
                 h.id, h.description, h.eventDate, h.status, h.createdAt,
-                h.pet.id, h.pet.name, h.clinic.id, h.clinic.name
+                h.pet.id, h.pet.name,
+                c.id, c.name
             )
             FROM HealthEvent h
+            LEFT JOIN h.clinic c
             WHERE h.pet.id = :petId
             """)
     Page<HealthEventResponseDTO> findByPetIdProjected(@Param("petId") Long petId, Pageable pageable);
@@ -24,9 +25,11 @@ public interface HealthEventRepository extends JpaRepository<HealthEvent, Long> 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.HealthEventResponseDTO(
                 h.id, h.description, h.eventDate, h.status, h.createdAt,
-                h.pet.id, h.pet.name, h.clinic.id, h.clinic.name
+                h.pet.id, h.pet.name,
+                c.id, c.name
             )
             FROM HealthEvent h
+            LEFT JOIN h.clinic c
             WHERE h.status = :status
             """)
     Page<HealthEventResponseDTO> findByStatusProjected(@Param("status") HealthEventStatus status, Pageable pageable);
@@ -34,9 +37,11 @@ public interface HealthEventRepository extends JpaRepository<HealthEvent, Long> 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.HealthEventResponseDTO(
                 h.id, h.description, h.eventDate, h.status, h.createdAt,
-                h.pet.id, h.pet.name, h.clinic.id, h.clinic.name
+                h.pet.id, h.pet.name,
+                c.id, c.name
             )
             FROM HealthEvent h
+            LEFT JOIN h.clinic c
             """)
     Page<HealthEventResponseDTO> findAllProjected(Pageable pageable);
 }

@@ -24,7 +24,7 @@
 
 ## 📌 Sobre o Projeto
 
-O **PetFlow** é uma API REST desenvolvida em Java com Spring Boot para gerenciamento de saúde preventiva pet. A solução centraliza o relacionamento entre tutores, pets, clínicas veterinárias, planos, assinaturas, eventos de saúde e cupons de resgate.
+O **PetFlow** é uma API REST desenvolvida em Java com Spring Boot para gerenciamento de saúde preventiva pet. A solução gamifica o cuidado com o pet: eventos de saúde concluídos geram pontos para o tutor, que podem ser trocados por cupons de desconto em clínicas parceiras.
 
 O foco do projeto é demonstrar uma aplicação backend organizada em camadas, com persistência relacional, validação de dados, documentação automática e boas práticas de APIs RESTful.
 
@@ -214,7 +214,7 @@ Registra o uso de cupons pelos tutores.
 O projeto utiliza banco relacional com suporte a:
 
 - Oracle Database
-- H2 Database para testes e desenvolvimento local
+- H2 Database para testes localmente
 
 O modelo foi estruturado com JPA e relacionamentos entre entidades para garantir integridade e organização dos dados.
 
@@ -239,8 +239,16 @@ A documentação interativa da API está disponível em:
 
 ### Execução local
 
+Oracle Database:
+
 ```bash
 ./mvnw spring-boot:run
+```
+
+H2 Database:
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=h2
 ```
 
 > Antes de executar, ajuste as credenciais e a URL do banco no arquivo de configuração da aplicação conforme o ambiente utilizado.

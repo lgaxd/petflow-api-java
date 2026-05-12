@@ -26,7 +26,8 @@ public class HealthEventController {
     private final HealthEventService healthEventService;
 
     @PostMapping
-    @Operation(summary = "Registrar evento de saúde", description = "Cria um novo evento de saúde para um pet")
+    @Operation(summary = "Registrar evento de saúde",
+               description = "Cria um novo evento de saúde para um pet. Quando marcado como REALIZADO, gera pontos automaticamente.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Evento criado com sucesso"),
         @ApiResponse(responseCode = "400", description = "Dados inválidos"),
@@ -37,7 +38,8 @@ public class HealthEventController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar eventos de saúde", description = "Retorna lista paginada de eventos com filtros")
+    @Operation(summary = "Listar eventos de saúde",
+               description = "Retorna lista paginada de eventos. Filtre por petId e/ou status.")
     public ResponseEntity<Page<HealthEventResponseDTO>> findAll(
             @RequestParam(required = false) Long petId,
             @RequestParam(required = false) String status,
@@ -50,7 +52,7 @@ public class HealthEventController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar evento por ID", description = "Retorna os dados de um evento de saúde específico")
+    @Operation(summary = "Buscar evento por ID", description = "Retorna os dados de um evento específico")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Evento encontrado"),
         @ApiResponse(responseCode = "404", description = "Evento não encontrado")
@@ -60,18 +62,21 @@ public class HealthEventController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Atualizar evento de saúde", description = "Atualiza os dados de um evento existente")
+    @Operation(summary = "Atualizar evento de saúde",
+               description = "Atualiza o evento. Ao mudar status para REALIZADO, o sistema gera pontos de recompensa automaticamente.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Evento atualizado com sucesso"),
         @ApiResponse(responseCode = "404", description = "Evento não encontrado"),
         @ApiResponse(responseCode = "422", description = "Transição de status inválida")
     })
-    public ResponseEntity<HealthEventResponseDTO> update(@PathVariable Long id, @Valid @RequestBody HealthEventRequestDTO request) {
+    public ResponseEntity<HealthEventResponseDTO> update(
+            @PathVariable Long id,
+            @Valid @RequestBody HealthEventRequestDTO request) {
         return ResponseEntity.ok(healthEventService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Remover evento de saúde", description = "Remove um evento de saúde do sistema")
+    @Operation(summary = "Remover evento de saúde", description = "Remove um evento do sistema")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Evento removido com sucesso"),
         @ApiResponse(responseCode = "404", description = "Evento não encontrado")
