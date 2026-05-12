@@ -41,6 +41,7 @@ public class PlanService {
         return toResponseDTO(plan);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "plans", key = "#id")
     public PlanResponseDTO findById(Long id) {
         Plan plan = planRepository.findById(id)
@@ -48,6 +49,7 @@ public class PlanService {
         return toResponseDTO(plan);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "plans", key = "#clinicId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<PlanResponseDTO> findAll(Long clinicId, Pageable pageable) {
         if (clinicId != null) {
