@@ -27,4 +27,7 @@ public class PetRequestDTO {
 
     @NotNull(message = "O ID do tutor é obrigatório")
     private Long tutorId;
+
+    @NotNull(message = "O ID da espécie é obrigatório")
+    private Long speciesId;
 }
