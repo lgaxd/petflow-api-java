@@ -37,9 +37,6 @@ public class Pet {
     @Column(name = "WEIGHT", precision = 5, scale = 2)
     private BigDecimal weight;
  
-    @Column(name = "SPECIES", length = 50)
-    private String species;
- 
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;
 

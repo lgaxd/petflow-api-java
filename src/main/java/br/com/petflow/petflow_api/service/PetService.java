@@ -33,7 +33,6 @@ public class PetService {
                 .breed(request.getBreed())
                 .birthDate(request.getBirthDate())
                 .weight(request.getWeight())
-                .species(request.getSpecies())
                 .tutor(tutor)
                 .build();
 
@@ -74,7 +73,6 @@ public class PetService {
         pet.setBreed(request.getBreed());
         pet.setBirthDate(request.getBirthDate());
         pet.setWeight(request.getWeight());
-        pet.setSpecies(request.getSpecies());
 
         pet = petRepository.save(pet);
         return toResponseDTO(pet);
@@ -96,7 +94,6 @@ public class PetService {
                 .breed(pet.getBreed())
                 .birthDate(pet.getBirthDate())
                 .weight(pet.getWeight())
-                .species(pet.getSpecies())
                 .createdAt(pet.getCreatedAt())
                 .tutorId(pet.getTutor().getId())
                 .tutorName(pet.getTutor().getName())

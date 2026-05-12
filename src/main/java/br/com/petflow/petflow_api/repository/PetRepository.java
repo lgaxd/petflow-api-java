@@ -12,7 +12,7 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.PetResponseDTO(
-                p.id, p.name, p.breed, p.birthDate, p.weight, p.species, p.createdAt,
+                p.id, p.name, p.breed, p.birthDate, p.weight, p.createdAt,
                 p.tutor.id, p.tutor.name
             )
             FROM Pet p
@@ -22,7 +22,7 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.PetResponseDTO(
-                p.id, p.name, p.breed, p.birthDate, p.weight, p.species, p.createdAt,
+                p.id, p.name, p.breed, p.birthDate, p.weight, p.createdAt,
                 p.tutor.id, p.tutor.name
             )
             FROM Pet p
@@ -32,7 +32,7 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.PetResponseDTO(
-                p.id, p.name, p.breed, p.birthDate, p.weight, p.species, p.createdAt,
+                p.id, p.name, p.breed, p.birthDate, p.weight, p.createdAt,
                 p.tutor.id, p.tutor.name
             )
             FROM Pet p

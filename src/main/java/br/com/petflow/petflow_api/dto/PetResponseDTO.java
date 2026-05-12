@@ -28,9 +28,6 @@ public class PetResponseDTO {
     @Schema(description = "Peso em kg", example = "25.5")
     private BigDecimal weight;
 
-    @Schema(description = "Espécie", example = "Cão")
-    private String species;
-
     @Schema(description = "Data de cadastro", example = "2024-01-15T10:30:00")
     private LocalDateTime createdAt;
 

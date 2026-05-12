@@ -25,9 +25,6 @@ public class PetRequestDTO {
     @Digits(integer = 3, fraction = 2, message = "Formato de peso inválido")
     private BigDecimal weight;
 
-    @Size(max = 50, message = "A espécie deve ter no máximo 50 caracteres")
-    private String species;
-
     @NotNull(message = "O ID do tutor é obrigatório")
     private Long tutorId;
 }
