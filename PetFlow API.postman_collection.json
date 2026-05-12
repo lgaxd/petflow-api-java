@@ -1,0 +1,3013 @@
+{
+  "info": {
+    "_postman_id": "0d095b17-9b26-49c8-ae4a-6dd6671a9ba8",
+    "name": "PetFlow API",
+    "description": "API para gerenciamento de saúde preventiva pet",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "20421695"
+  },
+  "item": [
+    {
+      "name": "Tutores",
+      "item": [
+        {
+          "name": "Listar tutores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tutors?page=0&size=10&sortBy=name&direction=asc",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tutors"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "name"
+                },
+                {
+                  "key": "direction",
+                  "value": "asc"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Listar tutores",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/tutors?page=0&size=10&sortBy=name&direction=asc",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "tutors"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "sortBy",
+                      "value": "name"
+                    },
+                    {
+                      "key": "direction",
+                      "value": "asc"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 02:07:49 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"content\": [\n        {\n            \"id\": 31,\n            \"name\": \"Ana Silva\",\n            \"email\": \"ana.silva@email.com\",\n            \"phone\": \"(11) 99999-9999\",\n            \"createdAt\": \"2026-05-10T23:48:35.238175\"\n        },\n        {\n            \"id\": 1,\n            \"name\": \"Ana Super Atualizada\",\n            \"email\": \"ana@example.com\",\n            \"phone\": \"(11) 99999-9999\",\n            \"createdAt\": \"2026-05-08T00:29:23.14107\"\n        },\n        {\n            \"id\": 2,\n            \"name\": \"Bruno Silva\",\n            \"email\": \"bruno.silva@email.com\",\n            \"phone\": \"11-98002-0002\",\n            \"createdAt\": \"2026-05-08T00:29:23.152725\"\n        },\n        {\n            \"id\": 3,\n            \"name\": \"Carla Souza\",\n            \"email\": \"carla.souza@email.com\",\n            \"phone\": \"11-98003-0003\",\n            \"createdAt\": \"2026-05-08T00:29:23.162021\"\n        },\n        {\n            \"id\": 4,\n            \"name\": \"Diego Martins\",\n            \"email\": \"diego.martins@email.com\",\n            \"phone\": \"11-98004-0004\",\n            \"createdAt\": \"2026-05-08T00:29:23.1739\"\n        },\n        {\n            \"id\": 5,\n            \"name\": \"Eduarda Costa\",\n            \"email\": \"eduarda.costa@email.com\",\n            \"phone\": \"11-98005-0005\",\n            \"createdAt\": \"2026-05-08T00:29:23.182551\"\n        },\n        {\n            \"id\": 6,\n            \"name\": \"Felipe Nunes\",\n            \"email\": \"felipe.nunes@email.com\",\n            \"phone\": \"11-98006-0006\",\n            \"createdAt\": \"2026-05-08T00:29:23.193794\"\n        },\n        {\n            \"id\": 27,\n            \"name\": \"Gabriela Alves Mendes\",\n            \"email\": \"gabi.alves@email.com\",\n            \"phone\": \"(11) 98007-0007\",\n            \"createdAt\": \"2026-05-10T18:05:16.955167\"\n        },\n        {\n            \"id\": 28,\n            \"name\": \"Henrique Rocha Lima\",\n            \"email\": \"henrique.rocha@email.com\",\n            \"phone\": \"(11) 98008-0008\",\n            \"createdAt\": \"2026-05-10T18:05:16.967515\"\n        },\n        {\n            \"id\": 30,\n            \"name\": \"João Pedro Santos\",\n            \"email\": \"joao.pedro@email.com\",\n            \"phone\": \"(11) 98010-0010\",\n            \"createdAt\": \"2026-05-10T18:05:16.988514\"\n        }\n    ],\n    \"empty\": false,\n    \"first\": true,\n    \"last\": true,\n    \"number\": 0,\n    \"numberOfElements\": 10,\n    \"pageable\": {\n        \"offset\": 0,\n        \"pageNumber\": 0,\n        \"pageSize\": 10,\n        \"paged\": true,\n        \"sort\": {\n            \"empty\": false,\n            \"sorted\": true,\n            \"unsorted\": false\n        },\n        \"unpaged\": false\n    },\n    \"size\": 10,\n    \"sort\": {\n        \"empty\": false,\n        \"sorted\": true,\n        \"unsorted\": false\n    },\n    \"totalElements\": 10,\n    \"totalPages\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "Buscar tutor por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tutors/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tutors",
+                "1"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Buscar tutor por ID",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/tutors/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "tutors",
+                    "1"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 02:11:47 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 1,\n    \"name\": \"Ana Super Atualizada\",\n    \"email\": \"ana@example.com\",\n    \"phone\": \"(11) 99999-9999\",\n    \"createdAt\": \"2026-05-08T00:29:23.14107\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Criar tutor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pedro Silva\",\n  \"email\": \"pedro.silva@email.com\",\n  \"phone\": \"(11) 99999-9999\",\n  \"password\": \"senha123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tutors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tutors"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Criar tutor",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Pedro Silva\",\n  \"email\": \"pedro.silva@email.com\",\n  \"phone\": \"(11) 99999-9999\",\n  \"password\": \"senha123\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/tutors",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "tutors"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 02:15:31 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 32,\n    \"name\": \"Pedro Silva\",\n    \"email\": \"pedro.silva@email.com\",\n    \"phone\": \"(11) 99999-9999\",\n    \"createdAt\": \"2026-05-11T23:15:31.770648\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Atualizar tutor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pedro Silva Atualizado\",\n  \"email\": \"pedro.silva@email.com\",\n  \"phone\": \"(11) 88888-8888\",\n  \"password\": \"novaSenha123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tutors/32",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tutors",
+                "32"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Atualizar tutor",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Pedro Silva Atualizado\",\n  \"email\": \"pedro.silva@email.com\",\n  \"phone\": \"(11) 88888-8888\",\n  \"password\": \"novaSenha123\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/tutors/32",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "tutors",
+                    "32"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 02:16:36 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 32,\n    \"name\": \"Pedro Silva Atualizado\",\n    \"email\": \"pedro.silva@email.com\",\n    \"phone\": \"(11) 88888-8888\",\n    \"createdAt\": \"2026-05-11T23:15:31.770648\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remover tutor",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tutors/28",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tutors",
+                "28"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Remover tutor",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/tutors/28",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "tutors",
+                    "28"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 02:22:47 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Pets",
+      "item": [
+        {
+          "name": "Listar pets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pets?page=0&size=10&sortBy=name&direction=asc",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pets"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "name"
+                },
+                {
+                  "key": "direction",
+                  "value": "asc"
+                },
+                {
+                  "key": "name",
+                  "value": "Rex",
+                  "disabled": true
+                },
+                {
+                  "key": "tutorId",
+                  "value": "1",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Listar pets",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/pets?page=0&size=10&sortBy=name&direction=asc",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "pets"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "sortBy",
+                      "value": "name"
+                    },
+                    {
+                      "key": "direction",
+                      "value": "asc"
+                    },
+                    {
+                      "key": "name",
+                      "value": "Rex",
+                      "disabled": true
+                    },
+                    {
+                      "key": "tutorId",
+                      "value": "1",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 02:43:30 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"content\": [\n        {\n            \"id\": 10,\n            \"name\": \"Bolota\",\n            \"breed\": \"Hamster Anão\",\n            \"birthDate\": \"2023-06-01\",\n            \"weight\": 0.04,\n            \"speciesId\": 5,\n            \"createdAt\": \"2026-05-08T00:29:23.389172\",\n            \"tutorId\": 6,\n            \"tutorName\": \"Felipe Nunes\"\n        },\n        {\n            \"id\": 25,\n            \"name\": \"Bolt\",\n            \"breed\": \"Beagle\",\n            \"birthDate\": \"2018-11-30\",\n            \"weight\": 14,\n            \"speciesId\": 1,\n            \"createdAt\": \"2026-05-10T18:05:17.360199\",\n            \"tutorId\": 3,\n            \"tutorName\": \"Carla Souza\"\n        },\n        {\n            \"id\": 5,\n            \"name\": \"Bolt\",\n            \"breed\": \"Beagle\",\n            \"birthDate\": \"2018-11-30\",\n            \"weight\": 14,\n            \"speciesId\": 1,\n            \"createdAt\": \"2026-05-08T00:29:23.332374\",\n            \"tutorId\": 3,\n            \"tutorName\": \"Carla Souza\"\n        },\n        {\n            \"id\": 27,\n            \"name\": \"Duque\",\n            \"breed\": \"Poodle\",\n            \"birthDate\": \"2020-08-22\",\n            \"weight\": 8.5,\n            \"speciesId\": 1,\n            \"createdAt\": \"2026-05-10T18:05:17.379974\",\n            \"tutorId\": 5,\n            \"tutorName\": \"Eduarda Costa\"\n        },\n        {\n            \"id\": 7,\n            \"name\": \"Duque\",\n            \"breed\": \"Poodle\",\n            \"birthDate\": \"2020-08-22\",\n            \"weight\": 8.5,\n            \"speciesId\": 1,\n            \"createdAt\": \"2026-05-08T00:29:23.35351\",\n            \"tutorId\": 5,\n            \"tutorName\": \"Eduarda Costa\"\n        },\n        {\n            \"id\": 26,\n            \"name\": \"Fofinho\",\n            \"breed\": \"Angorá\",\n            \"birthDate\": \"2023-02-14\",\n            \"weight\": 1.2,\n            \"speciesId\": 3,\n            \"createdAt\": \"2026-05-10T18:05:17.370028\",\n            \"tutorId\": 4,\n            \"tutorName\": \"Diego Martins\"\n        },\n        {\n            \"id\": 6,\n            \"name\": \"Fofo\",\n            \"breed\": \"Angorá\",\n            \"birthDate\": \"2023-02-14\",\n            \"weight\": 1.2,\n            \"speciesId\": 3,\n            \"createdAt\": \"2026-05-08T00:29:23.342508\",\n            \"tutorId\": 4,\n            \"tutorName\": \"Diego Martins\"\n        },\n        {\n            \"id\": 36,\n            \"name\": \"Juninho\",\n            \"breed\": \"Labrador\",\n            \"birthDate\": \"2022-05-15\",\n            \"weight\": 25.5,\n            \"speciesId\": 1,\n            \"createdAt\": \"2026-05-11T00:01:51.569789\",\n            \"tutorId\": 1,\n            \"tutorName\": \"Ana Super Atualizada\"\n        },\n        {\n            \"id\": 30,\n            \"name\": \"Loro\",\n            \"breed\": \"Calopsita\",\n            \"birthDate\": \"2023-06-01\",\n            \"weight\": 0.04,\n            \"speciesId\": 5,\n            \"createdAt\": \"2026-05-10T18:05:17.409836\",\n            \"tutorId\": 6,\n            \"tutorName\": \"Felipe Nunes\"\n        },\n        {\n            \"id\": 24,\n            \"name\": \"Luna\",\n            \"breed\": \"Siamês\",\n            \"birthDate\": \"2022-05-05\",\n            \"weight\": 3.8,\n            \"speciesId\": 2,\n            \"createdAt\": \"2026-05-10T18:05:17.34815\",\n            \"tutorId\": 3,\n            \"tutorName\": \"Carla Souza\"\n        }\n    ],\n    \"empty\": false,\n    \"first\": true,\n    \"last\": false,\n    \"number\": 0,\n    \"numberOfElements\": 10,\n    \"pageable\": {\n        \"offset\": 0,\n        \"pageNumber\": 0,\n        \"pageSize\": 10,\n        \"paged\": true,\n        \"sort\": {\n            \"empty\": false,\n            \"sorted\": true,\n            \"unsorted\": false\n        },\n        \"unpaged\": false\n    },\n    \"size\": 10,\n    \"sort\": {\n        \"empty\": false,\n        \"sorted\": true,\n        \"unsorted\": false\n    },\n    \"totalElements\": 20,\n    \"totalPages\": 2\n}"
+            }
+          ]
+        },
+        {
+          "name": "Buscar pet por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pets/5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pets",
+                "5"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Buscar pet por ID",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/pets/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "pets",
+                    "1"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 02:44:43 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 1,\n    \"name\": \"Rex Atualizado\",\n    \"breed\": \"Golden Retriever\",\n    \"birthDate\": \"2022-05-15\",\n    \"weight\": 28,\n    \"speciesId\": 1,\n    \"createdAt\": \"2026-05-08T00:29:23.289673\",\n    \"tutorId\": 1,\n    \"tutorName\": \"Ana Super Atualizada\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Criar pet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Tommy\",\n  \"breed\": \"Labrador\",\n  \"birthDate\": \"2023-05-20\",\n  \"weight\": 23.5,\n  \"speciesId\": 1,\n  \"tutorId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pets"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Criar pet",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Tommy\",\n  \"breed\": \"Labrador\",\n  \"birthDate\": \"2023-05-20\",\n  \"weight\": 23.5,\n  \"speciesId\": 1,\n  \"species\": \"Cão\",\n  \"tutorId\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/pets",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "pets"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 02:45:21 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 38,\n    \"name\": \"Tommy\",\n    \"breed\": \"Labrador\",\n    \"birthDate\": \"2023-05-20\",\n    \"weight\": 23.5,\n    \"speciesId\": 1,\n    \"createdAt\": \"2026-05-11T23:45:21.7184521\",\n    \"tutorId\": 1,\n    \"tutorName\": \"Ana Super Atualizada\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Atualizar pet",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Bolt Atualizado\",\n    \"breed\": \"Beagle\",\n    \"birthDate\": \"2018-11-30\",\n    \"weight\": 14,\n    \"speciesId\": 1,\n    \"tutorId\": 3\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pets/5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pets",
+                "5"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Atualizar pet",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"Bolt Atualizado\",\n    \"breed\": \"Beagle\",\n    \"birthDate\": \"2018-11-30\",\n    \"weight\": 14,\n    \"speciesId\": 1,\n    \"tutorId\": 3\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/pets/5",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "pets",
+                    "5"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:00:11 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 5,\n    \"name\": \"Bolt Atualizado\",\n    \"breed\": \"Beagle\",\n    \"birthDate\": \"2018-11-30\",\n    \"weight\": 14,\n    \"speciesId\": 1,\n    \"createdAt\": \"2026-05-08T00:29:23.332374\",\n    \"tutorId\": 3,\n    \"tutorName\": \"Carla Souza\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remover pet",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pets/38",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pets",
+                "38"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Remover pet",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/pets/38",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "pets",
+                    "38"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 02:58:20 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Clínicas",
+      "item": [
+        {
+          "name": "Listar clínicas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clinics?page=0&size=10&sortBy=name&direction=asc",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "clinics"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "name"
+                },
+                {
+                  "key": "direction",
+                  "value": "asc"
+                },
+                {
+                  "key": "name",
+                  "value": "Pet",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Listar clínicas",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/clinics?page=0&size=10&sortBy=name&direction=asc",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "clinics"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "sortBy",
+                      "value": "name"
+                    },
+                    {
+                      "key": "direction",
+                      "value": "asc"
+                    },
+                    {
+                      "key": "name",
+                      "value": "Pet",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:01:05 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"content\": [\n        {\n            \"id\": 26,\n            \"name\": \"Clínica Bem-Estar Animal\",\n            \"address\": \"Rua Goiás, 200 - Goiânia, GO\",\n            \"phone\": \"(62) 96666-6666\",\n            \"cnpj\": \"44.555.666/0001-77\",\n            \"createdAt\": \"2026-05-10T18:05:17.278024\"\n        },\n        {\n            \"id\": 24,\n            \"name\": \"Clínica Pet Feliz\",\n            \"address\": \"Rua Uruguai, 300 - Curitiba, PR\",\n            \"phone\": \"(41) 94444-4444\",\n            \"cnpj\": \"22.333.444/0001-55\",\n            \"createdAt\": \"2026-05-10T18:05:17.257025\"\n        },\n        {\n            \"id\": 1,\n            \"name\": \"Clínica Pet Saúde Atualizada\",\n            \"address\": \"Av. Paulista, 1000\",\n            \"phone\": \"(11) 98888-8888\",\n            \"cnpj\": \"12.345.678/0001-90\",\n            \"createdAt\": \"2026-05-08T00:29:23.100011\"\n        },\n        {\n            \"id\": 2,\n            \"name\": \"Hospital PetCare\",\n            \"address\": \"Av. Paulista, 500 - Sao Paulo\",\n            \"phone\": \"11-92222-2222\",\n            \"cnpj\": \"98.765.432/0001-11\",\n            \"createdAt\": \"2026-05-08T00:29:23.111446\"\n        },\n        {\n            \"id\": 25,\n            \"name\": \"Hospital Veterinário Pets\",\n            \"address\": \"Av. do Estado, 1000 - Rio de Janeiro, RJ\",\n            \"phone\": \"(21) 95555-5555\",\n            \"cnpj\": \"33.444.555/0001-66\",\n            \"createdAt\": \"2026-05-10T18:05:17.268048\"\n        },\n        {\n            \"id\": 3,\n            \"name\": \"Vet Animal Premium\",\n            \"address\": \"Rua Augusta, 200 - Sao Paulo\",\n            \"phone\": \"11-93333-3333\",\n            \"cnpj\": \"11.222.333/0001-44\",\n            \"createdAt\": \"2026-05-08T00:29:23.122276\"\n        },\n        {\n            \"id\": 27,\n            \"name\": \"Vet Premium Saúde\",\n            \"address\": \"Av. Afonso Pena, 1000 - Belo Horizonte, MG\",\n            \"phone\": \"(31) 97777-7777\",\n            \"cnpj\": \"55.666.777/0001-88\",\n            \"createdAt\": \"2026-05-10T18:05:17.287207\"\n        }\n    ],\n    \"empty\": false,\n    \"first\": true,\n    \"last\": true,\n    \"number\": 0,\n    \"numberOfElements\": 7,\n    \"pageable\": {\n        \"offset\": 0,\n        \"pageNumber\": 0,\n        \"pageSize\": 10,\n        \"paged\": true,\n        \"sort\": {\n            \"empty\": false,\n            \"sorted\": true,\n            \"unsorted\": false\n        },\n        \"unpaged\": false\n    },\n    \"size\": 10,\n    \"sort\": {\n        \"empty\": false,\n        \"sorted\": true,\n        \"unsorted\": false\n    },\n    \"totalElements\": 7,\n    \"totalPages\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "Buscar clínica por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clinics/26",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "clinics",
+                "26"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Buscar clínica por ID",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/clinics/26",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "clinics",
+                    "26"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:01:28 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 26,\n    \"name\": \"Clínica Bem-Estar Animal\",\n    \"address\": \"Rua Goiás, 200 - Goiânia, GO\",\n    \"phone\": \"(62) 96666-6666\",\n    \"cnpj\": \"44.555.666/0001-77\",\n    \"createdAt\": \"2026-05-10T18:05:17.278024\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Criar clínica",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"PetVision Veterinária da Visão\",\n  \"address\": \"Rua do Teste, 123 - São Paulo/SP\",\n  \"phone\": \"(11) 99999-9999\",\n  \"cnpj\": \"12.111.678/0001-90\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clinics",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "clinics"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Criar clínica",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"PetVision Veterinária da Visão\",\n  \"address\": \"Rua do Teste, 123 - São Paulo/SP\",\n  \"phone\": \"(11) 99999-9999\",\n  \"cnpj\": \"12.111.678/0001-90\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/clinics",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "clinics"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:04:07 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 29,\n    \"name\": \"PetVision Veterinária da Visão\",\n    \"address\": \"Rua do Teste, 123 - São Paulo/SP\",\n    \"phone\": \"(11) 99999-9999\",\n    \"cnpj\": \"12.111.678/0001-90\",\n    \"createdAt\": \"2026-05-12T00:04:07.6244778\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Atualizar clínica",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"PetVision Atualizada da Visão\",\n  \"address\": \"Rua do Teste, 123 - São Paulo/SP\",\n  \"phone\": \"(11) 99999-9999\",\n  \"cnpj\": \"12.111.678/0001-90\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clinics/29",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "clinics",
+                "29"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Atualizar clínica",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"PetVision Atualizada da Visão\",\n  \"address\": \"Rua do Teste, 123 - São Paulo/SP\",\n  \"phone\": \"(11) 99999-9999\",\n  \"cnpj\": \"12.111.678/0001-90\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/clinics/29",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "clinics",
+                    "29"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:05:21 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 29,\n    \"name\": \"PetVision Atualizada da Visão\",\n    \"address\": \"Rua do Teste, 123 - São Paulo/SP\",\n    \"phone\": \"(11) 99999-9999\",\n    \"cnpj\": \"12.111.678/0001-90\",\n    \"createdAt\": \"2026-05-12T00:04:07.624478\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remover clínica",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clinics/29",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "clinics",
+                "29"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Remover clínica",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/clinics/29",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "clinics",
+                    "29"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:05:56 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Planos",
+      "item": [
+        {
+          "name": "Listar planos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/plans?page=0&size=10&sortBy=name&direction=asc",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "plans"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "name"
+                },
+                {
+                  "key": "direction",
+                  "value": "asc"
+                },
+                {
+                  "key": "clinicId",
+                  "value": "1",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Listar planos",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/plans?page=0&size=10&sortBy=name&direction=asc",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "plans"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "sortBy",
+                      "value": "name"
+                    },
+                    {
+                      "key": "direction",
+                      "value": "asc"
+                    },
+                    {
+                      "key": "clinicId",
+                      "value": "1",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:07:16 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"content\": [\n        {\n            \"id\": 25,\n            \"name\": \"Plano Anual Vet Premium\",\n            \"description\": \"Melhor custo-benefício anual\",\n            \"price\": 149.9,\n            \"durationDays\": 365,\n            \"pointsPerEvent\": 2,\n            \"clinicId\": 3,\n            \"clinicName\": \"Vet Animal Premium\"\n        },\n        {\n            \"id\": 4,\n            \"name\": \"Plano Anual Vet Premium\",\n            \"description\": \"Melhor custo beneficio anual\",\n            \"price\": 149.9,\n            \"durationDays\": 365,\n            \"pointsPerEvent\": 2,\n            \"clinicId\": 3,\n            \"clinicName\": \"Vet Animal Premium\"\n        },\n        {\n            \"id\": 21,\n            \"name\": \"Plano Básico VetVida\",\n            \"description\": \"Cobertura básica de preventivos\",\n            \"price\": 89.9,\n            \"durationDays\": 30,\n            \"pointsPerEvent\": 1,\n            \"clinicId\": 1,\n            \"clinicName\": \"Clínica Pet Saúde Atualizada\"\n        },\n        {\n            \"id\": 23,\n            \"name\": \"Plano PetCare Essencial\",\n            \"description\": \"Check-up mensal incluído\",\n            \"price\": 99.9,\n            \"durationDays\": 30,\n            \"pointsPerEvent\": 1,\n            \"clinicId\": 2,\n            \"clinicName\": \"Hospital PetCare\"\n        },\n        {\n            \"id\": 3,\n            \"name\": \"Plano PetCare Essencial\",\n            \"description\": \"Check-up mensal incluido\",\n            \"price\": 99.9,\n            \"durationDays\": 30,\n            \"pointsPerEvent\": 1,\n            \"clinicId\": 2,\n            \"clinicName\": \"Hospital PetCare\"\n        },\n        {\n            \"id\": 24,\n            \"name\": \"Plano PetCare Família\",\n            \"description\": \"Até 3 pets com desconto\",\n            \"price\": 249.9,\n            \"durationDays\": 30,\n            \"pointsPerEvent\": 2,\n            \"clinicId\": 2,\n            \"clinicName\": \"Hospital PetCare\"\n        },\n        {\n            \"id\": 1,\n            \"name\": \"Plano Premium Atualizado\",\n            \"description\": \"Cobertura completa com desconto\",\n            \"price\": 179.9,\n            \"durationDays\": 30,\n            \"pointsPerEvent\": 2,\n            \"clinicId\": 1,\n            \"clinicName\": \"Clínica Pet Saúde Atualizada\"\n        },\n        {\n            \"id\": 22,\n            \"name\": \"Plano Premium VetVida\",\n            \"description\": \"Cobertura completa + 2x pontos\",\n            \"price\": 199.9,\n            \"durationDays\": 30,\n            \"pointsPerEvent\": 2,\n            \"clinicId\": 1,\n            \"clinicName\": \"Clínica Pet Saúde Atualizada\"\n        },\n        {\n            \"id\": 2,\n            \"name\": \"Plano Premium VetVida\",\n            \"description\": \"Cobertura completa + 2x pontos\",\n            \"price\": 199.9,\n            \"durationDays\": 30,\n            \"pointsPerEvent\": 2,\n            \"clinicId\": 1,\n            \"clinicName\": \"Clínica Pet Saúde Atualizada\"\n        },\n        {\n            \"id\": 26,\n            \"name\": \"Plano Semestral Vet Premium\",\n            \"description\": \"Plano de 6 meses com desconto\",\n            \"price\": 119.9,\n            \"durationDays\": 180,\n            \"pointsPerEvent\": 1,\n            \"clinicId\": 3,\n            \"clinicName\": \"Vet Animal Premium\"\n        }\n    ],\n    \"empty\": false,\n    \"first\": true,\n    \"last\": true,\n    \"number\": 0,\n    \"numberOfElements\": 10,\n    \"pageable\": {\n        \"offset\": 0,\n        \"pageNumber\": 0,\n        \"pageSize\": 10,\n        \"paged\": true,\n        \"sort\": {\n            \"empty\": false,\n            \"sorted\": true,\n            \"unsorted\": false\n        },\n        \"unpaged\": false\n    },\n    \"size\": 10,\n    \"sort\": {\n        \"empty\": false,\n        \"sorted\": true,\n        \"unsorted\": false\n    },\n    \"totalElements\": 10,\n    \"totalPages\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "Buscar plano por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/plans/25",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "plans",
+                "25"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Buscar plano por ID",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/plans/25",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "plans",
+                    "25"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:11:02 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 25,\n    \"name\": \"Plano Anual Vet Premium\",\n    \"description\": \"Melhor custo-benefício anual\",\n    \"price\": 149.9,\n    \"durationDays\": 365,\n    \"pointsPerEvent\": 2,\n    \"clinicId\": 3,\n    \"clinicName\": \"Vet Animal Premium\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Criar plano",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Plano Ultra Top Premium\",\n  \"description\": \"Cobertura completa com consultas e exames\",\n  \"price\": 189.90,\n  \"durationDays\": 365,\n  \"pointsPerEvent\": 50,\n  \"clinicId\": 25\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/plans",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "plans"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Criar plano",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Plano Ultra Top Premium\",\n  \"description\": \"Cobertura completa com consultas e exames\",\n  \"price\": 189.90,\n  \"durationDays\": 365,\n  \"pointsPerEvent\": 50,\n  \"clinicId\": 25\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/plans",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "plans"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:12:12 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 32,\n    \"name\": \"Plano Ultra Top Premium\",\n    \"description\": \"Cobertura completa com consultas e exames\",\n    \"price\": 189.9,\n    \"durationDays\": 365,\n    \"pointsPerEvent\": 50,\n    \"clinicId\": 25,\n    \"clinicName\": \"Hospital Veterinário Pets\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Atualizar plano",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Plano Premium Plus\",\n  \"description\": \"Cobertura completa com consultas, exames e cirurgias\",\n  \"price\": 129.90,\n  \"durationDays\": 365,\n  \"pointsPerEvent\": 75,\n  \"clinicId\": 25\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/plans/32",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "plans",
+                "32"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Atualizar plano",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Plano Premium Plus\",\n  \"description\": \"Cobertura completa com consultas, exames e cirurgias\",\n  \"price\": 129.90,\n  \"durationDays\": 365,\n  \"pointsPerEvent\": 75,\n  \"clinicId\": 25\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/plans/32",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "plans",
+                    "32"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:12:54 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 32,\n    \"name\": \"Plano Premium Plus\",\n    \"description\": \"Cobertura completa com consultas, exames e cirurgias\",\n    \"price\": 129.9,\n    \"durationDays\": 365,\n    \"pointsPerEvent\": 75,\n    \"clinicId\": 25,\n    \"clinicName\": \"Hospital Veterinário Pets\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remover plano",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/plans/32",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "plans",
+                "32"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Remover plano",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/plans/32",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "plans",
+                    "32"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:13:28 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Assinaturas",
+      "item": [
+        {
+          "name": "Listar assinaturas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/subscriptions?page=0&size=10&sortBy=createdAt&direction=desc",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "subscriptions"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "direction",
+                  "value": "desc"
+                },
+                {
+                  "key": "petId",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "ATIVO",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Listar assinaturas",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/subscriptions?page=0&size=10&sortBy=createdAt&direction=desc",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "subscriptions"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "sortBy",
+                      "value": "createdAt"
+                    },
+                    {
+                      "key": "direction",
+                      "value": "desc"
+                    },
+                    {
+                      "key": "petId",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "status",
+                      "value": "ATIVO",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:16:54 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"content\": [\n        {\n            \"id\": 27,\n            \"startDate\": \"2025-02-15\",\n            \"endDate\": \"2026-02-14\",\n            \"status\": \"EXPIRADO\",\n            \"createdAt\": \"2026-05-10T18:05:17.74268\",\n            \"petId\": 8,\n            \"petName\": \"Nala\",\n            \"planId\": 4,\n            \"planName\": \"Plano Anual Vet Premium\"\n        },\n        {\n            \"id\": 26,\n            \"startDate\": \"2025-01-01\",\n            \"endDate\": \"2025-06-30\",\n            \"status\": \"ENCERRADO\",\n            \"createdAt\": \"2026-05-10T18:05:17.734098\",\n            \"petId\": 7,\n            \"petName\": \"Duque\",\n            \"planId\": 2,\n            \"planName\": \"Plano Premium VetVida\"\n        },\n        {\n            \"id\": 25,\n            \"startDate\": \"2025-03-01\",\n            \"endDate\": \"2025-08-31\",\n            \"status\": \"EXPIRADO\",\n            \"createdAt\": \"2026-05-10T18:05:17.725027\",\n            \"petId\": 5,\n            \"petName\": \"Bolt Atualizado\",\n            \"planId\": 1,\n            \"planName\": \"Plano Premium Atualizado\"\n        },\n        {\n            \"id\": 23,\n            \"startDate\": \"2025-01-15\",\n            \"endDate\": \"2025-07-15\",\n            \"status\": \"EXPIRADO\",\n            \"createdAt\": \"2026-05-10T18:05:17.696308\",\n            \"petId\": 3,\n            \"petName\": \"Thor\",\n            \"planId\": 3,\n            \"planName\": \"Plano PetCare Essencial\"\n        },\n        {\n            \"id\": 22,\n            \"startDate\": \"2025-02-01\",\n            \"endDate\": \"2025-07-31\",\n            \"status\": \"EXPIRADO\",\n            \"createdAt\": \"2026-05-10T18:05:17.687305\",\n            \"petId\": 2,\n            \"petName\": \"Mimi\",\n            \"planId\": 1,\n            \"planName\": \"Plano Premium Atualizado\"\n        },\n        {\n            \"id\": 21,\n            \"startDate\": \"2025-01-01\",\n            \"endDate\": \"2025-12-31\",\n            \"status\": \"EXPIRADO\",\n            \"createdAt\": \"2026-05-10T18:05:17.676647\",\n            \"petId\": 1,\n            \"petName\": \"Rex Atualizado\",\n            \"planId\": 2,\n            \"planName\": \"Plano Premium VetVida\"\n        },\n        {\n            \"id\": 6,\n            \"startDate\": \"2025-01-01\",\n            \"endDate\": \"2025-06-30\",\n            \"status\": \"ENCERRADO\",\n            \"createdAt\": \"2026-05-08T00:29:23.524926\",\n            \"petId\": 7,\n            \"petName\": \"Duque\",\n            \"planId\": 2,\n            \"planName\": \"Plano Premium VetVida\"\n        },\n        {\n            \"id\": 5,\n            \"startDate\": \"2025-03-01\",\n            \"endDate\": \"2025-08-31\",\n            \"status\": \"EXPIRADO\",\n            \"createdAt\": \"2026-05-08T00:29:23.514647\",\n            \"petId\": 5,\n            \"petName\": \"Bolt Atualizado\",\n            \"planId\": 1,\n            \"planName\": \"Plano Premium Atualizado\"\n        },\n        {\n            \"id\": 4,\n            \"startDate\": \"2024-06-01\",\n            \"endDate\": \"2025-05-31\",\n            \"status\": \"EXPIRADO\",\n            \"createdAt\": \"2026-05-08T00:29:23.502382\",\n            \"petId\": 4,\n            \"petName\": \"Luna\",\n            \"planId\": 4,\n            \"planName\": \"Plano Anual Vet Premium\"\n        },\n        {\n            \"id\": 3,\n            \"startDate\": \"2025-01-15\",\n            \"endDate\": \"2025-07-15\",\n            \"status\": \"EXPIRADO\",\n            \"createdAt\": \"2026-05-08T00:29:23.492067\",\n            \"petId\": 3,\n            \"petName\": \"Thor\",\n            \"planId\": 3,\n            \"planName\": \"Plano PetCare Essencial\"\n        }\n    ],\n    \"empty\": false,\n    \"first\": true,\n    \"last\": false,\n    \"number\": 0,\n    \"numberOfElements\": 10,\n    \"pageable\": {\n        \"offset\": 0,\n        \"pageNumber\": 0,\n        \"pageSize\": 10,\n        \"paged\": true,\n        \"sort\": {\n            \"empty\": false,\n            \"sorted\": true,\n            \"unsorted\": false\n        },\n        \"unpaged\": false\n    },\n    \"size\": 10,\n    \"sort\": {\n        \"empty\": false,\n        \"sorted\": true,\n        \"unsorted\": false\n    },\n    \"totalElements\": 12,\n    \"totalPages\": 2\n}"
+            }
+          ]
+        },
+        {
+          "name": "Buscar assinatura por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/27",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "subscriptions",
+                "27"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Buscar assinatura por ID",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/subscriptions/27",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "subscriptions",
+                    "27"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:25:02 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 27,\n    \"startDate\": \"2025-02-15\",\n    \"endDate\": \"2026-02-14\",\n    \"status\": \"EXPIRADO\",\n    \"createdAt\": \"2026-05-10T18:05:17.74268\",\n    \"petId\": 8,\n    \"petName\": \"Nala\",\n    \"planId\": 4,\n    \"planName\": \"Plano Anual Vet Premium\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Criar assinatura",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startDate\": \"2024-01-01\",\n  \"endDate\": null,\n  \"status\": \"ATIVO\",\n  \"petId\": 1,\n  \"planId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/subscriptions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "subscriptions"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Criar assinatura",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"startDate\": \"2024-01-01\",\n  \"endDate\": null,\n  \"status\": \"ATIVO\",\n  \"petId\": 1,\n  \"planId\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/subscriptions",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "subscriptions"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:25:21 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 33,\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\",\n    \"status\": \"ATIVO\",\n    \"createdAt\": \"2026-05-12T00:25:21.4499252\",\n    \"petId\": 1,\n    \"petName\": \"Rex Atualizado\",\n    \"planId\": 1,\n    \"planName\": \"Plano Premium Atualizado\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Atualizar status da assinatura",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/33/status?status=ENCERRADO",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "subscriptions",
+                "33",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "ENCERRADO"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Atualizar status da assinatura",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/subscriptions/33/status?status=ENCERRADO",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "subscriptions",
+                    "33",
+                    "status"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "ENCERRADO"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:25:57 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 33,\n    \"startDate\": \"2024-01-01\",\n    \"endDate\": \"2024-01-31\",\n    \"status\": \"ENCERRADO\",\n    \"createdAt\": \"2026-05-12T00:25:21.449925\",\n    \"petId\": 1,\n    \"petName\": \"Rex Atualizado\",\n    \"planId\": 1,\n    \"planName\": \"Plano Premium Atualizado\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remover assinatura",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/33",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "subscriptions",
+                "33"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Remover assinatura",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/subscriptions/33",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "subscriptions",
+                    "33"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:26:24 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Eventos de Saúde",
+      "item": [
+        {
+          "name": "Listar eventos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health-events?page=0&size=10&sortBy=eventDate&direction=desc",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health-events"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "eventDate"
+                },
+                {
+                  "key": "direction",
+                  "value": "desc"
+                },
+                {
+                  "key": "petId",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "REALIZADO",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Listar eventos",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/health-events?page=0&size=10&sortBy=eventDate&direction=desc",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "health-events"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "sortBy",
+                      "value": "eventDate"
+                    },
+                    {
+                      "key": "direction",
+                      "value": "desc"
+                    },
+                    {
+                      "key": "petId",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "status",
+                      "value": "REALIZADO",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:39:52 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"content\": [\n        {\n            \"id\": 44,\n            \"description\": \"Vacinação\",\n            \"eventDate\": \"2028-05-20\",\n            \"status\": \"AGENDADO\",\n            \"createdAt\": \"2026-05-11T00:36:14.536191\",\n            \"petId\": 1,\n            \"petName\": \"Rex Atualizado\",\n            \"eventTypeId\": 1,\n            \"clinicId\": 1,\n            \"clinicName\": \"Clínica Pet Saúde Atualizada\"\n        },\n        {\n            \"id\": 1,\n            \"description\": \"Vacinação anual realizada\",\n            \"eventDate\": \"2025-05-20\",\n            \"status\": \"REALIZADO\",\n            \"createdAt\": \"2026-05-08T00:29:23.545302\",\n            \"petId\": 1,\n            \"petName\": \"Rex Atualizado\",\n            \"eventTypeId\": 1,\n            \"clinicId\": 1,\n            \"clinicName\": \"Clínica Pet Saúde Atualizada\"\n        },\n        {\n            \"id\": 28,\n            \"description\": \"Vacina antirrábica\",\n            \"eventDate\": \"2025-04-12\",\n            \"status\": \"REALIZADO\",\n            \"createdAt\": \"2026-05-10T18:05:17.914998\",\n            \"petId\": 3,\n            \"petName\": \"Thor\",\n            \"eventTypeId\": 1,\n            \"clinicId\": 1,\n            \"clinicName\": \"Clínica Pet Saúde Atualizada\"\n        },\n        {\n            \"id\": 12,\n            \"description\": \"Antirabica beagle\",\n            \"eventDate\": \"2025-04-12\",\n            \"status\": \"REALIZADO\",\n            \"createdAt\": \"2026-05-08T00:29:23.688081\",\n            \"petId\": 3,\n            \"petName\": \"Thor\",\n            \"eventTypeId\": 1,\n            \"clinicId\": 1,\n            \"clinicName\": \"Clínica Pet Saúde Atualizada\"\n        },\n        {\n            \"id\": 11,\n            \"description\": \"Exame bioquimico completo\",\n            \"eventDate\": \"2025-04-10\",\n            \"status\": \"REALIZADO\",\n            \"createdAt\": \"2026-05-08T00:29:23.676521\",\n            \"petId\": 1,\n            \"petName\": \"Rex Atualizado\",\n            \"eventTypeId\": 6,\n            \"clinicId\": 2,\n            \"clinicName\": \"Hospital PetCare\"\n        },\n        {\n            \"id\": 10,\n            \"description\": \"Banho gato maine coon\",\n            \"eventDate\": \"2025-04-05\",\n            \"status\": \"REALIZADO\",\n            \"createdAt\": \"2026-05-08T00:29:23.665396\",\n            \"petId\": 8,\n            \"petName\": \"Nala\",\n            \"eventTypeId\": 5,\n            \"clinicId\": 2,\n            \"clinicName\": \"Hospital PetCare\"\n        },\n        {\n            \"id\": 32,\n            \"description\": \"Check-up poodle\",\n            \"eventDate\": \"2025-04-01\",\n            \"status\": \"REALIZADO\",\n            \"createdAt\": \"2026-05-10T18:05:17.95545\",\n            \"petId\": 7,\n            \"petName\": \"Duque\",\n            \"eventTypeId\": 5,\n            \"clinicId\": 1,\n            \"clinicName\": \"Clínica Pet Saúde Atualizada\"\n        },\n        {\n            \"id\": 9,\n            \"description\": \"Check-up poodle\",\n            \"eventDate\": \"2025-04-01\",\n            \"status\": \"REALIZADO\",\n            \"createdAt\": \"2026-05-08T00:29:23.654061\",\n            \"petId\": 7,\n            \"petName\": \"Duque\",\n            \"eventTypeId\": 4,\n            \"clinicId\": 1,\n            \"clinicName\": \"Clínica Pet Saúde Atualizada\"\n        },\n        {\n            \"id\": 25,\n            \"description\": \"Consulta de rotina\",\n            \"eventDate\": \"2025-03-15\",\n            \"status\": \"REALIZADO\",\n            \"createdAt\": \"2026-05-10T18:05:17.886012\",\n            \"petId\": 2,\n            \"petName\": \"Mimi\",\n            \"eventTypeId\": 4,\n            \"clinicId\": 1,\n            \"clinicName\": \"Clínica Pet Saúde Atualizada\"\n        },\n        {\n            \"id\": 30,\n            \"description\": \"Vacina V10 aplicada\",\n            \"eventDate\": \"2025-03-10\",\n            \"status\": \"REALIZADO\",\n            \"createdAt\": \"2026-05-10T18:05:17.935179\",\n            \"petId\": 5,\n            \"petName\": \"Bolt Atualizado\",\n            \"eventTypeId\": 2,\n            \"clinicId\": 1,\n            \"clinicName\": \"Clínica Pet Saúde Atualizada\"\n        }\n    ],\n    \"empty\": false,\n    \"first\": true,\n    \"last\": false,\n    \"number\": 0,\n    \"numberOfElements\": 10,\n    \"pageable\": {\n        \"offset\": 0,\n        \"pageNumber\": 0,\n        \"pageSize\": 10,\n        \"paged\": true,\n        \"sort\": {\n            \"empty\": false,\n            \"sorted\": true,\n            \"unsorted\": false\n        },\n        \"unpaged\": false\n    },\n    \"size\": 10,\n    \"sort\": {\n        \"empty\": false,\n        \"sorted\": true,\n        \"unsorted\": false\n    },\n    \"totalElements\": 24,\n    \"totalPages\": 3\n}"
+            }
+          ]
+        },
+        {
+          "name": "Buscar evento por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health-events/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health-events",
+                "1"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Buscar evento por ID",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/health-events/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "health-events",
+                    "1"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:40:18 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 1,\n    \"description\": \"Vacinação anual realizada\",\n    \"eventDate\": \"2025-05-20\",\n    \"status\": \"REALIZADO\",\n    \"createdAt\": \"2026-05-08T00:29:23.545302\",\n    \"petId\": 1,\n    \"petName\": \"Rex Atualizado\",\n    \"eventTypeId\": 1,\n    \"clinicId\": 1,\n    \"clinicName\": \"Clínica Pet Saúde Atualizada\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Criar evento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Vacinação contra raiva\",\n  \"eventDate\": \"2024-03-15\",\n  \"status\": \"REALIZADO\",\n  \"petId\": 1,\n  \"eventTypeId\": 1,\n  \"clinicId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/health-events",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health-events"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Criar evento",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"description\": \"Vacinação contra raiva\",\n  \"eventDate\": \"2024-03-15\",\n  \"status\": \"REALIZADO\",\n  \"petId\": 1,\n  \"eventTypeId\": 1,\n  \"clinicId\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/health-events",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "health-events"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:39:26 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 46,\n    \"description\": \"Vacinação contra raiva\",\n    \"eventDate\": \"2024-03-15\",\n    \"status\": \"REALIZADO\",\n    \"createdAt\": \"2026-05-12T00:39:26.7768411\",\n    \"petId\": 1,\n    \"petName\": \"Rex Atualizado\",\n    \"eventTypeId\": 1,\n    \"clinicId\": 1,\n    \"clinicName\": \"Clínica Pet Saúde Atualizada\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Atualizar evento",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Vacinação contra fungos\",\n  \"eventDate\": \"2024-03-15\",\n  \"status\": \"REALIZADO\",\n  \"petId\": 1,\n  \"eventTypeId\": 1,\n  \"clinicId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/health-events/46",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health-events",
+                "46"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Atualizar evento",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"description\": \"Vacinação contra fungos\",\n  \"eventDate\": \"2024-03-15\",\n  \"status\": \"REALIZADO\",\n  \"petId\": 1,\n  \"eventTypeId\": 1,\n  \"clinicId\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/health-events/46",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "health-events",
+                    "46"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:41:13 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 46,\n    \"description\": \"Vacinação contra fungos\",\n    \"eventDate\": \"2024-03-15\",\n    \"status\": \"REALIZADO\",\n    \"createdAt\": \"2026-05-12T00:39:26.776841\",\n    \"petId\": 1,\n    \"petName\": \"Rex Atualizado\",\n    \"eventTypeId\": 1,\n    \"clinicId\": 1,\n    \"clinicName\": \"Clínica Pet Saúde Atualizada\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remover evento",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health-events/46",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health-events",
+                "46"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Remover evento",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/health-events/46",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "health-events",
+                    "46"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:41:54 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cupons",
+      "item": [
+        {
+          "name": "Listar cupons",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/coupons?page=0&size=10&sortBy=code&direction=asc",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "coupons"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "code"
+                },
+                {
+                  "key": "direction",
+                  "value": "asc"
+                },
+                {
+                  "key": "status",
+                  "value": "DISPONIVEL",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Listar cupons",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/coupons?page=0&size=10&sortBy=code&direction=asc",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "coupons"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "sortBy",
+                      "value": "code"
+                    },
+                    {
+                      "key": "direction",
+                      "value": "asc"
+                    },
+                    {
+                      "key": "status",
+                      "value": "DISPONIVEL",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:50:41 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"content\": [\n        {\n            \"id\": 39,\n            \"code\": \"DESCONTO2026\",\n            \"status\": \"DISPONIVEL\",\n            \"expirationDate\": \"2027-12-31\",\n            \"templateId\": 1,\n            \"createdAt\": \"2026-05-12T00:50:04.90715\"\n        },\n        {\n            \"id\": 4,\n            \"code\": \"FARMA20-2025-C1\",\n            \"status\": \"DISPONIVEL\",\n            \"expirationDate\": \"2025-12-31\",\n            \"templateId\": 3,\n            \"createdAt\": \"2026-05-08T00:29:23.9795\"\n        },\n        {\n            \"id\": 1,\n            \"code\": \"PATA15-2025-A1\",\n            \"status\": \"RESGATADO\",\n            \"expirationDate\": \"2025-12-31\",\n            \"templateId\": 1,\n            \"createdAt\": \"2026-05-08T00:29:23.944589\"\n        },\n        {\n            \"id\": 2,\n            \"code\": \"PATA15-2025-A2\",\n            \"status\": \"DISPONIVEL\",\n            \"expirationDate\": \"2025-12-31\",\n            \"templateId\": 1,\n            \"createdAt\": \"2026-05-08T00:29:23.956284\"\n        },\n        {\n            \"id\": 23,\n            \"code\": \"PATA15-2025-A3\",\n            \"status\": \"DISPONIVEL\",\n            \"expirationDate\": \"2026-01-31\",\n            \"templateId\": 1,\n            \"createdAt\": \"2026-05-10T18:05:18.838499\"\n        },\n        {\n            \"id\": 36,\n            \"code\": \"PROMO2025\",\n            \"status\": \"RESGATADO\",\n            \"expirationDate\": \"2027-12-31\",\n            \"templateId\": 1,\n            \"createdAt\": \"2026-05-11T00:55:38.174475\"\n        },\n        {\n            \"id\": 37,\n            \"code\": \"PROMO2028\",\n            \"status\": \"RESGATADO\",\n            \"expirationDate\": \"2027-12-31\",\n            \"templateId\": 1,\n            \"createdAt\": \"2026-05-11T01:05:19.421996\"\n        },\n        {\n            \"id\": 3,\n            \"code\": \"RACAO20-2025-B1\",\n            \"status\": \"RESGATADO\",\n            \"expirationDate\": \"2025-09-30\",\n            \"templateId\": 2,\n            \"createdAt\": \"2026-05-08T00:29:23.96874\"\n        },\n        {\n            \"id\": 25,\n            \"code\": \"RACAO20-2025-B2\",\n            \"status\": \"RESGATADO\",\n            \"expirationDate\": \"2025-08-31\",\n            \"templateId\": 2,\n            \"createdAt\": \"2026-05-10T18:05:18.8629\"\n        }\n    ],\n    \"empty\": false,\n    \"first\": true,\n    \"last\": true,\n    \"number\": 0,\n    \"numberOfElements\": 9,\n    \"pageable\": {\n        \"offset\": 0,\n        \"pageNumber\": 0,\n        \"pageSize\": 10,\n        \"paged\": true,\n        \"sort\": {\n            \"empty\": false,\n            \"sorted\": true,\n            \"unsorted\": false\n        },\n        \"unpaged\": false\n    },\n    \"size\": 10,\n    \"sort\": {\n        \"empty\": false,\n        \"sorted\": true,\n        \"unsorted\": false\n    },\n    \"totalElements\": 9,\n    \"totalPages\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "Buscar cupom por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/coupons/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "coupons",
+                "1"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Buscar cupom por ID",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/coupons/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "coupons",
+                    "1"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:51:03 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 1,\n    \"code\": \"PATA15-2025-A1\",\n    \"status\": \"RESGATADO\",\n    \"expirationDate\": \"2025-12-31\",\n    \"templateId\": 1,\n    \"createdAt\": \"2026-05-08T00:29:23.944589\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Criar cupom",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"DESCONTO2026\",\n  \"status\": \"DISPONIVEL\",\n  \"expirationDate\": \"2027-12-31\",\n  \"templateId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/coupons",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "coupons"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Criar cupom",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"code\": \"DESCONTO2026\",\n  \"status\": \"DISPONIVEL\",\n  \"expirationDate\": \"2027-12-31\",\n  \"templateId\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/coupons",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "coupons"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:50:05 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 39,\n    \"code\": \"DESCONTO2026\",\n    \"status\": \"DISPONIVEL\",\n    \"expirationDate\": \"2027-12-31\",\n    \"templateId\": 1,\n    \"createdAt\": \"2026-05-12T00:50:04.9071497\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Atualizar status do cupom",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/coupons/1/status?status=RESGATADO",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "coupons",
+                "1",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "RESGATADO"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Atualizar status do cupom",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/coupons/1/status?status=RESGATADO",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "coupons",
+                    "1",
+                    "status"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "RESGATADO"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:51:44 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 1,\n    \"code\": \"PATA15-2025-A1\",\n    \"status\": \"RESGATADO\",\n    \"expirationDate\": \"2025-12-31\",\n    \"templateId\": 1,\n    \"createdAt\": \"2026-05-08T00:29:23.944589\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remover cupom",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/coupons/39",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "coupons",
+                "39"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Remover cupom",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/coupons/39",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "coupons",
+                    "39"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:52:18 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Resgates",
+      "item": [
+        {
+          "name": "Listar resgates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/redeems?page=0&size=10&sortBy=createdAt&direction=desc",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "redeems"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "direction",
+                  "value": "desc"
+                },
+                {
+                  "key": "tutorId",
+                  "value": "1",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Listar resgates",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/redeems?page=0&size=10&sortBy=createdAt&direction=desc",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "redeems"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "sortBy",
+                      "value": "createdAt"
+                    },
+                    {
+                      "key": "direction",
+                      "value": "desc"
+                    },
+                    {
+                      "key": "tutorId",
+                      "value": "1",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:52:41 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"content\": [\n        {\n            \"id\": 26,\n            \"pointsUsed\": 600,\n            \"createdAt\": \"2026-05-11T01:05:48.690216\",\n            \"tutorId\": 1,\n            \"tutorName\": \"Ana Super Atualizada\",\n            \"couponId\": 37,\n            \"couponCode\": \"PROMO2028\"\n        },\n        {\n            \"id\": 21,\n            \"pointsUsed\": 300,\n            \"createdAt\": \"2026-05-10T18:05:19.05168\",\n            \"tutorId\": 1,\n            \"tutorName\": \"Ana Super Atualizada\",\n            \"couponId\": 1,\n            \"couponCode\": \"PATA15-2025-A1\"\n        },\n        {\n            \"id\": 2,\n            \"pointsUsed\": 400,\n            \"createdAt\": \"2026-05-08T00:29:24.011006\",\n            \"tutorId\": 3,\n            \"tutorName\": \"Carla Souza\",\n            \"couponId\": 3,\n            \"couponCode\": \"RACAO20-2025-B1\"\n        },\n        {\n            \"id\": 1,\n            \"pointsUsed\": 300,\n            \"createdAt\": \"2026-05-08T00:29:24.000122\",\n            \"tutorId\": 1,\n            \"tutorName\": \"Ana Super Atualizada\",\n            \"couponId\": 1,\n            \"couponCode\": \"PATA15-2025-A1\"\n        }\n    ],\n    \"empty\": false,\n    \"first\": true,\n    \"last\": true,\n    \"number\": 0,\n    \"numberOfElements\": 4,\n    \"pageable\": {\n        \"offset\": 0,\n        \"pageNumber\": 0,\n        \"pageSize\": 10,\n        \"paged\": true,\n        \"sort\": {\n            \"empty\": false,\n            \"sorted\": true,\n            \"unsorted\": false\n        },\n        \"unpaged\": false\n    },\n    \"size\": 10,\n    \"sort\": {\n        \"empty\": false,\n        \"sorted\": true,\n        \"unsorted\": false\n    },\n    \"totalElements\": 4,\n    \"totalPages\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "Buscar resgate por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/redeems/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "redeems",
+                "1"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Buscar resgate por ID",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/redeems/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "redeems",
+                    "1"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:53:09 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 1,\n    \"pointsUsed\": 300,\n    \"createdAt\": \"2026-05-08T00:29:24.000122\",\n    \"tutorId\": 1,\n    \"tutorName\": \"Ana Super Atualizada\",\n    \"couponId\": 1,\n    \"couponCode\": \"PATA15-2025-A1\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Registrar resgate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pointsUsed\": 100,\n  \"tutorId\": 1,\n  \"couponId\": 40\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/redeems",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "redeems"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Registrar resgate",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"pointsUsed\": 100,\n  \"tutorId\": 1,\n  \"couponId\": 40\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/redeems",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "redeems"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Transfer-Encoding",
+                  "value": "chunked"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 12 May 2026 03:54:46 GMT"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=60"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"id\": 27,\n    \"pointsUsed\": 100,\n    \"createdAt\": \"2026-05-12T00:54:46.3959316\",\n    \"tutorId\": 1,\n    \"tutorName\": \"Ana Super Atualizada\",\n    \"couponId\": 40,\n    \"couponCode\": \"DESCONTO2026\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
+    }
+  ]
+}
