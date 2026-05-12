@@ -32,6 +32,9 @@ public class Coupon {
     @Column(name = "EXPIRATION_DATE")
     private LocalDate expirationDate;
 
+    @Column(name = "TEMPLATE_ID", nullable = false)
+    private Long templateId;
+ 
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;
 

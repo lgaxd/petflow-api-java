@@ -17,7 +17,7 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.CouponResponseDTO(
-                c.id, c.code, c.status, c.expirationDate, c.createdAt
+                c.id, c.code, c.status, c.expirationDate, c.templateId, c.createdAt
             )
             FROM Coupon c
             """)
@@ -25,7 +25,7 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.CouponResponseDTO(
-                c.id, c.code, c.status, c.expirationDate, c.createdAt
+                c.id, c.code, c.status, c.expirationDate, c.templateId, c.createdAt
             )
             FROM Coupon c
             WHERE c.status = :status

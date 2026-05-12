@@ -45,6 +45,7 @@ public class CouponService {
                 .code(request.getCode())
                 .status(status)
                 .expirationDate(request.getExpirationDate())
+                .templateId(request.getTemplateId())
                 .build();
 
         coupon = couponRepository.save(coupon);
@@ -129,6 +130,7 @@ public class CouponService {
                 .code(coupon.getCode())
                 .status(coupon.getStatus())
                 .expirationDate(coupon.getExpirationDate())
+                .templateId(coupon.getTemplateId())
                 .createdAt(coupon.getCreatedAt())
                 .build();
     }

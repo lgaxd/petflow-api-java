@@ -25,6 +25,9 @@ public class CouponResponseDTO {
     @Schema(description = "Data de expiração", example = "2025-12-31")
     private LocalDate expirationDate;
 
+    @Schema(description = "ID do template", example = "1")
+    private Long templateId;
+
     @Schema(description = "Data de criação", example = "2024-01-15T10:30:00")
     private LocalDateTime createdAt;
 }

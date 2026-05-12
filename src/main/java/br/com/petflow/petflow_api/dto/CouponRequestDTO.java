@@ -21,4 +21,6 @@ public class CouponRequestDTO {
     @Future(message = "A data de expiração deve ser uma data futura")
     private LocalDate expirationDate;
 
+    @NotNull(message = "O ID do template é obrigatório")
+    private Long templateId;
 }
