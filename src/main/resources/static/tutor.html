@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetFlow — Área do Tutor</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">🐾 PetFlow</div>
+    <div class="user-info">
+      <span id="userName"></span>
+      <button onclick="Auth.logout()">Sair</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="pets">Meus Pets</button>
+      <button class="tab-btn" data-tab="events">Eventos de Saúde</button>
+      <button class="tab-btn" data-tab="subs">Assinaturas</button>
+      <button class="tab-btn" data-tab="coupons">Cupons &amp; Resgate</button>
+    </div>
+
+    <!-- PETS -->
+    <section id="tab-pets" class="tab-panel active">
+      <div class="card">
+        <h2 class="section-title">Cadastrar pet</h2>
+        <p class="section-sub">Cada pet cadastrado gera pontos de recompensa.</p>
+        <form id="petForm">
+          <div class="grid-2">
+            <div>
+              <label>Nome do pet</label>
+              <input type="text" id="petName" required maxlength="100">
+            </div>
+            <div>
+              <label>Espécie</label>
+              <select id="petSpecies" required>
+                <option value="1">Cachorro</option>
+                <option value="2">Gato</option>
+                <option value="3">Ave</option>
+                <option value="4">Roedor</option>
+              </select>
+            </div>
+            <div>
+              <label>Raça</label>
+              <input type="text" id="petBreed" maxlength="50">
+            </div>
+            <div>
+              <label>Peso (kg)</label>
+              <input type="number" id="petWeight" step="0.01" min="0.01">
+            </div>
+            <div>
+              <label>Data de nascimento</label>
+              <input type="date" id="petBirth">
+            </div>
+          </div>
+          <button type="submit" class="primary">Cadastrar pet</button>
+        </form>
+        <div id="petMsg" class="msg" style="display:none"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Meus pets</h2>
+        <table>
+          <thead><tr><th>Nome</th><th>Raça</th><th>Peso</th><th>Nascimento</th></tr></thead>
+          <tbody id="petsTable"></tbody>
+        </table>
+        <div id="petsEmpty" class="empty" style="display:none">Você ainda não cadastrou nenhum pet.</div>
+      </div>
+    </section>
+
+    <!-- EVENTOS DE SAÚDE -->
+    <section id="tab-events" class="tab-panel">
+      <div class="card">
+        <h2 class="section-title">Registrar evento de saúde</h2>
+        <p class="section-sub">Vacinas, consultas e vermifugações concluídas geram pontos automaticamente.</p>
+        <form id="eventForm">
+          <div class="grid-2">
+            <div>
+              <label>Pet</label>
+              <select id="eventPet" required></select>
+            </div>
+            <div>
+              <label>Tipo de evento</label>
+              <select id="eventType" required>
+                <option value="1">Vacinação (+10 pts)</option>
+                <option value="2">Consulta de rotina (+5 pts)</option>
+                <option value="3">Vermifugação (+5 pts)</option>
+                <option value="4">Cirurgia</option>
+              </select>
+            </div>
+            <div>
+              <label>Data do evento</label>
+              <input type="date" id="eventDate" required>
+            </div>
+            <div>
+              <label>Status</label>
+              <select id="eventStatus" required>
+                <option value="AGENDADO">Agendado</option>
+                <option value="REALIZADO">Realizado</option>
+                <option value="CANCELADO">Cancelado</option>
+              </select>
+            </div>
+          </div>
+          <label>Descrição</label>
+          <input type="text" id="eventDescription" maxlength="200" placeholder="Ex: Vacina antirrábica anual">
+          <button type="submit" class="primary">Registrar evento</button>
+        </form>
+        <div id="eventMsg" class="msg" style="display:none"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Histórico de eventos</h2>
+        <table>
+          <thead><tr><th>Pet</th><th>Descrição</th><th>Data</th><th>Status</th></tr></thead>
+          <tbody id="eventsTable"></tbody>
+        </table>
+        <div id="eventsEmpty" class="empty" style="display:none">Nenhum evento registrado ainda.</div>
+      </div>
+    </section>
+
+    <!-- ASSINATURAS -->
+    <section id="tab-subs" class="tab-panel">
+      <div class="card">
+        <h2 class="section-title">Assinar plano</h2>
+        <form id="subForm">
+          <div class="grid-2">
+            <div>
+              <label>Pet</label>
+              <select id="subPet" required></select>
+            </div>
+            <div>
+              <label>Plano</label>
+              <select id="subPlan" required></select>
+            </div>
+            <div>
+              <label>Data de início</label>
+              <input type="date" id="subStart" required>
+            </div>
+          </div>
+          <button type="submit" class="primary">Assinar plano</button>
+        </form>
+        <div id="subMsg" class="msg" style="display:none"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Minhas assinaturas</h2>
+        <table>
+          <thead><tr><th>Pet</th><th>Plano</th><th>Início</th><th>Término</th><th>Status</th><th></th></tr></thead>
+          <tbody id="subsTable"></tbody>
+        </table>
+        <div id="subsEmpty" class="empty" style="display:none">Nenhuma assinatura ainda.</div>
+      </div>
+    </section>
+
+    <!-- CUPONS -->
+    <section id="tab-coupons" class="tab-panel">
+      <div class="card">
+        <h2 class="section-title">Cupons disponíveis</h2>
+        <p class="section-sub">Use seus pontos acumulados para resgatar um cupom.</p>
+        <table>
+          <thead><tr><th>Código</th><th>Validade</th><th>Status</th><th></th></tr></thead>
+          <tbody id="couponsTable"></tbody>
+        </table>
+        <div id="couponsEmpty" class="empty" style="display:none">Nenhum cupom disponível no momento.</div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Meus resgates</h2>
+        <table>
+          <thead><tr><th>Cupom</th><th>Pontos usados</th><th>Data</th></tr></thead>
+          <tbody id="redeemsTable"></tbody>
+        </table>
+        <div id="redeemsEmpty" class="empty" style="display:none">Você ainda não resgatou nenhum cupom.</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal simples de resgate -->
+  <dialog id="redeemDialog" style="border:none;border-radius:10px;padding:0;">
+    <div class="card" style="margin:0; width:300px;">
+      <h2 class="section-title">Resgatar cupom</h2>
+      <p class="section-sub" id="redeemCouponCode"></p>
+      <label>Pontos a utilizar</label>
+      <input type="number" id="redeemPoints" min="1" required>
+      <div style="display:flex; gap:8px; margin-top:16px;">
+        <button class="primary" id="confirmRedeem" style="margin:0">Confirmar</button>
+        <button class="secondary" onclick="document.getElementById('redeemDialog').close()">Cancelar</button>
+      </div>
+      <div id="redeemMsg" class="msg" style="display:none"></div>
+    </div>
+  </dialog>
+
+  <script src="js/api.js"></script>
+  <script src="js/tutor.js"></script>
+</body>
+</html>
