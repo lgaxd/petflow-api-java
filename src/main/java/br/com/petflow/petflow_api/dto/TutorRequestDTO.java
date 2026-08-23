@@ -22,6 +22,7 @@ public class TutorRequestDTO {
     private String phone;
 
     @NotBlank(message = "A senha é obrigatória")
-    @Size(max = 255)
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d).{8,}$", 
+         message = "A senha deve ter no mínimo 8 caracteres, contendo pelo menos uma letra e um número")
     private String password;
 }

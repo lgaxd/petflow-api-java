@@ -6,6 +6,7 @@ import br.com.petflow.petflow_api.entity.Pet;
 import br.com.petflow.petflow_api.entity.Plan;
 import br.com.petflow.petflow_api.entity.Subscription;
 import br.com.petflow.petflow_api.enums.SubscriptionStatus;
+import br.com.petflow.petflow_api.exception.BusinessRuleException;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
 import br.com.petflow.petflow_api.exception.InvalidStatusTransitionException;
 import br.com.petflow.petflow_api.repository.PetRepository;
@@ -52,6 +53,10 @@ public class SubscriptionService {
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Status inválido. Valores permitidos: ATIVO, ENCERRADO, CANCELADO, EXPIRADO");
             }
+        }
+
+        if (request.getEndDate() != null && request.getEndDate().isBefore(request.getStartDate())) {
+            throw new BusinessRuleException("A data de término não pode ser anterior à data de início", "INVALID_DATE_RANGE");
         }
 
         Subscription subscription = Subscription.builder()

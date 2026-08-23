@@ -3,6 +3,7 @@ package br.com.petflow.petflow_api.service;
 import br.com.petflow.petflow_api.dto.TutorRequestDTO;
 import br.com.petflow.petflow_api.dto.TutorResponseDTO;
 import br.com.petflow.petflow_api.entity.Tutor;
+import br.com.petflow.petflow_api.enums.UserRole;
 import br.com.petflow.petflow_api.exception.DuplicateResourceException;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
 import br.com.petflow.petflow_api.repository.TutorRepository;
@@ -13,12 +14,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 @RequiredArgsConstructor
 public class TutorService {
 
     private final TutorRepository tutorRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     @CacheEvict(value = "tutors", allEntries = true)
@@ -31,7 +34,8 @@ public class TutorService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .phone(request.getPhone())
-                .passwordHash(encodePassword(request.getPassword()))
+                .passwordHash(passwordEncoder.encode(request.getPassword()))
+                .role(UserRole.TUTOR)
                 .build();
 
         tutor = tutorRepository.save(tutor);

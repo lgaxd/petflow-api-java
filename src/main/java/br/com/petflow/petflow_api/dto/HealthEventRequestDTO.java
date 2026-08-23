@@ -14,6 +14,7 @@ public class HealthEventRequestDTO {
     private String description;
 
     @NotNull(message = "A data do evento é obrigatória")
+    @PastOrPresent(message = "A data do evento não pode ser futura")
     private LocalDate eventDate;
 
     @NotBlank(message = "O status é obrigatório")
