@@ -12,16 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * O cadastro de um novo tutor continua acontecendo em POST /tutors
- * (rota pública). Este controller cuida apenas da autenticação: recebe
- * email/senha, valida contra o Tutor persistido e devolve um JWT.
- */
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -34,23 +30,23 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Login", description = "Autentica um tutor ou admin e retorna um token JWT")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
-        Tutor tutor;
         try {
             var authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-            tutor = (Tutor) authentication.getPrincipal();
-        } catch (Exception e) {
+            Tutor tutor = (Tutor) authentication.getPrincipal();
+            String token = jwtService.generateToken(tutor);
+
+            return ResponseEntity.ok(LoginResponseDTO.builder()
+                    .token(token)
+                    .id(tutor.getId())
+                    .name(tutor.getName())
+                    .email(tutor.getEmail())
+                    .role(tutor.getRole())
+                    .build());
+        } catch (BadCredentialsException e) {
             throw new BadCredentialsException("E-mail ou senha inválidos");
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException("Usuário não encontrado com o e-mail informado.");
         }
-
-        String token = jwtService.generateToken(tutor);
-
-        return ResponseEntity.ok(LoginResponseDTO.builder()
-                .token(token)
-                .id(tutor.getId())
-                .name(tutor.getName())
-                .email(tutor.getEmail())
-                .role(tutor.getRole())
-                .build());
     }
 }

@@ -75,7 +75,7 @@ public class TutorService {
         tutor.setPhone(request.getPhone());
 
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            tutor.setPasswordHash(encodePassword(request.getPassword()));
+            tutor.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         }
 
         tutor = tutorRepository.save(tutor);
@@ -101,7 +101,4 @@ public class TutorService {
                 .build();
     }
 
-    private String encodePassword(String rawPassword) {
-        return "{noop}" + rawPassword;
-    }
 }
