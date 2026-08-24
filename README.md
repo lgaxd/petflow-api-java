@@ -4,31 +4,35 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.6-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Oracle](https://img.shields.io/badge/Oracle-Database-red.svg)](https://www.oracle.com/database/)
 [![Swagger](https://img.shields.io/badge/Swagger-OpenAPI-85EA2D.svg)](https://swagger.io/)
+[![Flyway](https://img.shields.io/badge/Flyway-Migrations-orange.svg)](https://flywaydb.org/)
 
 ## 📋 Sumário
 
-- [Sobre o Projeto](#-sobre-o-projeto)
-- [Equipe](#-equipe)
-- [Objetivo do Challenge](#-objetivo-do-challenge)
-- [Tecnologias Utilizadas](#️-tecnologias-utilizadas)
-- [Arquitetura do Projeto](#-arquitetura-do-projeto)
-- [Requisitos Técnicos Atendidos](#-requisitos-técnicos-atendidos)
-- [Visão de Domínio](#-vis%C3%A3o-de-dom%C3%ADnio)
-- [Endpoints da API](#-endpoints-da-api)
-- [Banco de Dados](#️-banco-de-dados)
-- [Swagger / OpenAPI](#-swagger--openapi)
-- [Como Executar](#-como-executar)
-- [Testes da API](#-testes-da-api)
-- [Documentação Complementar](#-documenta%C3%A7%C3%A3o-complementar)
-- [Observações Finais](#-observa%C3%A7%C3%B5es-finais)
+- [Sobre o Projeto](#sobre-o-projeto)
+- [Equipe](#equipe)
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Arquitetura do Projeto](#arquitetura-do-projeto)
+- [Requisitos da Sprint 3](#requisitos-da-sprint-3)
+- [Visão de Domínio](#visão-de-domínio)
+- [Endpoints da API](#endpoints-da-api)
+- [Banco de Dados](#banco-de-dados)
+- [Swagger / OpenAPI](#swagger--openapi)
+- [Como Executar](#como-executar)
+- [Credenciais de Teste](#credenciais-de-teste)
+- [Vídeo de Demonstração](#vídeo-de-demonstração)
+- [Observações Finais](#observações-finais)
+
+---
 
 ## 📌 Sobre o Projeto
 
-O **PetFlow** é uma API REST desenvolvida em Java com Spring Boot para gerenciamento de saúde preventiva pet. A solução gamifica o cuidado com o pet: eventos de saúde concluídos geram pontos para o tutor, que podem ser trocados por cupons de desconto em clínicas parceiras.
+O **PetFlow** é uma aplicação web completa desenvolvida em Java com Spring Boot para gerenciamento de saúde preventiva pet. A solução gamifica o cuidado com o pet: eventos de saúde concluídos geram pontos para o tutor, que podem ser trocados por cupons de desconto em clínicas parceiras.
 
-O foco do projeto é demonstrar uma aplicação backend organizada em camadas, com persistência relacional, validação de dados, documentação automática e boas práticas de APIs RESTful.
+A aplicação conta com uma interface web responsiva, autenticação JWT com dois perfis de usuário (ADMIN e TUTOR), versionamento de banco de dados com Flyway e documentação automática via Swagger/OpenAPI.
 
-## 👥 Equipe
+---
+
+## Equipe
 
 | Nome | RM |
 |---|---:|
@@ -39,70 +43,102 @@ O foco do projeto é demonstrar uma aplicação backend organizada em camadas, c
 
 **Turma:** 2TDSPX
 
-## 🎯 Objetivo do Challenge
+---
 
-Desenvolver uma solução utilizando Java e Spring Boot capaz de:
+## Tecnologias Utilizadas
 
-- persistir dados em banco relacional;
-- gerenciar informações de saúde pet;
-- aplicar conceitos de Programação Orientada a Objetos;
-- utilizar JPA e relacionamentos entre entidades;
-- garantir validações e tratamento de exceções;
-- respeitar os fundamentos de APIs REST;
-- disponibilizar documentação da API;
-- atender aos requisitos técnicos da disciplina Java Advanced.
-
-## 🛠️ Tecnologias Utilizadas
-
-- Java 21
-- Spring Boot
-- Spring Data JPA
-- Spring Validation
-- Spring Cache
-- Oracle Database
-- H2 Database
-- Lombok
-- Swagger / OpenAPI
-- Maven
-
-## 🧱 Arquitetura do Projeto
-
-O projeto segue uma arquitetura em camadas:
-
-```text
-src/main/java/br/com/petflow/petflow_api/
-├── config/
-├── controller/
-├── dto/
-├── entity/
-├── enums/
-├── exception/
-├── repository/
-├── service/
-└── PetflowApiApplication.java
-```
-
-## ✅ Requisitos Técnicos Atendidos
-
-A solução contempla os requisitos obrigatórios da disciplina:
-
-- Bean Validation
-- Paginação de resultados
-- Ordenação de resultados
-- Busca com parâmetros
-- Cache com `@Cacheable`
-- Tratamento global de exceções
-- Utilização de DTOs
-- Documentação com Swagger/OpenAPI
-- Relacionamentos JPA
-- API RESTful
+- **Java 21** - Linguagem de programação
+- **Spring Boot 4.0.6** - Framework principal
+- **Spring Data JPA** - Persistência de dados
+- **Spring Security** - Autenticação e autorização (JWT)
+- **Spring Cache** - Cacheamento de dados
+- **Spring Web MVC** - API RESTful
+- **Spring Validation** - Validação de dados
+- **Flyway** - Controle de versão do banco de dados
+- **Oracle Database** - Banco de dados em produção
+- **H2 Database** - Banco de dados para testes
+- **JWT (java-jwt)** - Tokens de autenticação
+- **Lombok** - Redução de código boilerplate
+- **Swagger/OpenAPI** - Documentação interativa da API
+- **Maven** - Gerenciamento de dependências
 
 ---
 
-## 🧠 Visão de Domínio
+## Arquitetura do Projeto
+
+O projeto segue uma arquitetura em camadas bem definida:
+
+```text
+src/main/java/br/com/petflow/petflow_api/
+├── config/          # Configurações (Security, Cache, Swagger)
+├── controller/      # Endpoints REST
+├── dto/             # Data Transfer Objects
+├── entity/          # Entidades JPA
+├── enums/           # Enumeradores
+├── exception/       # Tratamento de exceções
+├── repository/      # Repositórios JPA
+├── security/        # Configurações de segurança (JWT)
+├── service/         # Regras de negócio
+└── PetflowApiApplication.java  # Classe principal
+```
+
+### 📂 Camada Frontend (Static Resources)
+
+```text
+src/main/resources/static/
+├── css/
+│   └── style.css           # Estilos da aplicação
+├── js/
+│   ├── api.js              # Camada de comunicação HTTP
+│   ├── admin.js            # Painel administrativo
+│   └── tutor.js            # Área do tutor
+├── admin.html              # Dashboard do ADMIN
+├── index.html              # Página de login
+├── register.html           # Cadastro de novos tutores
+└── tutor.html              # Dashboard do TUTOR
+```
+
+---
+
+## Requisitos da Sprint 3
+
+### 1. Frontend (30 pontos)
+
+A aplicação possui uma interface web completa com:
+- ✅ Páginas HTML com CSS responsivo
+- ✅ JavaScript para interações dinâmicas
+- ✅ Comunicação com a API via fetch
+- ✅ Gerenciamento de estado de autenticação
+
+### 2. Flyway (20 pontos)
+
+O versionamento do banco de dados é gerenciado pelo Flyway:
+- ✅ **V1__Create_Tables.sql** - Criação de todas as tabelas
+- ✅ **V2__Seed_Data.sql** - Carga inicial de dados (admin, tutor, clínicas, planos, cupons)
+- ✅ Migrações aplicadas automaticamente na inicialização
+
+### 3. Spring Security (30 pontos)
+
+Autenticação e autorização com JWT:
+- ✅ Dois perfis de usuário: **ADMIN** e **TUTOR**
+- ✅ Proteção de rotas baseada no perfil
+- ✅ Login via `/auth/login` com geração de token JWT
+- ✅ Filtro de autenticação para validação do token
+- ✅ Tratamento de erros 401 e 403 em formato JSON
+
+### 4. Funcionalidades Completas (20 pontos)
+
+#### Fluxos do Sistema:
+- ✅ **Admin:** Gerenciamento de clínicas, planos e cupons (CRUD)
+- ✅ **Tutor:** Cadastro de pets, eventos de saúde, assinaturas e resgate de cupons
+- ✅ Validações básicas em formulários e dados
+
+---
+
+## Visão de Domínio
 
 ### 👤 Tutores
-Gerencia os responsáveis pelos pets.
+Gerencia os responsáveis pelos pets, com autenticação via e-mail e senha.
 
 ### 🐾 Pets
 Armazena os dados principais dos animais cadastrados e seu vínculo com o tutor.
@@ -127,100 +163,114 @@ Registra o uso de cupons pelos tutores.
 
 ---
 
-## 📦 Endpoints da API
+## Endpoints da API
+
+> **Nota:** A documentação completa com exemplos de requisição e resposta está disponível via Swagger.
 
 ### 👤 Tutores
 
-| Método | Endpoint |
-| --- | --- |
-| GET | `/tutors` |
-| GET | `/tutors/{id}` |
-| POST | `/tutors` |
-| PUT | `/tutors/{id}` |
-| DELETE | `/tutors/{id}` |
+| Método | Endpoint | Descrição | Permissão |
+|--------|----------|-----------|-----------|
+| POST | `/tutors` | Cadastrar novo tutor | Público |
+| GET | `/tutors` | Listar tutores | ADMIN |
+| GET | `/tutors/{id}` | Buscar tutor por ID | ADMIN |
+| PUT | `/tutors/{id}` | Atualizar tutor | ADMIN |
+| DELETE | `/tutors/{id}` | Remover tutor | ADMIN |
+
+### 🔐 Autenticação
+
+| Método | Endpoint | Descrição | Permissão |
+|--------|----------|-----------|-----------|
+| POST | `/auth/login` | Login e geração de token JWT | Público |
 
 ### 🐾 Pets
 
-| Método | Endpoint |
-| --- | --- |
-| GET | `/pets` |
-| GET | `/pets/{id}` |
-| POST | `/pets` |
-| PUT | `/pets/{id}` |
-| DELETE | `/pets/{id}` |
+| Método | Endpoint | Descrição | Permissão |
+|--------|----------|-----------|-----------|
+| POST | `/pets` | Cadastrar pet | TUTOR/Authenticated |
+| GET | `/pets` | Listar pets (com filtros) | Authenticated |
+| GET | `/pets/{id}` | Buscar pet por ID | Authenticated |
+| PUT | `/pets/{id}` | Atualizar pet | Authenticated |
+| DELETE | `/pets/{id}` | Remover pet | Authenticated |
 
 ### 🏥 Clínicas
 
-| Método | Endpoint |
-| --- | --- |
-| GET | `/clinics` |
-| GET | `/clinics/{id}` |
-| POST | `/clinics` |
-| PUT | `/clinics/{id}` |
-| DELETE | `/clinics/{id}` |
+| Método | Endpoint | Descrição | Permissão |
+|--------|----------|-----------|-----------|
+| POST | `/clinics` | Cadastrar clínica | ADMIN |
+| GET | `/clinics` | Listar clínicas | Authenticated |
+| GET | `/clinics/{id}` | Buscar clínica por ID | Authenticated |
+| PUT | `/clinics/{id}` | Atualizar clínica | ADMIN |
+| DELETE | `/clinics/{id}` | Remover clínica | ADMIN |
 
 ### 📄 Planos
 
-| Método | Endpoint |
-| --- | --- |
-| GET | `/plans` |
-| GET | `/plans/{id}` |
-| POST | `/plans` |
-| PUT | `/plans/{id}` |
-| DELETE | `/plans/{id}` |
+| Método | Endpoint | Descrição | Permissão |
+|--------|----------|-----------|-----------|
+| POST | `/plans` | Criar plano | ADMIN |
+| GET | `/plans` | Listar planos | Authenticated |
+| GET | `/plans/{id}` | Buscar plano por ID | Authenticated |
+| PUT | `/plans/{id}` | Atualizar plano | ADMIN |
+| DELETE | `/plans/{id}` | Remover plano | ADMIN |
 
 ### 📅 Assinaturas
 
-| Método | Endpoint |
-| --- | --- |
-| GET | `/subscriptions` |
-| GET | `/subscriptions/{id}` |
-| POST | `/subscriptions` |
-| PUT | `/subscriptions/{id}` |
-| DELETE | `/subscriptions/{id}` |
+| Método | Endpoint | Descrição | Permissão |
+|--------|----------|-----------|-----------|
+| POST | `/subscriptions` | Criar assinatura | Authenticated |
+| GET | `/subscriptions` | Listar assinaturas | Authenticated |
+| GET | `/subscriptions/{id}` | Buscar assinatura por ID | Authenticated |
+| PUT | `/subscriptions/{id}/status` | Atualizar status | Authenticated |
+| DELETE | `/subscriptions/{id}` | Remover assinatura | Authenticated |
 
 ### ❤️ Eventos de Saúde
 
-| Método | Endpoint |
-| --- | --- |
-| GET | `/health-events` |
-| GET | `/health-events/{id}` |
-| POST | `/health-events` |
-| PUT | `/health-events/{id}` |
-| DELETE | `/health-events/{id}` |
+| Método | Endpoint | Descrição | Permissão |
+|--------|----------|-----------|-----------|
+| POST | `/health-events` | Registrar evento | Authenticated |
+| GET | `/health-events` | Listar eventos | Authenticated |
+| GET | `/health-events/{id}` | Buscar evento por ID | Authenticated |
+| PUT | `/health-events/{id}` | Atualizar evento | Authenticated |
+| DELETE | `/health-events/{id}` | Remover evento | Authenticated |
 
 ### 🎟️ Cupons
 
-| Método | Endpoint |
-| --- | --- |
-| GET | `/coupons` |
-| GET | `/coupons/{id}` |
-| POST | `/coupons` |
-| PUT | `/coupons/{id}` |
-| DELETE | `/coupons/{id}` |
+| Método | Endpoint | Descrição | Permissão |
+|--------|----------|-----------|-----------|
+| POST | `/coupons` | Gerar cupom | ADMIN |
+| GET | `/coupons` | Listar cupons | Authenticated |
+| GET | `/coupons/{id}` | Buscar cupom por ID | Authenticated |
+| PUT | `/coupons/{id}/status` | Atualizar status | ADMIN |
+| DELETE | `/coupons/{id}` | Remover cupom | ADMIN |
 
 ### 🎫 Resgates
 
-| Método | Endpoint |
-| --- | --- |
-| GET | `/redeems` |
-| GET | `/redeems/{id}` |
-| POST | `/redeems` |
+| Método | Endpoint | Descrição | Permissão |
+|--------|----------|-----------|-----------|
+| POST | `/redeems` | Registrar resgate | Authenticated |
+| GET | `/redeems` | Listar resgates | Authenticated |
+| GET | `/redeems/{id}` | Buscar resgate por ID | Authenticated |
 
 ---
 
-## 🗃️ Banco de Dados
+## Banco de Dados
 
-O projeto utiliza banco relacional com suporte a:
+O projeto utiliza **Oracle Database** em produção e **H2 Database** para testes locais.
 
-- Oracle Database
-- H2 Database para testes localmente
+### Migrações Flyway
+
+| Arquivo | Descrição |
+|---------|-----------|
+| `V1__Create_Tables.sql` | Criação de todas as tabelas (SPECIES, EVENT_TYPE, REWARD_ACTION, RISK_LEVEL, TUTOR, CLINIC, PLAN, PARTNER_DISCOUNT, COUPON_TEMPLATE, COUPON, PET, HEALTH_EVENT, SUBSCRIPTION, REDEEM) |
+| `V2__Seed_Data.sql` | Carga inicial de dados de referência e usuários de demonstração |
+
+### Modelo de Dados
 
 O modelo foi estruturado com JPA e relacionamentos entre entidades para garantir integridade e organização dos dados.
 
 ---
 
-## 📖 Swagger / OpenAPI
+## Swagger / OpenAPI
 
 A documentação interativa da API está disponível em:
 
@@ -230,57 +280,102 @@ A documentação interativa da API está disponível em:
 
 ---
 
-## 🚀 Como Executar
+## Como Executar
 
 ### Pré-requisitos
 
 - Java 21
 - Maven 3.6+
+- Oracle Database (ou H2 para testes locais)
 
-### Execução local
+### Execução com Oracle Database (Produção)
 
-Oracle Database:
+1. **Configure as credenciais do banco** no arquivo `src/main/resources/application.properties`:
+
+```properties
+spring.datasource.url=jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL
+spring.datasource.username=seu_usuario
+spring.datasource.password=sua_senha
+```
+
+2. **Execute a aplicação:**
 
 ```bash
+./mvnw clean compile
 ./mvnw spring-boot:run
 ```
 
-H2 Database:
+### Execução com H2 Database (Desenvolvimento)
 
-```bash
-./mvnw spring-boot:run -Dspring-boot.run.profiles=h2
+1. **Configure o perfil H2** no arquivo `src/main/resources/application.properties`:
+
+```properties
+spring.profiles.active=h2
 ```
 
-> Antes de executar, ajuste as credenciais e a URL do banco no arquivo de configuração da aplicação conforme o ambiente utilizado.
+2. **Execute a aplicação:**
 
-## 🧪 Testes da API
+```bash
+./mvnw clean compile
+./mvnw spring-boot:run
+```
 
-Os endpoints podem ser testados com Postman, Insomnia ou outra ferramenta de API.
+3. **Acesse a console H2:**
+   - URL: `http://localhost:8080/h2-console`
+   - JDBC URL: `jdbc:h2:mem:petflowdb`
+   - User: `sa`
+   - Password: (vazio)
 
-- Validar chamados CRUD para cada recurso
-- Verificar regras de negócio e mensagens de erro
-- Testar paginação e ordenação
-- Checar fluxo de cupons e resgates
+---
+
+## Credenciais de Teste
+
+### ADMIN
+- **Email:** `admin@petflow.com`
+- **Senha:** `Admin@123`
+
+### TUTOR
+- **Email:** `maria@petflow.com`
+- **Senha:** `Tutor@123`
+
+*Esses usuários são criados automaticamente pelo Flyway (V2__Seed_Data.sql).*
+
+---
+
+## Vídeo de Demonstração
+
+[Link para o vídeo de demonstração da aplicação](https://youtu.be/SEU_LINK_AQUI)
+
+*O vídeo apresenta todas as funcionalidades da aplicação, incluindo:*
+
+- ✅ Autenticação com JWT (Admin e Tutor)
+- ✅ Painel do Administrador (CRUD de clínicas, planos e cupons)
+- ✅ Painel do Tutor (cadastro de pets, eventos de saúde, assinaturas e resgate)
+- ✅ Documentação Swagger
+- ✅ Controle de versão do banco com Flyway
+
+---
 
 ## 📄 Documentação Complementar
 
 O repositório inclui:
 
-- coleção exportada das requisições
-- exemplos de payloads
-- evidências de resposta dos endpoints
-- cronograma de desenvolvimento
-- diagrama de classes
-- DER
+- ✅ **PetFlow API.postman_collection.json** - Coleção completa de requisições Postman
+- ✅ **Scripts Flyway** - Migrações do banco de dados
+- ✅ **Swagger/OpenAPI** - Documentação interativa da API
+- ✅ **README completo** - Instruções de instalação e uso
 
-## 🧭 Observações Finais
+---
 
-Esta versão do PetFlow foi organizada para manter foco em:
+## Observações Finais
 
-- consistência arquitetural
-- clareza de domínio
-- aderência aos requisitos técnicos
-- manutenção mais simples
-- apresentação objetiva do projeto
+Esta versão do PetFlow foi desenvolvida para atender aos requisitos da **Sprint 3 de Java Advanced**:
+
+- **Frontend:** Interface web completa com HTML, CSS e JavaScript
+- **Flyway:** Controle de versão do banco de dados com migrações
+- **Spring Security:** Autenticação JWT com dois perfis (ADMIN/TUTOR)
+- **Funcionalidades:** Fluxos completos de negócio com validações
 
 Desenvolvido como parte do Challenge 2TDSPX - FIAP
+
+---
