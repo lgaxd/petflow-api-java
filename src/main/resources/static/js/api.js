@@ -60,6 +60,7 @@ const Api = {
     const data = isJson ? await response.json().catch(() => null) : null;
 
     if (!response.ok) {
+      // Pega a mensagem do backend ou usa uma mensagem genérica
       const message = (data && (data.message || data.error)) || `Erro ${response.status}`;
       const error = new Error(message);
       error.details = data;

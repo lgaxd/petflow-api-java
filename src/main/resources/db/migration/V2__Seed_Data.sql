@@ -30,8 +30,8 @@ VALUES ('Administrador PetFlow', 'ADMIN', 'admin@petflow.com', '(11) 90000-0000'
 
 -- Tutor de demonstração
 INSERT INTO tutor (name, role, email, phone, password_hash)
-VALUES ('Maria Souza', 'TUTOR', 'maria@petflow.com', '(11) 98888-1234',
-        '$2b$10$/vPZqCCwPJSroSMducM2T.ZEgB9RFu2vz4K0jAoy3o10erMPVqJmu');
+VALUES ('Ana Lima', 'TUTOR', 'ana.lima@email.com', '11-98001-0001',
+        'hash_ana_123');
 
 -- Clínica e planos de demonstração
 INSERT INTO clinic (name, address, phone, cnpj)
