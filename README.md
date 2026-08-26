@@ -55,8 +55,7 @@ A aplicação conta com uma interface web responsiva, autenticação JWT com doi
 - **Spring Web MVC** - API RESTful
 - **Spring Validation** - Validação de dados
 - **Flyway** - Controle de versão do banco de dados
-- **Oracle Database** - Banco de dados em produção
-- **H2 Database** - Banco de dados para testes
+- **Oracle Database** - Banco de dados principal
 - **JWT (java-jwt)** - Tokens de autenticação
 - **Lombok** - Redução de código boilerplate
 - **Swagger/OpenAPI** - Documentação interativa da API
@@ -255,7 +254,7 @@ Registra o uso de cupons pelos tutores.
 
 ## Banco de Dados
 
-O projeto utiliza **Oracle Database** em produção e **H2 Database** para testes locais.
+O projeto utiliza **Oracle Database** como banco principal.
 
 ### Migrações Flyway
 
@@ -286,9 +285,9 @@ A documentação interativa da API está disponível em:
 
 - Java 21
 - Maven 3.6+
-- Oracle Database (ou H2 para testes locais)
+- Oracle Database
 
-### Execução com Oracle Database (Produção)
+### Execução com Oracle Database
 
 1. **Configure as credenciais do banco** no arquivo `src/main/resources/application.properties`:
 
@@ -304,27 +303,6 @@ spring.datasource.password=sua_senha
 ./mvnw clean compile
 ./mvnw spring-boot:run
 ```
-
-### Execução com H2 Database (Desenvolvimento)
-
-1. **Configure o perfil H2** no arquivo `src/main/resources/application.properties`:
-
-```properties
-spring.profiles.active=h2
-```
-
-2. **Execute a aplicação:**
-
-```bash
-./mvnw clean compile
-./mvnw spring-boot:run
-```
-
-3. **Acesse a console H2:**
-   - URL: `http://localhost:8080/h2-console`
-   - JDBC URL: `jdbc:h2:mem:petflowdb`
-   - User: `sa`
-   - Password: (vazio)
 
 ---
 
