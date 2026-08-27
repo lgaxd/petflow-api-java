@@ -304,6 +304,14 @@ spring.datasource.password=sua_senha
 ./mvnw spring-boot:run
 ```
 
+### Teste rápido (front-end local)
+
+- Após iniciar a aplicação, abra o front-end em http://localhost:8080/ e realize os testes usando as credenciais listadas em **Credenciais de Teste**. As credenciais de acesso ao banco já estão definidas em [src/main/resources/application.properties](src/main/resources/application.properties), portanto não é necessário configurar um banco adicional para testes rápidos.
+
+### Opcional: usar Oracle local com Flyway
+
+- Se preferir executar um Oracle Database localmente, inicie o serviço do banco e atualize as credenciais em [src/main/resources/application.properties](src/main/resources/application.properties). Ao iniciar a aplicação, o Flyway aplicará automaticamente as migrations em `src/main/resources/db/migration` para criar as tabelas e popular os dados necessários para teste.
+
 ---
 
 ## Credenciais de Teste
