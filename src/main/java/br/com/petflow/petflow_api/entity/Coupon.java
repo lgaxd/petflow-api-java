@@ -5,7 +5,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import br.com.petflow.petflow_api.enums.CouponStatus;
- 
+
 @Entity
 @Table(name = "COUPON")
 @Getter
@@ -22,6 +22,10 @@ public class Coupon {
     @Column(name = "ID")
     private Long id;
  
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TEMPLATE_ID", nullable = false)
+    private CouponTemplate template;
+ 
     @Column(name = "CODE", length = 50, nullable = false, unique = true)
     private String code;
  
@@ -31,9 +35,6 @@ public class Coupon {
 
     @Column(name = "EXPIRATION_DATE")
     private LocalDate expirationDate;
-
-    @Column(name = "TEMPLATE_ID", nullable = false)
-    private Long templateId;
  
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;

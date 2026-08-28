@@ -82,6 +82,7 @@ public class SecurityConfig {
                         // Consultas (GET) e os fluxos do dia a dia do tutor exigem apenas login
                         .requestMatchers(HttpMethod.GET, "/clinics/**", "/plans/**", "/coupons/**").authenticated()
                         .requestMatchers("/pets/**", "/health-events/**", "/subscriptions/**", "/redeems/**").authenticated()
+                        .requestMatchers("/gamification/**").authenticated()
 
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
