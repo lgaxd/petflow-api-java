@@ -3,9 +3,13 @@ package br.com.petflow.petflow_api.service;
 import br.com.petflow.petflow_api.dto.PetRequestDTO;
 import br.com.petflow.petflow_api.dto.PetResponseDTO;
 import br.com.petflow.petflow_api.entity.Pet;
+import br.com.petflow.petflow_api.entity.RewardAction;
+import br.com.petflow.petflow_api.entity.RewardPoint;
 import br.com.petflow.petflow_api.entity.Tutor;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
 import br.com.petflow.petflow_api.repository.PetRepository;
+import br.com.petflow.petflow_api.repository.RewardActionRepository;
+import br.com.petflow.petflow_api.repository.RewardPointRepository;
 import br.com.petflow.petflow_api.repository.TutorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -21,6 +25,8 @@ public class PetService {
 
     private final PetRepository petRepository;
     private final TutorRepository tutorRepository;
+    private final RewardActionRepository rewardActionRepository;
+    private final RewardPointRepository rewardPointRepository;
 
     @Transactional
     @CacheEvict(value = "pets", allEntries = true)
@@ -38,6 +44,19 @@ public class PetService {
                 .build();
 
         pet = petRepository.save(pet);
+
+        // Conceder pontos por cadastro de pet
+        RewardAction action = rewardActionRepository.findByName("CADASTRO_PET")
+                .orElseThrow(() -> new EntityNotFoundException("RewardAction", "name", "CADASTRO_PET"));
+        RewardPoint rewardPoint = RewardPoint.builder()
+                .tutor(tutor)
+                .rewardAction(action)
+                .points(action.getPointsValue())
+                .referenceType("PET")
+                .referenceId(pet.getId())
+                .build();
+        rewardPointRepository.save(rewardPoint);
+
         return toResponseDTO(pet);
     }
 
@@ -46,7 +65,6 @@ public class PetService {
     public PetResponseDTO findById(Long id) {
         Pet pet = petRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pet", id));
-        // O @Transactional mantém a sessão aberta, permitindo acesso aos dados lazy
         return toResponseDTO(pet);
     }
 

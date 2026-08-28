@@ -11,7 +11,7 @@ public interface CouponTemplateRepository extends JpaRepository<CouponTemplate, 
     
     @Query("""
         SELECT new br.com.petflow.petflow_api.dto.CouponCatalogDTO(
-            ct.id, c.code, ct.title, ct.description, ct.pointsRequired,
+            ct.id, c.code, ct.title, ct.pointsRequired,
             ct.discountType, ct.discountValue, c.expirationDate,
             CASE WHEN c.status = 'DISPONIVEL' AND (c.expirationDate IS NULL OR c.expirationDate >= CURRENT_DATE) THEN true ELSE false END
         )

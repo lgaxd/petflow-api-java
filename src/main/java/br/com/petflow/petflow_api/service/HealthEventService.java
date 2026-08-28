@@ -2,15 +2,11 @@ package br.com.petflow.petflow_api.service;
 
 import br.com.petflow.petflow_api.dto.HealthEventRequestDTO;
 import br.com.petflow.petflow_api.dto.HealthEventResponseDTO;
-import br.com.petflow.petflow_api.entity.Clinic;
-import br.com.petflow.petflow_api.entity.HealthEvent;
-import br.com.petflow.petflow_api.entity.Pet;
+import br.com.petflow.petflow_api.entity.*;
 import br.com.petflow.petflow_api.enums.HealthEventStatus;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
 import br.com.petflow.petflow_api.exception.InvalidStatusTransitionException;
-import br.com.petflow.petflow_api.repository.ClinicRepository;
-import br.com.petflow.petflow_api.repository.HealthEventRepository;
-import br.com.petflow.petflow_api.repository.PetRepository;
+import br.com.petflow.petflow_api.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -26,6 +22,8 @@ public class HealthEventService {
     private final HealthEventRepository healthEventRepository;
     private final PetRepository petRepository;
     private final ClinicRepository clinicRepository;
+    private final RewardActionRepository rewardActionRepository;
+    private final RewardPointRepository rewardPointRepository;
 
     @Transactional
     @CacheEvict(value = "healthEvents", allEntries = true)
@@ -58,6 +56,12 @@ public class HealthEventService {
                 .build();
 
         healthEvent = healthEventRepository.save(healthEvent);
+
+        // Se o evento já for criado como REALIZADO, conceder pontos
+        if (status == HealthEventStatus.REALIZADO) {
+            grantPointsForEvent(pet.getTutor(), healthEvent);
+        }
+
         return toResponseDTO(healthEvent);
     }
 
@@ -92,15 +96,14 @@ public class HealthEventService {
                 .orElseThrow(() -> new EntityNotFoundException("Evento de Saúde", id));
 
         HealthEventStatus oldStatus = healthEvent.getStatus();
-        
+        HealthEventStatus newStatus = oldStatus;
+
         if (request.getStatus() != null && !request.getStatus().isBlank()) {
-            HealthEventStatus newStatus;
             try {
                 newStatus = HealthEventStatus.valueOf(request.getStatus().toUpperCase());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Status inválido. Valores permitidos: AGENDADO, REALIZADO, CANCELADO");
             }
-            
             if (oldStatus != newStatus) {
                 validateStatusTransition(oldStatus, newStatus);
                 healthEvent.setStatus(newStatus);
@@ -121,6 +124,12 @@ public class HealthEventService {
         }
 
         healthEvent = healthEventRepository.save(healthEvent);
+
+        // Se o status mudou para REALIZADO, conceder pontos (evitar duplicidade)
+        if (oldStatus != HealthEventStatus.REALIZADO && newStatus == HealthEventStatus.REALIZADO) {
+            grantPointsForEvent(healthEvent.getPet().getTutor(), healthEvent);
+        }
+
         return toResponseDTO(healthEvent);
     }
 
@@ -133,19 +142,27 @@ public class HealthEventService {
         healthEventRepository.deleteById(id);
     }
 
-    private void validateStatusTransition(HealthEventStatus currentStatus, HealthEventStatus newStatus) {
-        if (currentStatus == newStatus) {
-            return;
-        }
+    private void grantPointsForEvent(Tutor tutor, HealthEvent event) {
+        RewardAction action = rewardActionRepository.findByName("EVENTO_SAUDE_REALIZADO")
+                .orElseThrow(() -> new EntityNotFoundException("RewardAction", "name", "EVENTO_SAUDE_REALIZADO"));
+        RewardPoint rewardPoint = RewardPoint.builder()
+                .tutor(tutor)
+                .rewardAction(action)
+                .points(action.getPointsValue())
+                .referenceType("HEALTH_EVENT")
+                .referenceId(event.getId())
+                .build();
+        rewardPointRepository.save(rewardPoint);
+    }
 
+    private void validateStatusTransition(HealthEventStatus currentStatus, HealthEventStatus newStatus) {
+        if (currentStatus == newStatus) return;
         boolean isValid = switch (currentStatus) {
             case AGENDADO -> newStatus == HealthEventStatus.REALIZADO || newStatus == HealthEventStatus.CANCELADO;
             case REALIZADO, CANCELADO -> false;
         };
-
         if (!isValid) {
-            throw new InvalidStatusTransitionException(
-                    "HealthEvent", currentStatus.name(), newStatus.name());
+            throw new InvalidStatusTransitionException("HealthEvent", currentStatus.name(), newStatus.name());
         }
     }
 

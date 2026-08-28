@@ -29,9 +29,6 @@ public class CouponTemplate {
     @Column(name = "TITLE", length = 100, nullable = false)
     private String title;
     
-    @Column(name = "DESCRIPTION", length = 255)
-    private String description;
-    
     @Column(name = "DISCOUNT_VALUE", nullable = false)
     private Double discountValue;
     

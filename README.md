@@ -160,6 +160,10 @@ Gerencia cupons emitidos para resgate.
 ### 🎫 Resgates
 Registra o uso de cupons pelos tutores.
 
+## 🎮 Gamificação
+
+O PetFlow possui um sistema de gamificação onde tutores acumulam pontos ao realizar ações como cadastrar pets, registrar eventos de saúde e assinar planos. Esses pontos podem ser trocados por cupons de desconto em clínicas parceiras.
+
 ---
 
 ## Endpoints da API
@@ -249,6 +253,15 @@ Registra o uso de cupons pelos tutores.
 | POST | `/redeems` | Registrar resgate | Authenticated |
 | GET | `/redeems` | Listar resgates | Authenticated |
 | GET | `/redeems/{id}` | Buscar resgate por ID | Authenticated |
+
+### Endpoints de Gamificação
+
+| Método | Endpoint | Descrição | Permissão |
+|--------|----------|-----------|-----------|
+| GET | `/gamification/points` | Retorna os pontos do tutor logado e histórico | TUTOR |
+| GET | `/gamification/pets/{petId}/risk` | Retorna o score de risco de um pet | TUTOR |
+| GET | `/gamification/coupons/available` | Lista cupons disponíveis para resgate | TUTOR |
+| POST | `/gamification/redeem` | Resgata um cupom usando pontos | TUTOR |
 
 ---
 

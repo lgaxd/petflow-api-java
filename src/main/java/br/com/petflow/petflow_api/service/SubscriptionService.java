@@ -2,16 +2,12 @@ package br.com.petflow.petflow_api.service;
 
 import br.com.petflow.petflow_api.dto.SubscriptionRequestDTO;
 import br.com.petflow.petflow_api.dto.SubscriptionResponseDTO;
-import br.com.petflow.petflow_api.entity.Pet;
-import br.com.petflow.petflow_api.entity.Plan;
-import br.com.petflow.petflow_api.entity.Subscription;
+import br.com.petflow.petflow_api.entity.*;
 import br.com.petflow.petflow_api.enums.SubscriptionStatus;
 import br.com.petflow.petflow_api.exception.BusinessRuleException;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
 import br.com.petflow.petflow_api.exception.InvalidStatusTransitionException;
-import br.com.petflow.petflow_api.repository.PetRepository;
-import br.com.petflow.petflow_api.repository.PlanRepository;
-import br.com.petflow.petflow_api.repository.SubscriptionRepository;
+import br.com.petflow.petflow_api.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -31,6 +27,8 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final PetRepository petRepository;
     private final PlanRepository planRepository;
+    private final RewardActionRepository rewardActionRepository;
+    private final RewardPointRepository rewardPointRepository;
 
     @Transactional
     @CacheEvict(value = "subscriptions", allEntries = true)
@@ -68,6 +66,12 @@ public class SubscriptionService {
                 .build();
 
         subscription = subscriptionRepository.save(subscription);
+
+        // Se a assinatura for criada como ATIVO, conceder pontos
+        if (status == SubscriptionStatus.ATIVO) {
+            grantPointsForSubscription(pet.getTutor(), subscription);
+        }
+
         return toResponseDTO(subscription);
     }
 
@@ -153,19 +157,27 @@ public class SubscriptionService {
         subscriptionRepository.deleteById(id);
     }
 
-    private void validateStatusTransition(SubscriptionStatus currentStatus, SubscriptionStatus newStatus) {
-        if (currentStatus == newStatus) {
-            return;
-        }
+    private void grantPointsForSubscription(Tutor tutor, Subscription subscription) {
+        RewardAction action = rewardActionRepository.findByName("ASSINATURA_ATIVA")
+                .orElseThrow(() -> new EntityNotFoundException("RewardAction", "name", "ASSINATURA_ATIVA"));
+        RewardPoint rewardPoint = RewardPoint.builder()
+                .tutor(tutor)
+                .rewardAction(action)
+                .points(action.getPointsValue())
+                .referenceType("SUBSCRIPTION")
+                .referenceId(subscription.getId())
+                .build();
+        rewardPointRepository.save(rewardPoint);
+    }
 
+    private void validateStatusTransition(SubscriptionStatus currentStatus, SubscriptionStatus newStatus) {
+        if (currentStatus == newStatus) return;
         if (currentStatus == SubscriptionStatus.ATIVO) {
             if (newStatus != SubscriptionStatus.ENCERRADO && newStatus != SubscriptionStatus.CANCELADO) {
-                throw new InvalidStatusTransitionException(
-                        "Subscription", currentStatus.name(), newStatus.name());
+                throw new InvalidStatusTransitionException("Subscription", currentStatus.name(), newStatus.name());
             }
         } else {
-            throw new InvalidStatusTransitionException(
-                    "Subscription", currentStatus.name(), newStatus.name());
+            throw new InvalidStatusTransitionException("Subscription", currentStatus.name(), newStatus.name());
         }
     }
 

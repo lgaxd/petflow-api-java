@@ -12,6 +12,15 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
     document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
     btn.classList.add("active");
     document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+    // Recarregar dados de gamificação se for a aba
+    if (btn.dataset.tab === "gamification") {
+      loadGamificationData();
+    }
+    // Recarregar cupons se for a aba de cupons
+    if (btn.dataset.tab === "coupons") {
+      loadAvailableCoupons();
+      loadMyRedeems();
+    }
   });
 });
 
@@ -19,6 +28,113 @@ const statusBadge = (status, map) => {
   const cls = map[status] || "gray";
   return `<span class="badge ${cls}">${status}</span>`;
 };
+
+// ---------- Gamification ----------
+async function loadGamificationData() {
+  await Promise.all([
+    loadMyPoints(),
+    loadPetRisks(),
+    loadAvailableCoupons(),
+    loadMyRedeems()
+  ]);
+}
+
+async function loadMyPoints() {
+  try {
+    const data = await Api.get("/gamification/points");
+    document.getElementById("totalPoints").textContent = data.totalPoints || 0;
+    document.getElementById("tutorPointsName").textContent = data.tutorName;
+    
+    const tbody = document.getElementById("pointsHistoryTable");
+    tbody.innerHTML = (data.history || []).map(h => `
+      <tr>
+        <td>${h.reason || '-'}</td>
+        <td>${h.points > 0 ? '+' : ''}${h.points}</td>
+        <td>${fmtDate(h.createdAt)}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="3" class="empty">Nenhum registro de pontos.</td></tr>`;
+  } catch (err) {
+    console.error("Erro ao carregar pontos:", err);
+  }
+}
+
+async function loadPetRisks() {
+  if (!myPets.length) {
+    document.getElementById("petRisksTable").innerHTML = `<tr><td colspan="4" class="empty">Cadastre um pet para ver o score de risco.</td></tr>`;
+    return;
+  }
+  const riskData = await Promise.all(myPets.map(p => 
+    Api.get(`/gamification/pets/${p.id}/risk`).catch(() => null)
+  ));
+  const map = { BAIXO: "green", MEDIO: "yellow", ALTO: "red" };
+  const descMap = {
+    BAIXO: "🐾 Pet saudável",
+    MEDIO: "⚠️ Atenção recomendada",
+    ALTO: "🚨 Acompanhamento necessário"
+  };
+  const tbody = document.getElementById("petRisksTable");
+  tbody.innerHTML = riskData.filter(r => r).map(r => `
+    <tr>
+      <td>${r.petName}</td>
+      <td>${r.score}</td>
+      <td><span class="badge ${map[r.riskLevel] || 'gray'}">${r.riskLevel}</span></td>
+      <td>${descMap[r.riskLevel] || r.riskDescription || '-'}</td>
+    </tr>
+  `).join("");
+}
+
+async function loadAvailableCoupons() {
+  try {
+    const data = await Api.get("/gamification/coupons/available?size=50");
+    const coupons = data.content || [];
+    const tbody = document.getElementById("availableCouponsTable");
+    tbody.innerHTML = coupons.map(c => `
+      <tr>
+        <td>${c.code}</td>
+        <td>${c.title || '-'}</td>
+        <td>${c.pointsRequired}</td>
+        <td>${fmtDate(c.expirationDate)}</td>
+        <td><button class="small" onclick="confirmRedeemCoupon(${c.id}, '${c.code}', ${c.pointsRequired})">Resgatar</button></td>
+      </tr>
+    `).join("") || `<tr><td colspan="5" class="empty">Nenhum cupom disponível no momento.</td></tr>`;
+  } catch (err) {
+    console.error("Erro ao carregar cupons:", err);
+  }
+}
+
+async function loadMyRedeems() {
+  try {
+    const data = await Api.get(`/redeems?tutorId=${user.id}&size=50`);
+    const redeems = data.content || [];
+    const tbody = document.getElementById("myRedeemsTable");
+    tbody.innerHTML = redeems.map(r => `
+      <tr>
+        <td>${r.couponCode}</td>
+        <td>${r.pointsUsed}</td>
+        <td>${fmtDate(r.createdAt)}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="3" class="empty">Você ainda não resgatou nenhum cupom.</td></tr>`;
+  } catch (err) {
+    console.error("Erro ao carregar resgates:", err);
+  }
+}
+
+function confirmRedeemCoupon(couponId, couponCode, pointsRequired) {
+  if (confirm(`Deseja resgatar o cupom ${couponCode} por ${pointsRequired} pontos?`)) {
+    redeemCoupon(couponId);
+  }
+}
+
+async function redeemCoupon(couponId) {
+  try {
+    const result = await Api.post("/gamification/redeem", { couponId });
+    showMessage("redeemMsg", `Cupom ${result.couponCode} resgatado com sucesso!`, "success");
+    // Recarregar dados
+    await Promise.all([loadMyPoints(), loadAvailableCoupons(), loadMyRedeems()]);
+  } catch (err) {
+    showMessage("redeemMsg", err.message || "Erro ao resgatar cupom.");
+  }
+}
 
 // ---------- Pets ----------
 async function loadPets() {
@@ -32,7 +148,8 @@ async function loadPets() {
       <td>${p.breed || "-"}</td>
       <td>${p.weight ? p.weight + " kg" : "-"}</td>
       <td>${fmtDate(p.birthDate)}</td>
-    </tr>`).join("");
+    </tr>
+  `).join("");
   document.getElementById("petsEmpty").style.display = myPets.length ? "none" : "block";
 
   const petSelects = [document.getElementById("eventPet"), document.getElementById("subPet")];
@@ -54,9 +171,10 @@ document.getElementById("petForm").addEventListener("submit", async (e) => {
       tutorId: user.id,
       speciesId: Number(document.getElementById("petSpecies").value)
     });
-    showMessage("petMsg", "Pet cadastrado com sucesso!", "success");
+    showMessage("petMsg", "Pet cadastrado com sucesso! +5 pontos!", "success");
     e.target.reset();
     await loadPets();
+    await loadGamificationData();
   } catch (err) {
     showMessage("petMsg", err.message);
   }
@@ -79,7 +197,8 @@ async function loadEvents() {
       <td>${ev.description || "-"}</td>
       <td>${fmtDate(ev.eventDate)}</td>
       <td>${statusBadge(ev.status, map)}</td>
-    </tr>`).join("");
+    </tr>
+  `).join("");
   document.getElementById("eventsEmpty").style.display = events.length ? "none" : "block";
 }
 
@@ -94,9 +213,10 @@ document.getElementById("eventForm").addEventListener("submit", async (e) => {
       petId: Number(document.getElementById("eventPet").value),
       eventTypeId: Number(document.getElementById("eventType").value)
     });
-    showMessage("eventMsg", "Evento registrado com sucesso!", "success");
+    showMessage("eventMsg", "Evento registrado com sucesso! +10 pontos!", "success");
     e.target.reset();
     await loadEvents();
+    await loadGamificationData();
   } catch (err) {
     showMessage("eventMsg", err.message);
   }
@@ -129,7 +249,8 @@ async function loadSubscriptions() {
       <td>${fmtDate(s.endDate)}</td>
       <td>${statusBadge(s.status, map)}</td>
       <td>${s.status === "ATIVO" ? `<button class="small" onclick="cancelSub(${s.id})">Cancelar</button>` : ""}</td>
-    </tr>`).join("");
+    </tr>
+  `).join("");
   document.getElementById("subsEmpty").style.display = subs.length ? "none" : "block";
 }
 
@@ -147,66 +268,12 @@ document.getElementById("subForm").addEventListener("submit", async (e) => {
       planId: Number(document.getElementById("subPlan").value),
       startDate: document.getElementById("subStart").value
     });
-    showMessage("subMsg", "Assinatura criada com sucesso!", "success");
+    showMessage("subMsg", "Assinatura criada com sucesso! +15 pontos!", "success");
     e.target.reset();
     await loadSubscriptions();
+    await loadGamificationData();
   } catch (err) {
     showMessage("subMsg", err.message);
-  }
-});
-
-// ---------- Cupons & resgate ----------
-let selectedCoupon = null;
-
-async function loadCoupons() {
-  const data = await Api.get("/coupons?status=DISPONIVEL&size=50");
-  const coupons = data.content || [];
-  const tbody = document.getElementById("couponsTable");
-  tbody.innerHTML = coupons.map(c => `
-    <tr>
-      <td>${c.code}</td>
-      <td>${fmtDate(c.expirationDate)}</td>
-      <td>${statusBadge(c.status, { DISPONIVEL: "green" })}</td>
-      <td><button class="small" onclick='openRedeem(${JSON.stringify(c).replace(/'/g, "&apos;")})'>Resgatar</button></td>
-    </tr>`).join("");
-  document.getElementById("couponsEmpty").style.display = coupons.length ? "none" : "block";
-}
-
-async function loadRedeems() {
-  const data = await Api.get(`/redeems?tutorId=${user.id}&size=50`);
-  const redeems = data.content || [];
-  const tbody = document.getElementById("redeemsTable");
-  tbody.innerHTML = redeems.map(r => `
-    <tr><td>${r.couponCode}</td><td>${r.pointsUsed}</td><td>${fmtDate(r.createdAt)}</td></tr>
-  `).join("");
-  document.getElementById("redeemsEmpty").style.display = redeems.length ? "none" : "block";
-}
-
-function openRedeem(coupon) {
-  selectedCoupon = coupon;
-  document.getElementById("redeemCouponCode").textContent = `Cupom: ${coupon.code}`;
-  document.getElementById("redeemPoints").value = "";
-  hideMessage("redeemMsg");
-  document.getElementById("redeemDialog").showModal();
-}
-
-document.getElementById("confirmRedeem").addEventListener("click", async () => {
-  hideMessage("redeemMsg");
-  const points = Number(document.getElementById("redeemPoints").value);
-  if (!points || points <= 0) {
-    showMessage("redeemMsg", "Informe uma quantidade de pontos válida.");
-    return;
-  }
-  try {
-    await Api.post("/redeems", {
-      pointsUsed: points,
-      tutorId: user.id,
-      couponId: selectedCoupon.id
-    });
-    document.getElementById("redeemDialog").close();
-    await Promise.all([loadCoupons(), loadRedeems()]);
-  } catch (err) {
-    showMessage("redeemMsg", err.message);
   }
 });
 
@@ -214,7 +281,12 @@ document.getElementById("confirmRedeem").addEventListener("click", async () => {
 (async function init() {
   try {
     await loadPets();
-    await Promise.all([loadEvents(), loadPlansIntoSelect(), loadSubscriptions(), loadCoupons(), loadRedeems()]);
+    await Promise.all([
+      loadEvents(),
+      loadPlansIntoSelect(),
+      loadSubscriptions(),
+      loadGamificationData()
+    ]);
   } catch (err) {
     console.error(err);
   }

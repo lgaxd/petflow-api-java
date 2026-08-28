@@ -20,6 +20,7 @@
       <button class="tab-btn active" data-tab="pets">Meus Pets</button>
       <button class="tab-btn" data-tab="events">Eventos de Saúde</button>
       <button class="tab-btn" data-tab="subs">Assinaturas</button>
+      <button class="tab-btn" data-tab="gamification">🏆 Gamificação</button>
       <button class="tab-btn" data-tab="coupons">Cupons &amp; Resgate</button>
     </div>
 
@@ -155,43 +156,61 @@
       </div>
     </section>
 
+    <!-- GAMIFICAÇÃO -->
+    <section id="tab-gamification" class="tab-panel">
+      <div class="card" style="background: linear-gradient(135deg, #2f6f4f, #1f4d36); color: #fff;">
+        <h2 style="color: #fff; margin-top: 0;">🏆 Pontos do Tutor</h2>
+        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+          <div>
+            <div style="font-size: 0.8rem; opacity: 0.8;">Total de Pontos</div>
+            <div style="font-size: 3rem; font-weight: 700;" id="totalPoints">0</div>
+          </div>
+          <div>
+            <div style="font-size: 0.8rem; opacity: 0.8;">Tutor</div>
+            <div style="font-size: 1.2rem;" id="tutorPointsName">-</div>
+          </div>
+        </div>
+        <div id="redeemMsg" class="msg" style="display:none; margin-top: 10px;"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Histórico de Pontos</h2>
+        <table>
+          <thead><tr><th>Ação</th><th>Pontos</th><th>Data</th></tr></thead>
+          <tbody id="pointsHistoryTable"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Score de Risco dos Pets</h2>
+        <p class="section-sub">Avaliação de risco baseada em idade, peso e histórico de saúde.</p>
+        <table>
+          <thead><tr><th>Pet</th><th>Score</th><th>Nível</th><th>Status</th></tr></thead>
+          <tbody id="petRisksTable"></tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- CUPONS -->
     <section id="tab-coupons" class="tab-panel">
       <div class="card">
-        <h2 class="section-title">Cupons disponíveis</h2>
-        <p class="section-sub">Use seus pontos acumulados para resgatar um cupom.</p>
+        <h2 class="section-title">Cupons disponíveis para resgate</h2>
+        <p class="section-sub">Use seus pontos para resgatar recompensas exclusivas!</p>
         <table>
-          <thead><tr><th>Código</th><th>Validade</th><th>Status</th><th></th></tr></thead>
-          <tbody id="couponsTable"></tbody>
+          <thead><tr><th>Código</th><th>Título</th><th>Pontos</th><th>Validade</th><th></th></tr></thead>
+          <tbody id="availableCouponsTable"></tbody>
         </table>
-        <div id="couponsEmpty" class="empty" style="display:none">Nenhum cupom disponível no momento.</div>
       </div>
 
       <div class="card">
-        <h2 class="section-title">Meus resgates</h2>
+        <h2 class="section-title">Meus cupons resgatados</h2>
         <table>
           <thead><tr><th>Cupom</th><th>Pontos usados</th><th>Data</th></tr></thead>
-          <tbody id="redeemsTable"></tbody>
+          <tbody id="myRedeemsTable"></tbody>
         </table>
-        <div id="redeemsEmpty" class="empty" style="display:none">Você ainda não resgatou nenhum cupom.</div>
       </div>
     </section>
   </div>
-
-  <!-- Modal simples de resgate -->
-  <dialog id="redeemDialog" style="border:none;border-radius:10px;padding:0;">
-    <div class="card" style="margin:0; width:300px;">
-      <h2 class="section-title">Resgatar cupom</h2>
-      <p class="section-sub" id="redeemCouponCode"></p>
-      <label>Pontos a utilizar</label>
-      <input type="number" id="redeemPoints" min="1" required>
-      <div style="display:flex; gap:8px; margin-top:16px;">
-        <button class="primary" id="confirmRedeem" style="margin:0">Confirmar</button>
-        <button class="secondary" onclick="document.getElementById('redeemDialog').close()">Cancelar</button>
-      </div>
-      <div id="redeemMsg" class="msg" style="display:none"></div>
-    </div>
-  </dialog>
 
   <script src="js/api.js"></script>
   <script src="js/tutor.js"></script>
