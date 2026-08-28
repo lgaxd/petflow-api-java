@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface RewardActionRepository extends JpaRepository<RewardAction, Long> {
     Optional<RewardAction> findByName(String name);
+    Optional<RewardAction> findByNameIgnoreCase(String name);
 }

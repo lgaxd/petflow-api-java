@@ -17,7 +17,8 @@ public class SubscriptionRequestDTO {
 
     @NotBlank(message = "O status é obrigatório")
     @Size(max = 20, message = "O status deve ter no máximo 20 caracteres")
-    private String status;
+    @Builder.Default
+    private String status = "ATIVO";
 
     @NotNull(message = "O ID do pet é obrigatório")
     private Long petId;

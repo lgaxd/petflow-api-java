@@ -4,7 +4,9 @@ import br.com.petflow.petflow_api.dto.*;
 import br.com.petflow.petflow_api.entity.*;
 import br.com.petflow.petflow_api.enums.CouponStatus;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
+import br.com.petflow.petflow_api.exception.ExpiredCouponException;
 import br.com.petflow.petflow_api.exception.BusinessRuleException;
+import br.com.petflow.petflow_api.exception.InsufficientPointsException;
 import br.com.petflow.petflow_api.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -25,6 +27,7 @@ public class GamificationService {
     private final RewardPointRepository rewardPointRepository;
     private final CouponTemplateRepository couponTemplateRepository;
     private final CouponRepository couponRepository;
+    private final RedeemRepository redeemRepository;
     private final PetRepository petRepository;
     private final RewardActionRepository rewardActionRepository;
 
@@ -121,16 +124,16 @@ public class GamificationService {
             throw new BusinessRuleException("Cupom não está disponível para resgate");
         }
 
-        if (coupon.getExpirationDate() != null && coupon.getExpirationDate().isBefore(LocalDate.now())) {
-            throw new BusinessRuleException("Cupom expirado");
-        }
-
         Integer totalPoints = rewardPointRepository.sumPointsByTutorId(tutorId);
         if (totalPoints == null) totalPoints = 0;
 
         Integer pointsRequired = coupon.getTemplate().getPointsRequired();
         if (totalPoints < pointsRequired) {
-            throw new BusinessRuleException("Pontos insuficientes para resgatar este cupom. Necessário: " + pointsRequired);
+            throw new InsufficientPointsException(totalPoints, pointsRequired);
+        }
+
+        if (coupon.getExpirationDate() != null && coupon.getExpirationDate().isBefore(LocalDate.now())) {
+            throw new ExpiredCouponException(coupon.getCode(), coupon.getExpirationDate());
         }
 
         Redeem redeem = Redeem.builder()
@@ -138,6 +141,8 @@ public class GamificationService {
                 .coupon(coupon)
                 .pointsUsed(pointsRequired)
                 .build();
+
+        redeem = redeemRepository.save(redeem);
 
         coupon.setStatus(CouponStatus.RESGATADO);
         couponRepository.save(coupon);

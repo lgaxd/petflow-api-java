@@ -9,6 +9,7 @@ import br.com.petflow.petflow_api.exception.InvalidStatusTransitionException;
 import br.com.petflow.petflow_api.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,11 +23,15 @@ public class HealthEventService {
     private final HealthEventRepository healthEventRepository;
     private final PetRepository petRepository;
     private final ClinicRepository clinicRepository;
+    private final EventTypeRepository eventTypeRepository;
     private final RewardActionRepository rewardActionRepository;
     private final RewardPointRepository rewardPointRepository;
 
     @Transactional
-    @CacheEvict(value = "healthEvents", allEntries = true)
+        @Caching(evict = {
+            @CacheEvict(value = "healthEvents", allEntries = true),
+            @CacheEvict(value = "tutorPoints", allEntries = true)
+        })
     public HealthEventResponseDTO create(HealthEventRequestDTO request) {
         Pet pet = petRepository.findById(request.getPetId())
                 .orElseThrow(() -> new EntityNotFoundException("Pet", request.getPetId()));
@@ -46,11 +51,14 @@ public class HealthEventService {
                     .orElseThrow(() -> new EntityNotFoundException("Clínica", request.getClinicId()));
         }
 
+        EventType eventType = eventTypeRepository.findById(request.getEventTypeId())
+                .orElseThrow(() -> new EntityNotFoundException("EventType", request.getEventTypeId()));
+
         HealthEvent healthEvent = HealthEvent.builder()
                 .description(request.getDescription())
                 .eventDate(request.getEventDate())
                 .status(status)
-                .eventTypeId(request.getEventTypeId())
+                .eventType(eventType)
                 .pet(pet)
                 .clinic(clinic)
                 .build();
@@ -114,7 +122,9 @@ public class HealthEventService {
         healthEvent.setEventDate(request.getEventDate());
 
         if (request.getEventTypeId() != null) {
-            healthEvent.setEventTypeId(request.getEventTypeId());
+            EventType eventType = eventTypeRepository.findById(request.getEventTypeId())
+                    .orElseThrow(() -> new EntityNotFoundException("EventType", request.getEventTypeId()));
+            healthEvent.setEventType(eventType);
         }
 
         if (request.getClinicId() != null) {
@@ -175,7 +185,7 @@ public class HealthEventService {
                 .createdAt(healthEvent.getCreatedAt())
                 .petId(healthEvent.getPet().getId())
                 .petName(healthEvent.getPet().getName())
-                .eventTypeId(healthEvent.getEventTypeId())
+                .eventTypeId(healthEvent.getEventType() != null ? healthEvent.getEventType().getId() : null)
                 .clinicId(healthEvent.getClinic() != null ? healthEvent.getClinic().getId() : null)
                 .clinicName(healthEvent.getClinic() != null ? healthEvent.getClinic().getName() : null)
                 .build();

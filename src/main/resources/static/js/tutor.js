@@ -3,6 +3,12 @@ if (user) {
   document.getElementById("userName").textContent = `${user.name} (Tutor)`;
 }
 
+const normalizeOptional = (value) => {
+  if (value === undefined || value === null) return null;
+  const trimmed = String(value).trim();
+  return trimmed === "" ? null : trimmed;
+};
+
 let myPets = [];
 
 // ---------- Tabs ----------
@@ -132,7 +138,11 @@ async function redeemCoupon(couponId) {
     // Recarregar dados
     await Promise.all([loadMyPoints(), loadAvailableCoupons(), loadMyRedeems()]);
   } catch (err) {
-    showMessage("redeemMsg", err.message || "Erro ao resgatar cupom.");
+    const details = err.details?.details;
+    const message = err.details?.code === "INSUFFICIENT_POINTS" && details
+      ? `Pontos insuficientes. Disponível: ${details.availablePoints} | Necessário: ${details.requiredPoints}`
+      : err.message || "Erro ao resgatar cupom.";
+    showMessage("redeemMsg", message);
   }
 }
 
@@ -163,11 +173,12 @@ document.getElementById("petForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   hideMessage("petMsg");
   try {
+    const weightValue = document.getElementById("petWeight").value;
     await Api.post("/pets", {
       name: document.getElementById("petName").value.trim(),
-      breed: document.getElementById("petBreed").value.trim() || null,
+      breed: normalizeOptional(document.getElementById("petBreed").value),
       birthDate: document.getElementById("petBirth").value || null,
-      weight: document.getElementById("petWeight").value || null,
+      weight: weightValue && weightValue !== "" ? Number(weightValue) : null,
       tutorId: user.id,
       speciesId: Number(document.getElementById("petSpecies").value)
     });
@@ -207,9 +218,9 @@ document.getElementById("eventForm").addEventListener("submit", async (e) => {
   hideMessage("eventMsg");
   try {
     await Api.post("/health-events", {
-      description: document.getElementById("eventDescription").value.trim() || null,
+      description: normalizeOptional(document.getElementById("eventDescription").value),
       eventDate: document.getElementById("eventDate").value,
-      status: document.getElementById("eventStatus").value,
+      status: String(document.getElementById("eventStatus").value).toUpperCase(),
       petId: Number(document.getElementById("eventPet").value),
       eventTypeId: Number(document.getElementById("eventType").value)
     });
@@ -266,7 +277,8 @@ document.getElementById("subForm").addEventListener("submit", async (e) => {
     await Api.post("/subscriptions", {
       petId: Number(document.getElementById("subPet").value),
       planId: Number(document.getElementById("subPlan").value),
-      startDate: document.getElementById("subStart").value
+      startDate: document.getElementById("subStart").value,
+      status: "ATIVO"
     });
     showMessage("subMsg", "Assinatura criada com sucesso! +15 pontos!", "success");
     e.target.reset();

@@ -33,8 +33,9 @@ public class HealthEvent {
     @Column(name = "STATUS", nullable = false)
     private HealthEventStatus status;
 
-    @Column(name = "EVENT_TYPE_ID", nullable = false)
-    private Long eventTypeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "EVENT_TYPE_ID", nullable = false)
+    private EventType eventType;
  
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;

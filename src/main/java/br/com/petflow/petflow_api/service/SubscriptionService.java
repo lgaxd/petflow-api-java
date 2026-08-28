@@ -10,6 +10,7 @@ import br.com.petflow.petflow_api.exception.InvalidStatusTransitionException;
 import br.com.petflow.petflow_api.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +32,10 @@ public class SubscriptionService {
     private final RewardPointRepository rewardPointRepository;
 
     @Transactional
-    @CacheEvict(value = "subscriptions", allEntries = true)
+        @Caching(evict = {
+            @CacheEvict(value = "subscriptions", allEntries = true),
+            @CacheEvict(value = "tutorPoints", allEntries = true)
+        })
     public SubscriptionResponseDTO create(SubscriptionRequestDTO request) {
         Pet pet = petRepository.findById(request.getPetId())
                 .orElseThrow(() -> new EntityNotFoundException("Pet", request.getPetId()));

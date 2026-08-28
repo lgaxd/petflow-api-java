@@ -19,6 +19,7 @@ public class CacheConfig {
             "plans",
             "subscriptions",
             "healthEvents",
+            "tutorPoints",
             "coupons",
             "redeems"
         );

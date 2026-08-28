@@ -61,7 +61,12 @@ const Api = {
 
     if (!response.ok) {
       // Pega a mensagem do backend ou usa uma mensagem genérica
-      const message = (data && (data.message || data.error)) || `Erro ${response.status}`;
+      const validationMessage = data?.validationErrors
+        ? Object.entries(data.validationErrors)
+            .map(([field, message]) => `${field}: ${message}`)
+            .join("; ")
+        : null;
+      const message = validationMessage || (data && (data.message || data.error)) || `Erro ${response.status}`;
       const error = new Error(message);
       error.details = data;
       error.status = response.status;

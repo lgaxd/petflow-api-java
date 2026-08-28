@@ -151,6 +151,8 @@ Controla os planos de saúde/prevenção ligados às clínicas.
 ### 📅 Assinaturas
 Registra a contratação de planos por pets.
 
+Na criação, o frontend envia `petId`, `planId`, `startDate` e `status`. Para uma nova assinatura, o status esperado é `ATIVO`; o backend também assume `ATIVO` quando esse campo é omitido por um cliente compatível.
+
 ### ❤️ Eventos de Saúde
 Armazena o histórico clínico e preventivo dos pets.
 
@@ -163,6 +165,10 @@ Registra o uso de cupons pelos tutores.
 ## 🎮 Gamificação
 
 O PetFlow possui um sistema de gamificação onde tutores acumulam pontos ao realizar ações como cadastrar pets, registrar eventos de saúde e assinar planos. Esses pontos podem ser trocados por cupons de desconto em clínicas parceiras.
+
+Os pontos são registrados na tabela `REWARD_POINT` e o saldo exibido em `/gamification/points` é a soma dos lançamentos do tutor. O cache de pontuação é invalidado após cadastro de pet, conclusão de evento de saúde, criação de assinatura e resgate de cupom.
+
+Os quatro `REWARD_ACTION` exigidos pelo domínio (`CADASTRO_PET`, `EVENTO_SAUDE_REALIZADO`, `ASSINATURA_ATIVA` e `RESGATE_CUPOM`) são carregados pelo Flyway e verificados na inicialização da aplicação. Se algum estiver ausente no schema Oracle, o inicializador o recria com os valores definidos no seed.
 
 ---
 
@@ -250,7 +256,6 @@ O PetFlow possui um sistema de gamificação onde tutores acumulam pontos ao rea
 
 | Método | Endpoint | Descrição | Permissão |
 |--------|----------|-----------|-----------|
-| POST | `/redeems` | Registrar resgate | Authenticated |
 | GET | `/redeems` | Listar resgates | Authenticated |
 | GET | `/redeems/{id}` | Buscar resgate por ID | Authenticated |
 
@@ -262,6 +267,8 @@ O PetFlow possui um sistema de gamificação onde tutores acumulam pontos ao rea
 | GET | `/gamification/pets/{petId}/risk` | Retorna o score de risco de um pet | TUTOR |
 | GET | `/gamification/coupons/available` | Lista cupons disponíveis para resgate | TUTOR |
 | POST | `/gamification/redeem` | Resgata um cupom usando pontos | TUTOR |
+
+O resgate valida o status e a validade do cupom e compara o custo com o saldo atual do tutor. Quando os pontos são insuficientes, a API retorna HTTP 422 com o código `INSUFFICIENT_POINTS` e os valores `availablePoints` e `requiredPoints`; o cupom não é alterado. Cupons realmente expirados retornam o código `EXPIRED_COUPON`.
 
 ---
 
@@ -279,6 +286,8 @@ O projeto utiliza **Oracle Database** como banco principal.
 ### Modelo de Dados
 
 O modelo foi estruturado com JPA e relacionamentos entre entidades para garantir integridade e organização dos dados.
+
+O relacionamento entre `HEALTH_EVENT` e `EVENT_TYPE` é mapeado como associação JPA para a coluna `EVENT_TYPE_ID`, conforme a chave estrangeira definida no SQL Oracle. O mesmo padrão é usado para `REWARD_POINT`, `REWARD_ACTION`, `TUTOR` e as demais entidades relacionadas.
 
 ---
 
@@ -316,6 +325,17 @@ spring.datasource.password=sua_senha
 ./mvnw clean compile
 ./mvnw spring-boot:run
 ```
+
+Ao iniciar, o Flyway aplica as migrations pendentes. Em um schema que já contenha tabelas antigas, ele não reexecuta automaticamente seeds já marcados como aplicados; nesse caso, limpe o schema de desenvolvimento ou insira os dados de referência conforme `V2__Seed_Data.sql` antes de testar.
+
+### Fluxo recomendado de teste
+
+1. Faça login e use o token retornado para acessar o painel correspondente.
+2. No painel do tutor, cadastre um pet e confirme a pontuação na aba **Gamificação**.
+3. Registre um evento de saúde com status `REALIZADO` e confirme o novo lançamento de pontos.
+4. Crie uma assinatura ativa e confirme o lançamento de `ASSINATURA_ATIVA`.
+5. Em **Cupons & Resgate**, tente um cupom mais caro que o saldo. A mensagem deve aparecer nessa seção, informando o saldo disponível e o custo necessário.
+6. Com saldo suficiente, resgate o cupom e confirme o registro em **Meus cupons resgatados**.
 
 ### Teste rápido (front-end local)
 

@@ -13,6 +13,7 @@ import br.com.petflow.petflow_api.repository.RewardPointRepository;
 import br.com.petflow.petflow_api.repository.TutorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +30,10 @@ public class PetService {
     private final RewardPointRepository rewardPointRepository;
 
     @Transactional
-    @CacheEvict(value = "pets", allEntries = true)
+        @Caching(evict = {
+            @CacheEvict(value = "pets", allEntries = true),
+            @CacheEvict(value = "tutorPoints", key = "#request.tutorId")
+        })
     public PetResponseDTO create(PetRequestDTO request) {
         Tutor tutor = tutorRepository.findById(request.getTutorId())
                 .orElseThrow(() -> new EntityNotFoundException("Tutor", request.getTutorId()));
