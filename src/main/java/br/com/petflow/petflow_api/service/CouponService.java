@@ -3,11 +3,13 @@ package br.com.petflow.petflow_api.service;
 import br.com.petflow.petflow_api.dto.CouponRequestDTO;
 import br.com.petflow.petflow_api.dto.CouponResponseDTO;
 import br.com.petflow.petflow_api.entity.Coupon;
+import br.com.petflow.petflow_api.entity.CouponTemplate;
 import br.com.petflow.petflow_api.enums.CouponStatus;
 import br.com.petflow.petflow_api.exception.BusinessRuleException;
 import br.com.petflow.petflow_api.exception.DuplicateResourceException;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
 import br.com.petflow.petflow_api.repository.CouponRepository;
+import br.com.petflow.petflow_api.repository.CouponTemplateRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -23,6 +25,7 @@ import java.util.Optional;
 public class CouponService {
 
     private final CouponRepository couponRepository;
+    private final CouponTemplateRepository couponTemplateRepository; // ADICIONADO
 
     @Transactional
     @CacheEvict(value = "coupons", allEntries = true)
@@ -31,6 +34,10 @@ public class CouponService {
         if (existing.isPresent()) {
             throw new DuplicateResourceException("Cupom", "código", request.getCode());
         }
+
+        // Buscar o template pelo ID
+        CouponTemplate template = couponTemplateRepository.findById(request.getTemplateId())
+                .orElseThrow(() -> new EntityNotFoundException("CouponTemplate", request.getTemplateId()));
 
         CouponStatus status = CouponStatus.DISPONIVEL;
         if (request.getStatus() != null && !request.getStatus().isBlank()) {
@@ -45,7 +52,7 @@ public class CouponService {
                 .code(request.getCode())
                 .status(status)
                 .expirationDate(request.getExpirationDate())
-                .templateId(request.getTemplateId())
+                .template(template) // <-- MUDANÇA AQUI
                 .build();
 
         coupon = couponRepository.save(coupon);
@@ -103,21 +110,17 @@ public class CouponService {
     }
 
     private void validateStatusTransition(CouponStatus currentStatus, CouponStatus newStatus) {
-        if (currentStatus == newStatus) {
-            return;
-        }
-
+        if (currentStatus == newStatus) return;
         if (currentStatus != CouponStatus.DISPONIVEL) {
             throw new BusinessRuleException(
-                    String.format("Cupom com status '%s' não pode ser alterado para '%s'", 
+                    String.format("Cupom com status '%s' não pode ser alterado para '%s'",
                             currentStatus.name(), newStatus.name()),
                     "INVALID_COUPON_STATUS_TRANSITION"
             );
         }
-
         if (newStatus != CouponStatus.UTILIZADO && newStatus != CouponStatus.RESGATADO) {
             throw new BusinessRuleException(
-                    String.format("Status inválido para cupom: %s. Transições permitidas: %s, %s", 
+                    String.format("Status inválido para cupom: %s. Transições permitidas: %s, %s",
                             newStatus.name(), CouponStatus.UTILIZADO.name(), CouponStatus.RESGATADO.name()),
                     "INVALID_COUPON_STATUS_TRANSITION"
             );
@@ -130,7 +133,7 @@ public class CouponService {
                 .code(coupon.getCode())
                 .status(coupon.getStatus())
                 .expirationDate(coupon.getExpirationDate())
-                .templateId(coupon.getTemplateId())
+                .templateId(coupon.getTemplate().getId()) // <-- MUDANÇA AQUI
                 .createdAt(coupon.getCreatedAt())
                 .build();
     }

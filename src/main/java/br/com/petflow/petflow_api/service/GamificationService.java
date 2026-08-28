@@ -14,8 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +52,6 @@ public class GamificationService {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new EntityNotFoundException("Pet", petId));
 
-        // Cálculo simplificado do score de risco baseado em dados do pet
         Integer score = calculateRiskScore(pet);
         String level = getRiskLevel(score);
         String description = getRiskDescription(level);
@@ -68,22 +67,25 @@ public class GamificationService {
 
     private Integer calculateRiskScore(Pet pet) {
         int score = 0;
-        
-        // Idade - pets mais velhos têm mais risco
+
+        // Idade
         if (pet.getBirthDate() != null) {
             int age = LocalDate.now().getYear() - pet.getBirthDate().getYear();
             if (age > 10) score += 20;
             else if (age > 7) score += 10;
             else if (age > 5) score += 5;
         }
-        
-        // Peso - muito acima ou abaixo do ideal
+
+        // Peso - usando BigDecimal corretamente
         if (pet.getWeight() != null) {
-            if (pet.getWeight() < 3.0 || pet.getWeight() > 30.0) score += 15;
-            else if (pet.getWeight() < 5.0 || pet.getWeight() > 25.0) score += 8;
+            BigDecimal weight = pet.getWeight();
+            if (weight.compareTo(BigDecimal.valueOf(3.0)) < 0 || weight.compareTo(BigDecimal.valueOf(30.0)) > 0) {
+                score += 15;
+            } else if (weight.compareTo(BigDecimal.valueOf(5.0)) < 0 || weight.compareTo(BigDecimal.valueOf(25.0)) > 0) {
+                score += 8;
+            }
         }
-        
-        // Sempre entre 0 e 100
+
         return Math.min(score, 100);
     }
 
@@ -115,37 +117,31 @@ public class GamificationService {
         Coupon coupon = couponRepository.findById(couponId)
                 .orElseThrow(() -> new EntityNotFoundException("Cupom", couponId));
 
-        // Validar se o cupom está disponível
         if (coupon.getStatus() != CouponStatus.DISPONIVEL) {
             throw new BusinessRuleException("Cupom não está disponível para resgate");
         }
 
-        // Validar se o cupom expirou
         if (coupon.getExpirationDate() != null && coupon.getExpirationDate().isBefore(LocalDate.now())) {
             throw new BusinessRuleException("Cupom expirado");
         }
 
-        // Validar pontos suficientes
         Integer totalPoints = rewardPointRepository.sumPointsByTutorId(tutorId);
         if (totalPoints == null) totalPoints = 0;
-        
+
         Integer pointsRequired = coupon.getTemplate().getPointsRequired();
         if (totalPoints < pointsRequired) {
             throw new BusinessRuleException("Pontos insuficientes para resgatar este cupom. Necessário: " + pointsRequired);
         }
 
-        // Criar registro de resgate
         Redeem redeem = Redeem.builder()
                 .tutor(tutor)
                 .coupon(coupon)
                 .pointsUsed(pointsRequired)
                 .build();
-        
-        // Atualizar status do cupom
+
         coupon.setStatus(CouponStatus.RESGATADO);
         couponRepository.save(coupon);
 
-        // Registrar consumo de pontos
         RewardAction rewardAction = rewardActionRepository.findByName("RESGATE_CUPOM")
                 .orElseThrow(() -> new EntityNotFoundException("RewardAction", "name", "RESGATE_CUPOM"));
 
