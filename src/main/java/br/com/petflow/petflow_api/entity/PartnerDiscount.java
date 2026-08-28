@@ -32,7 +32,7 @@ public class PartnerDiscount {
     @Column(name = "CATEGORY", length = 50)
     private String category;
 
-    @Column(name = "DISCOUNT_PERCENT", precision = 5, scale = 2)
+    @Column(name = "DISCOUNT_PERCENT")
     private Double discountPercent;
 
     @OneToMany(mappedBy = "partnerDiscount", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -31,7 +31,7 @@ VALUES ('Administrador PetFlow', 'ADMIN', 'admin@petflow.com', '(11) 90000-0000'
 
 -- Tutor de demonstração (senha: Tutor@123)
 INSERT INTO tutor (name, role, email, phone, password_hash)
-VALUES ('Ana Lima', 'TUTOR', 'ana.lima@email.com', '11-98001-0001',
+VALUES ('Maria Souza', 'TUTOR', 'maria@petflow.com', '11-98001-0001',
         '$2b$10$/vPZqCCwPJSroSMducM2T.ZEgB9RFu2vz4K0jAoy3o10erMPVqJmu');
 
 -- Clínica e planos de demonstração

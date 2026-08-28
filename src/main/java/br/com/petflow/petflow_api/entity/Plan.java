@@ -27,7 +27,7 @@ public class Plan {
     @Column(name = "DESCRIPTION", length = 200)
     private String description;
  
-    @Column(name = "PRICE", precision = 10, scale = 2, nullable = false)
+    @Column(name = "PRICE", nullable = false)
     private BigDecimal price;
 
     @Column(name = "DURATION_DAYS", nullable = false)
