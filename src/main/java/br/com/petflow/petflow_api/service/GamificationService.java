@@ -8,6 +8,7 @@ import br.com.petflow.petflow_api.exception.ExpiredCouponException;
 import br.com.petflow.petflow_api.exception.BusinessRuleException;
 import br.com.petflow.petflow_api.exception.InsufficientPointsException;
 import br.com.petflow.petflow_api.repository.*;
+import br.com.petflow.petflow_api.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -34,6 +35,10 @@ public class GamificationService {
     @Transactional(readOnly = true)
     @Cacheable(value = "tutorPoints", key = "#tutorId")
     public TutorPointsDTO getTutorPoints(Long tutorId) {
+        if (!SecurityUtils.isAdmin()) {
+            SecurityUtils.checkOwnership(tutorId);
+        }
+
         Tutor tutor = tutorRepository.findById(tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("Tutor", tutorId));
 
@@ -54,6 +59,10 @@ public class GamificationService {
     public PetRiskDTO getPetRisk(Long petId) {
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new EntityNotFoundException("Pet", petId));
+
+        if (!SecurityUtils.isAdmin()) {
+            SecurityUtils.checkOwnership(pet.getTutor().getId());
+        }
 
         Integer score = calculateRiskScore(pet);
         String level = getRiskLevel(score);
@@ -114,6 +123,10 @@ public class GamificationService {
     @Transactional
     @CacheEvict(value = "tutorPoints", key = "#tutorId")
     public RedeemResponseDTO redeemCoupon(Long tutorId, Long couponId) {
+        if (!SecurityUtils.isAdmin()) {
+            SecurityUtils.checkOwnership(tutorId);
+        }
+
         Tutor tutor = tutorRepository.findById(tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("Tutor", tutorId));
 

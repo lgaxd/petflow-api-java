@@ -8,7 +8,9 @@ import br.com.petflow.petflow_api.exception.BusinessRuleException;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
 import br.com.petflow.petflow_api.exception.InvalidStatusTransitionException;
 import br.com.petflow.petflow_api.repository.*;
+import br.com.petflow.petflow_api.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.cache.annotation.Cacheable;
@@ -39,6 +41,10 @@ public class SubscriptionService {
     public SubscriptionResponseDTO create(SubscriptionRequestDTO request) {
         Pet pet = petRepository.findById(request.getPetId())
                 .orElseThrow(() -> new EntityNotFoundException("Pet", request.getPetId()));
+
+        if (!SecurityUtils.isAdmin()) {
+            SecurityUtils.checkOwnership(pet.getTutor().getId());
+        }
 
         Plan plan = planRepository.findById(request.getPlanId())
                 .orElseThrow(() -> new EntityNotFoundException("Plano", request.getPlanId()));
@@ -84,12 +90,29 @@ public class SubscriptionService {
     public SubscriptionResponseDTO findById(Long id) {
         Subscription subscription = subscriptionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Assinatura", id));
+
+        if (!SecurityUtils.isAdmin()) {
+            SecurityUtils.checkOwnership(subscription.getPet().getTutor().getId());
+        }
+
         return toResponseDTO(subscription);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(value = "subscriptions", key = "#petId + '_' + #status + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<SubscriptionResponseDTO> findAll(Long petId, String status, Pageable pageable) {
+        if (!SecurityUtils.isAdmin()) {
+            Long currentTutorId = SecurityUtils.getCurrentTutorId();
+            if (petId != null) {
+                Pet pet = petRepository.findById(petId)
+                        .orElseThrow(() -> new EntityNotFoundException("Pet", petId));
+                if (!currentTutorId.equals(pet.getTutor().getId())) {
+                    throw new AccessDeniedException("Você não tem permissão para visualizar assinaturas de outro tutor.");
+                }
+                return subscriptionRepository.findByPetIdProjected(petId, pageable);
+            }
+        }
+
         if (petId != null) {
             return subscriptionRepository.findByPetIdProjected(petId, pageable);
         } else if (status != null && !status.isBlank()) {
@@ -108,6 +131,10 @@ public class SubscriptionService {
     public SubscriptionResponseDTO updateStatus(Long id, String newStatusStr) {
         Subscription subscription = subscriptionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Assinatura", id));
+
+        if (!SecurityUtils.isAdmin()) {
+            SecurityUtils.checkOwnership(subscription.getPet().getTutor().getId());
+        }
 
         SubscriptionStatus newStatus;
         try {
@@ -128,6 +155,10 @@ public class SubscriptionService {
     public SubscriptionResponseDTO cancel(Long id) {
         Subscription subscription = subscriptionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Assinatura", id));
+
+        if (!SecurityUtils.isAdmin()) {
+            SecurityUtils.checkOwnership(subscription.getPet().getTutor().getId());
+        }
 
         if (subscription.getStatus() != SubscriptionStatus.ATIVO) {
             throw new InvalidStatusTransitionException(
@@ -155,10 +186,14 @@ public class SubscriptionService {
     @Transactional
     @CacheEvict(value = "subscriptions", allEntries = true)
     public void delete(Long id) {
-        if (!subscriptionRepository.existsById(id)) {
-            throw new EntityNotFoundException("Assinatura", id);
+        Subscription subscription = subscriptionRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Assinatura", id));
+
+        if (!SecurityUtils.isAdmin()) {
+            SecurityUtils.checkOwnership(subscription.getPet().getTutor().getId());
         }
-        subscriptionRepository.deleteById(id);
+
+        subscriptionRepository.delete(subscription);
     }
 
     private void grantPointsForSubscription(Tutor tutor, Subscription subscription) {

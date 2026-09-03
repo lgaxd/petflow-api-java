@@ -7,7 +7,9 @@ import br.com.petflow.petflow_api.enums.HealthEventStatus;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
 import br.com.petflow.petflow_api.exception.InvalidStatusTransitionException;
 import br.com.petflow.petflow_api.repository.*;
+import br.com.petflow.petflow_api.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.cache.annotation.Cacheable;
@@ -35,6 +37,10 @@ public class HealthEventService {
     public HealthEventResponseDTO create(HealthEventRequestDTO request) {
         Pet pet = petRepository.findById(request.getPetId())
                 .orElseThrow(() -> new EntityNotFoundException("Pet", request.getPetId()));
+
+        if (!SecurityUtils.isAdmin()) {
+            SecurityUtils.checkOwnership(pet.getTutor().getId());
+        }
 
         HealthEventStatus status = HealthEventStatus.AGENDADO;
         if (request.getStatus() != null && !request.getStatus().isBlank()) {
@@ -78,12 +84,29 @@ public class HealthEventService {
     public HealthEventResponseDTO findById(Long id) {
         HealthEvent healthEvent = healthEventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Evento de Saúde", id));
+
+        if (!SecurityUtils.isAdmin()) {
+            SecurityUtils.checkOwnership(healthEvent.getPet().getTutor().getId());
+        }
+
         return toResponseDTO(healthEvent);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(value = "healthEvents", key = "#petId + '_' + #status + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<HealthEventResponseDTO> findAll(Long petId, String status, Pageable pageable) {
+        if (!SecurityUtils.isAdmin()) {
+            Long currentTutorId = SecurityUtils.getCurrentTutorId();
+            if (petId != null) {
+                Pet pet = petRepository.findById(petId)
+                        .orElseThrow(() -> new EntityNotFoundException("Pet", petId));
+                if (!currentTutorId.equals(pet.getTutor().getId())) {
+                    throw new AccessDeniedException("Você não tem permissão para visualizar eventos de outro tutor.");
+                }
+                return healthEventRepository.findByPetIdProjected(petId, pageable);
+            }
+        }
+
         if (petId != null) {
             return healthEventRepository.findByPetIdProjected(petId, pageable);
         } else if (status != null && !status.isBlank()) {
@@ -102,6 +125,10 @@ public class HealthEventService {
     public HealthEventResponseDTO update(Long id, HealthEventRequestDTO request) {
         HealthEvent healthEvent = healthEventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Evento de Saúde", id));
+
+        if (!SecurityUtils.isAdmin()) {
+            SecurityUtils.checkOwnership(healthEvent.getPet().getTutor().getId());
+        }
 
         HealthEventStatus oldStatus = healthEvent.getStatus();
         HealthEventStatus newStatus = oldStatus;
@@ -146,10 +173,14 @@ public class HealthEventService {
     @Transactional
     @CacheEvict(value = "healthEvents", allEntries = true)
     public void delete(Long id) {
-        if (!healthEventRepository.existsById(id)) {
-            throw new EntityNotFoundException("Evento de Saúde", id);
+        HealthEvent healthEvent = healthEventRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Evento de Saúde", id));
+
+        if (!SecurityUtils.isAdmin()) {
+            SecurityUtils.checkOwnership(healthEvent.getPet().getTutor().getId());
         }
-        healthEventRepository.deleteById(id);
+
+        healthEventRepository.delete(healthEvent);
     }
 
     private void grantPointsForEvent(Tutor tutor, HealthEvent event) {

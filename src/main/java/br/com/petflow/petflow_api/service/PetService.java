@@ -11,13 +11,18 @@ import br.com.petflow.petflow_api.repository.PetRepository;
 import br.com.petflow.petflow_api.repository.RewardActionRepository;
 import br.com.petflow.petflow_api.repository.RewardPointRepository;
 import br.com.petflow.petflow_api.repository.TutorRepository;
+import br.com.petflow.petflow_api.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -69,13 +74,33 @@ public class PetService {
     public PetResponseDTO findById(Long id) {
         Pet pet = petRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pet", id));
+
+        if (!SecurityUtils.isAdmin()) {
+            SecurityUtils.checkOwnership(pet.getTutor().getId());
+        }
+
         return toResponseDTO(pet);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(value = "pets", key = "#name + '_' + #tutorId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<PetResponseDTO> findAll(String name, Long tutorId, Pageable pageable) {
+        if (!SecurityUtils.isAdmin()) {
+            Long currentTutorId = SecurityUtils.getCurrentTutorId();
+            if (tutorId != null && !currentTutorId.equals(tutorId)) {
+                throw new AccessDeniedException("Você não tem permissão para listar pets de outro tutor.");
+            }
+            tutorId = currentTutorId;
+        }
+
         if (name != null && !name.isBlank()) {
+            if (!SecurityUtils.isAdmin()) {
+                Page<PetResponseDTO> pets = petRepository.findByTutorIdProjected(tutorId, pageable);
+                List<PetResponseDTO> filtered = pets.getContent().stream()
+                        .filter(pet -> pet.getName() != null && pet.getName().toLowerCase().contains(name.toLowerCase()))
+                        .toList();
+                return new PageImpl<>(filtered, pageable, filtered.size());
+            }
             return petRepository.findByNameProjected(name, pageable);
         } else if (tutorId != null) {
             return petRepository.findByTutorIdProjected(tutorId, pageable);
@@ -89,7 +114,14 @@ public class PetService {
         Pet pet = petRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pet", id));
 
+        if (!SecurityUtils.isAdmin()) {
+            SecurityUtils.checkOwnership(pet.getTutor().getId());
+        }
+
         if (request.getTutorId() != null && !pet.getTutor().getId().equals(request.getTutorId())) {
+            if (!SecurityUtils.isAdmin()) {
+                throw new AccessDeniedException("Você não pode transferir um pet para outro tutor.");
+            }
             Tutor tutor = tutorRepository.findById(request.getTutorId())
                     .orElseThrow(() -> new EntityNotFoundException("Tutor", request.getTutorId()));
             pet.setTutor(tutor);
@@ -107,10 +139,14 @@ public class PetService {
     @Transactional
     @CacheEvict(value = "pets", allEntries = true)
     public void delete(Long id) {
-        if (!petRepository.existsById(id)) {
-            throw new EntityNotFoundException("Pet", id);
+        Pet pet = petRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Pet", id));
+
+        if (!SecurityUtils.isAdmin()) {
+            SecurityUtils.checkOwnership(pet.getTutor().getId());
         }
-        petRepository.deleteById(id);
+
+        petRepository.delete(pet);
     }
 
     private PetResponseDTO toResponseDTO(Pet pet) {
