@@ -103,11 +103,9 @@ src/main/resources/static/
 
 ### 1. Frontend (30 pontos)
 
-A aplicação possui uma interface web completa com:
-- ✅ Páginas HTML com CSS responsivo
-- ✅ JavaScript para interações dinâmicas
-- ✅ Comunicação com a API via fetch
-- ✅ Gerenciamento de estado de autenticação
+A aplicação possui uma interface web completa disponível em: https://github.com/lgaxd/petflow-front-api-java
+
+É necessário inicializar o frontend após a API para poder acessá-lo e testar a aplicação.
 
 ### 2. Flyway (20 pontos)
 
@@ -151,8 +149,6 @@ Controla os planos de saúde/prevenção ligados às clínicas.
 ### 📅 Assinaturas
 Registra a contratação de planos por pets.
 
-Na criação, o frontend envia `petId`, `planId`, `startDate` e `status`. Para uma nova assinatura, o status esperado é `ATIVO`; o backend também assume `ATIVO` quando esse campo é omitido por um cliente compatível.
-
 ### ❤️ Eventos de Saúde
 Armazena o histórico clínico e preventivo dos pets.
 
@@ -165,10 +161,6 @@ Registra o uso de cupons pelos tutores.
 ## 🎮 Gamificação
 
 O PetFlow possui um sistema de gamificação onde tutores acumulam pontos ao realizar ações como cadastrar pets, registrar eventos de saúde e assinar planos. Esses pontos podem ser trocados por cupons de desconto em clínicas parceiras.
-
-Os pontos são registrados na tabela `REWARD_POINT` e o saldo exibido em `/gamification/points` é a soma dos lançamentos do tutor. O cache de pontuação é invalidado após cadastro de pet, conclusão de evento de saúde, criação de assinatura e resgate de cupom.
-
-Os quatro `REWARD_ACTION` exigidos pelo domínio (`CADASTRO_PET`, `EVENTO_SAUDE_REALIZADO`, `ASSINATURA_ATIVA` e `RESGATE_CUPOM`) são carregados pelo Flyway e verificados na inicialização da aplicação. Se algum estiver ausente no schema Oracle, o inicializador o recria com os valores definidos no seed.
 
 ---
 
