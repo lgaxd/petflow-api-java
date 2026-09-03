@@ -1,7 +1,6 @@
 package br.com.petflow.petflow_api.security;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import br.com.petflow.petflow_api.entity.Tutor;
 import br.com.petflow.petflow_api.enums.UserRole;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -52,12 +51,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authorities.add(new SimpleGrantedAuthority("ROLE_TUTOR"));
             }
 
-                Tutor tutor = Tutor.builder()
-                    .id(decoded.getClaim("id").asLong())
-                    .name(decoded.getClaim("name").asString())
-                    .email(decoded.getSubject())
-                    .role(UserRole.valueOf(role.toUpperCase()))
-                    .build();
+                AuthenticatedTutor tutor = new AuthenticatedTutor(
+                    decoded.getClaim("id").asLong(),
+                    decoded.getSubject(),
+                    decoded.getClaim("name").asString(),
+                    null,
+                    UserRole.valueOf(role.toUpperCase())
+                );
 
                 UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(tutor, null, authorities);

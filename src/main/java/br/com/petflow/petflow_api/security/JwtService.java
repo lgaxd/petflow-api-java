@@ -42,6 +42,18 @@ public class JwtService {
                 .sign(algorithm());
     }
 
+    public String generateToken(AuthenticatedTutor tutor) {
+        Instant now = Instant.now();
+        return JWT.create()
+                .withSubject(tutor.getEmail())
+                .withClaim("id", tutor.getId())
+                .withClaim("name", tutor.getName())
+                .withClaim("role", tutor.getRole().name())
+                .withIssuedAt(Date.from(now))
+                .withExpiresAt(Date.from(now.plusMillis(expirationMs)))
+                .sign(algorithm());
+    }
+
     public DecodedJWT validateToken(String token) {
         try {
             return JWT.require(algorithm()).build().verify(token);

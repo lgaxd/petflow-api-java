@@ -10,9 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import br.com.petflow.petflow_api.security.AuthenticatedTutor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,7 +26,7 @@ public class GamificationController {
     @GetMapping("/points")
     @Operation(summary = "Buscar pontos do tutor autenticado")
     public ResponseEntity<TutorPointsDTO> getMyPoints(Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        AuthenticatedTutor userDetails = (AuthenticatedTutor) authentication.getPrincipal();
         Long tutorId = extractTutorId(userDetails);
         return ResponseEntity.ok(gamificationService.getTutorPoints(tutorId));
     }
@@ -51,16 +51,12 @@ public class GamificationController {
     public ResponseEntity<RedeemResponseDTO> redeemCoupon(
             Authentication authentication,
             @Valid @RequestBody RedeemCouponRequestDTO request) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        AuthenticatedTutor userDetails = (AuthenticatedTutor) authentication.getPrincipal();
         Long tutorId = extractTutorId(userDetails);
         return ResponseEntity.ok(gamificationService.redeemCoupon(tutorId, request.getCouponId()));
     }
 
-    private Long extractTutorId(UserDetails userDetails) {
-        // Pega o ID do Tutor do UserDetails
-        // O email é o username, então buscamos o tutor pelo email
-        // Mas na implementação atual, o Tutor já implementa UserDetails
-        // e está disponível no principal
-        return ((br.com.petflow.petflow_api.entity.Tutor) userDetails).getId();
+    private Long extractTutorId(AuthenticatedTutor userDetails) {
+        return userDetails.getId();
     }
 }

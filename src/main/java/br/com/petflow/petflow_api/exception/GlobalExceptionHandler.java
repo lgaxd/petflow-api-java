@@ -4,10 +4,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,65 +30,38 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     private final HttpServletRequest request;
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
-
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.NOT_FOUND.value())
-                .error("Entidade não encontrada")
-                .message(ex.getMessage())
-                .path(getPath())
-                .build();
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return buildError(HttpStatus.NOT_FOUND, "Entidade não encontrada", ex.getMessage(), null, null, null);
     }
 
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException ex) {
-
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.CONFLICT.value())
-                .error("Recurso duplicado")
-                .message(ex.getMessage())
-                .path(getPath())
-                .build();
-
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        return buildError(HttpStatus.CONFLICT, "Recurso duplicado", ex.getMessage(), null, null, null);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+        return buildError(HttpStatus.FORBIDDEN, "Acesso negado", ex.getMessage(), null, null, null);
+    }
 
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.FORBIDDEN.value())
-                .error("Acesso negado")
-                .message(ex.getMessage())
-                .path(getPath())
-                .build();
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
+        return buildError(HttpStatus.UNAUTHORIZED, "Credenciais inválidas", "E-mail ou senha inválidos", null, null, null);
+    }
 
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUsernameNotFound(UsernameNotFoundException ex) {
+        return buildError(HttpStatus.UNAUTHORIZED, "Credenciais inválidas", "E-mail ou senha inválidos", null, null, null);
     }
 
     @ExceptionHandler(BusinessRuleException.class)
     public ResponseEntity<ErrorResponse> handleBusinessRule(BusinessRuleException ex) {
-
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.UNPROCESSABLE_CONTENT.value())
-                .error("Regra de negócio violada")
-                .message(ex.getMessage())
-                .code(ex.getCode())
-                .path(getPath())
-                .build();
-
-        return ResponseEntity
-                .status(HttpStatus.UNPROCESSABLE_CONTENT)
-                .body(error);
+        return buildError(HttpStatus.UNPROCESSABLE_CONTENT, "Regra de negócio violada", ex.getMessage(), ex.getCode(), null, null);
     }
 
     @ExceptionHandler(InsufficientPointsException.class)
@@ -94,19 +71,7 @@ public class GlobalExceptionHandler {
         details.put("availablePoints", ex.getAvailablePoints());
         details.put("requiredPoints", ex.getRequiredPoints());
 
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.UNPROCESSABLE_CONTENT.value())
-                .error("Pontos insuficientes")
-                .message(ex.getMessage())
-                .code(ex.getCode())
-                .details(details)
-                .path(getPath())
-                .build();
-
-        return ResponseEntity
-                .status(HttpStatus.UNPROCESSABLE_CONTENT)
-                .body(error);
+        return buildError(HttpStatus.UNPROCESSABLE_CONTENT, "Pontos insuficientes", ex.getMessage(), ex.getCode(), details, null);
     }
 
     @ExceptionHandler(ExpiredCouponException.class)
@@ -116,36 +81,12 @@ public class GlobalExceptionHandler {
         details.put("couponCode", ex.getCouponCode());
         details.put("expirationDate", ex.getExpirationDate());
 
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.UNPROCESSABLE_CONTENT.value())
-                .error("Cupom expirado")
-                .message(ex.getMessage())
-                .code(ex.getCode())
-                .details(details)
-                .path(getPath())
-                .build();
-
-        return ResponseEntity
-                .status(HttpStatus.UNPROCESSABLE_CONTENT)
-                .body(error);
+        return buildError(HttpStatus.UNPROCESSABLE_CONTENT, "Cupom expirado", ex.getMessage(), ex.getCode(), details, null);
     }
 
     @ExceptionHandler(CouponAlreadyRedeemedException.class)
     public ResponseEntity<ErrorResponse> handleCouponAlreadyRedeemed(CouponAlreadyRedeemedException ex) {
-
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.UNPROCESSABLE_CONTENT.value())
-                .error("Cupom já resgatado")
-                .message(ex.getMessage())
-                .code(ex.getCode())
-                .path(getPath())
-                .build();
-
-        return ResponseEntity
-                .status(HttpStatus.UNPROCESSABLE_CONTENT)
-                .body(error);
+        return buildError(HttpStatus.UNPROCESSABLE_CONTENT, "Cupom já resgatado", ex.getMessage(), ex.getCode(), null, null);
     }
 
     @ExceptionHandler(InvalidStatusTransitionException.class)
@@ -157,19 +98,7 @@ public class GlobalExceptionHandler {
         details.put("currentStatus", ex.getCurrentStatus());
         details.put("targetStatus", ex.getTargetStatus());
 
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.UNPROCESSABLE_CONTENT.value())
-                .error("Transição de status inválida")
-                .message(ex.getMessage())
-                .code(ex.getCode())
-                .details(details)
-                .path(getPath())
-                .build();
-
-        return ResponseEntity
-                .status(HttpStatus.UNPROCESSABLE_CONTENT)
-                .body(error);
+        return buildError(HttpStatus.UNPROCESSABLE_CONTENT, "Transição de status inválida", ex.getMessage(), ex.getCode(), details, null);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -188,16 +117,7 @@ public class GlobalExceptionHandler {
                     errors.put(fieldName, errorMessage);
                 });
 
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Erro de validação")
-                .message("Campos inválidos")
-                .validationErrors(errors)
-                .path(getPath())
-                .build();
-
-        return ResponseEntity.badRequest().body(error);
+        return buildError(HttpStatus.BAD_REQUEST, "Erro de validação", "Campos inválidos", null, null, errors);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -212,16 +132,7 @@ public class GlobalExceptionHandler {
                         (error1, error2) -> error1
                 ));
 
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Erro de validação")
-                .message("Violação de restrições")
-                .validationErrors(errors)
-                .path(getPath())
-                .build();
-
-        return ResponseEntity.badRequest().body(error);
+        return buildError(HttpStatus.BAD_REQUEST, "Erro de validação", "Violação de restrições", null, null, errors);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
@@ -253,116 +164,77 @@ public class GlobalExceptionHandler {
             }
         }
 
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.CONFLICT.value())
-                .error("Erro de integridade")
-                .message(message)
-                .path(getPath())
-                .build();
-
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        return buildError(HttpStatus.CONFLICT, "Erro de integridade", message, null, null, null);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(
             MethodArgumentTypeMismatchException ex) {
 
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Parâmetro inválido")
-                .message(String.format(
-                        "O parâmetro '%s' recebeu um valor inválido: '%s'",
-                        ex.getName(),
-                        ex.getValue()
-                ))
-                .path(getPath())
-                .build();
+        String message = String.format(
+                "O parâmetro '%s' recebeu um valor inválido: '%s'",
+                ex.getName(),
+                ex.getValue()
+        );
 
-        return ResponseEntity.badRequest().body(error);
+        return buildError(HttpStatus.BAD_REQUEST, "Parâmetro inválido", message, null, null, null);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
             HttpMessageNotReadableException ex) {
 
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("JSON inválido")
-                .message("O corpo da requisição está mal formatado.")
-                .path(getPath())
-                .build();
-
-        return ResponseEntity.badRequest().body(error);
+        return buildError(HttpStatus.BAD_REQUEST, "JSON inválido", "O corpo da requisição está mal formatado.", null, null, null);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ErrorResponse> handleMissingParams(
             MissingServletRequestParameterException ex) {
 
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Parâmetro obrigatório ausente")
-                .message("O parâmetro '" + ex.getParameterName() + "' é obrigatório.")
-                .path(getPath())
-                .build();
-
-        return ResponseEntity.badRequest().body(error);
+        String message = "O parâmetro '" + ex.getParameterName() + "' é obrigatório.";
+        return buildError(HttpStatus.BAD_REQUEST, "Parâmetro obrigatório ausente", message, null, null, null);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleMethodNotSupported(
             HttpRequestMethodNotSupportedException ex) {
 
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.METHOD_NOT_ALLOWED.value())
-                .error("Método HTTP não suportado")
-                .message("O método HTTP informado não é suportado para esta rota.")
-                .path(getPath())
-                .build();
-
-        return ResponseEntity
-                .status(HttpStatus.METHOD_NOT_ALLOWED)
-                .body(error);
+        return buildError(HttpStatus.METHOD_NOT_ALLOWED, "Método HTTP não suportado", "O método HTTP informado não é suportado para esta rota.", null, null, null);
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoHandlerFound(
             NoHandlerFoundException ex) {
 
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.NOT_FOUND.value())
-                .error("Endpoint não encontrado")
-                .message("A rota solicitada não existe.")
-                .path(getPath())
-                .build();
-
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(error);
+        return buildError(HttpStatus.NOT_FOUND, "Endpoint não encontrado", "A rota solicitada não existe.", null, null, null);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        log.error("Erro interno não tratado", ex);
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno do servidor", "Ocorreu um erro inesperado.", null, null, null);
+    }
 
-        ex.printStackTrace();
+    private ResponseEntity<ErrorResponse> buildError(
+            HttpStatus status,
+            String error,
+            String message,
+            String code,
+            Map<String, Object> details,
+            Map<String, String> validationErrors) {
 
-        ErrorResponse error = ErrorResponse.builder()
+        ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .error("Erro interno do servidor")
-                .message("Ocorreu um erro inesperado.")
+                .status(status.value())
+                .error(error)
+                .message(message)
+                .code(code)
+                .details(details)
+                .validationErrors(validationErrors)
                 .path(getPath())
                 .build();
 
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(error);
+        return ResponseEntity.status(status).body(errorResponse);
     }
 
     private String getPath() {

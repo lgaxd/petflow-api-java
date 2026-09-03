@@ -80,9 +80,8 @@ public class GamificationService {
     private Integer calculateRiskScore(Pet pet) {
         int score = 0;
 
-        // Idade
         if (pet.getBirthDate() != null) {
-            int age = LocalDate.now().getYear() - pet.getBirthDate().getYear();
+            int age = java.time.Period.between(pet.getBirthDate(), LocalDate.now()).getYears();
             if (age > 10) score += 20;
             else if (age > 7) score += 10;
             else if (age > 5) score += 5;

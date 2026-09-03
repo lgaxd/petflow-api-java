@@ -20,6 +20,13 @@ public final class SecurityUtils {
         }
 
         Object principal = authentication.getPrincipal();
+        if (principal instanceof AuthenticatedTutor tutor) {
+            if (tutor.getId() == null) {
+                throw new AccessDeniedException("Tutor autenticado sem identificação disponível.");
+            }
+            return tutor.getId();
+        }
+
         if (principal instanceof Tutor tutor) {
             if (tutor.getId() == null) {
                 throw new AccessDeniedException("Tutor autenticado sem identificação disponível.");
