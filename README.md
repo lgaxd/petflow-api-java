@@ -81,31 +81,17 @@ src/main/java/br/com/petflow/petflow_api/
 └── PetflowApiApplication.java  # Classe principal
 ```
 
-### 📂 Camada Frontend (Static Resources)
-
-```text
-src/main/resources/static/
-├── css/
-│   └── style.css           # Estilos da aplicação
-├── js/
-│   ├── api.js              # Camada de comunicação HTTP
-│   ├── admin.js            # Painel administrativo
-│   └── tutor.js            # Área do tutor
-├── admin.html              # Dashboard do ADMIN
-├── index.html              # Página de login
-├── register.html           # Cadastro de novos tutores
-└── tutor.html              # Dashboard do TUTOR
-```
-
 ---
 
 ## Requisitos da Sprint 3
 
 ### 1. Frontend (30 pontos)
 
-A aplicação possui uma interface web completa disponível em: https://github.com/lgaxd/petflow-front-api-java
+A interface web do PetFlow não está neste repositório. Ela está em um projeto separado, disponível em:
 
-É necessário inicializar o frontend após a API para poder acessá-lo e testar a aplicação.
+https://github.com/lgaxd/petflow-front-api-java
+
+Para testar a aplicação completa, a API deve ser iniciada primeiro e, em seguida, o frontend deve ser executado no repositório do front-end. A aplicação web será aberta em http://localhost:5173/.
 
 ### 2. Flyway (20 pontos)
 
@@ -322,16 +308,22 @@ Ao iniciar, o Flyway aplica as migrations pendentes. Em um schema que já conten
 
 ### Fluxo recomendado de teste
 
-1. Faça login e use o token retornado para acessar o painel correspondente.
-2. No painel do tutor, cadastre um pet e confirme a pontuação na aba **Gamificação**.
-3. Registre um evento de saúde com status `REALIZADO` e confirme o novo lançamento de pontos.
-4. Crie uma assinatura ativa e confirme o lançamento de `ASSINATURA_ATIVA`.
-5. Em **Cupons & Resgate**, tente um cupom mais caro que o saldo. A mensagem deve aparecer nessa seção, informando o saldo disponível e o custo necessário.
-6. Com saldo suficiente, resgate o cupom e confirme o registro em **Meus cupons resgatados**.
+1. Inicie a API localmente.
+2. Inicie o frontend no repositório separado.
+3. Acesse a interface em http://localhost:5173/.
+4. Faça login e use o token retornado para acessar o painel correspondente.
+5. No painel do tutor, cadastre um pet e confirme a pontuação na aba **Gamificação**.
+6. Registre um evento de saúde com status `REALIZADO` e confirme o novo lançamento de pontos.
+7. Crie uma assinatura ativa e confirme o lançamento de `ASSINATURA_ATIVA`.
+8. Em **Cupons & Resgate**, tente um cupom mais caro que o saldo. A mensagem deve aparecer nessa seção, informando o saldo disponível e o custo necessário.
+9. Com saldo suficiente, resgate o cupom e confirme o registro em **Meus cupons resgatados**.
 
-### Teste rápido (front-end local)
+### Teste rápido (frontend em repositório separado)
 
-- Após iniciar a aplicação, abra o front-end em http://localhost:8080/ e realize os testes usando as credenciais listadas em **Credenciais de Teste**. As credenciais de acesso ao banco já estão definidas em [src/main/resources/application.properties](src/main/resources/application.properties), portanto não é necessário configurar um banco adicional para testes rápidos.
+- A API deste repositório deve ser iniciada primeiro.
+- O frontend deve ser executado a partir do repositório do projeto web em: https://github.com/lgaxd/petflow-front-api-java
+- Após iniciar o frontend, acesse http://localhost:5173/ e realize os testes usando as credenciais listadas em **Credenciais de Teste**.
+- As credenciais de acesso ao banco já estão definidas em [src/main/resources/application.properties](src/main/resources/application.properties), portanto não é necessário configurar um banco adicional para testes rápidos.
 
 ### Opcional: usar Oracle local com Flyway
 
