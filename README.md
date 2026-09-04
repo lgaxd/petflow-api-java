@@ -28,7 +28,7 @@
 
 O **PetFlow** é uma aplicação web completa desenvolvida em Java com Spring Boot para gerenciamento de saúde preventiva pet. A solução gamifica o cuidado com o pet: eventos de saúde concluídos geram pontos para o tutor, que podem ser trocados por cupons de desconto em clínicas parceiras.
 
-A aplicação conta com uma interface web responsiva, autenticação JWT com dois perfis de usuário (ADMIN e TUTOR), versionamento de banco de dados com Flyway e documentação automática via Swagger/OpenAPI.
+A solução conta com uma interface web responsiva em um repositório frontend separado, autenticação JWT com dois perfis de usuário (ADMIN e TUTOR), versionamento de banco de dados com Flyway e documentação automática via Swagger/OpenAPI.
 
 ---
 
@@ -174,7 +174,7 @@ O PetFlow possui um sistema de gamificação onde tutores acumulam pontos ao rea
 
 | Método | Endpoint | Descrição | Permissão |
 |--------|----------|-----------|-----------|
-| POST | `/pets` | Cadastrar pet | TUTOR/Authenticated |
+| POST | `/pets` | Cadastrar pet | Authenticated |
 | GET | `/pets` | Listar pets (com filtros) | Authenticated |
 | GET | `/pets/{id}` | Buscar pet por ID | Authenticated |
 | PUT | `/pets/{id}` | Atualizar pet | Authenticated |
@@ -241,10 +241,10 @@ O PetFlow possui um sistema de gamificação onde tutores acumulam pontos ao rea
 
 | Método | Endpoint | Descrição | Permissão |
 |--------|----------|-----------|-----------|
-| GET | `/gamification/points` | Retorna os pontos do tutor logado e histórico | TUTOR |
-| GET | `/gamification/pets/{petId}/risk` | Retorna o score de risco de um pet | TUTOR |
-| GET | `/gamification/coupons/available` | Lista cupons disponíveis para resgate | TUTOR |
-| POST | `/gamification/redeem` | Resgata um cupom usando pontos | TUTOR |
+| GET | `/gamification/points` | Retorna os pontos do tutor logado e histórico | Authenticated |
+| GET | `/gamification/pets/{petId}/risk` | Retorna o score de risco de um pet | Authenticated |
+| GET | `/gamification/coupons/available` | Lista cupons disponíveis para resgate | Authenticated |
+| POST | `/gamification/redeem` | Resgata um cupom usando pontos | Authenticated |
 
 O resgate valida o status e a validade do cupom e compara o custo com o saldo atual do tutor. Quando os pontos são insuficientes, a API retorna HTTP 422 com o código `INSUFFICIENT_POINTS` e os valores `availablePoints` e `requiredPoints`; o cupom não é alterado. Cupons realmente expirados retornam o código `EXPIRED_COUPON`.
 
@@ -274,7 +274,7 @@ O relacionamento entre `HEALTH_EVENT` e `EVENT_TYPE` é mapeado como associaçã
 A documentação interativa da API está disponível em:
 
 ```text
-/swagger-ui/index.html
+/swagger
 ```
 
 ---
@@ -347,7 +347,7 @@ Ao iniciar, o Flyway aplica as migrations pendentes. Em um schema que já conten
 
 ## Vídeo de Demonstração
 
-[Link para o vídeo de demonstração da aplicação](https://youtu.be/SEU_LINK_AQUI)
+[Assistir ao vídeo de demonstração da aplicação](https://www.youtube.com/watch?v=TK8Rlf_WRrE)
 
 *O vídeo apresenta todas as funcionalidades da aplicação, incluindo:*
 
@@ -374,7 +374,7 @@ O repositório inclui:
 
 Esta versão do PetFlow foi desenvolvida para atender aos requisitos da **Sprint 3 de Java Advanced**:
 
-- **Frontend:** Interface web completa com HTML, CSS e JavaScript
+- **Frontend:** Interface web responsiva executada a partir do repositório separado
 - **Flyway:** Controle de versão do banco de dados com migrações
 - **Spring Security:** Autenticação JWT com dois perfis (ADMIN/TUTOR)
 - **Funcionalidades:** Fluxos completos de negócio com validações
