@@ -6,7 +6,60 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "20421695"
   },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
   "item": [
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"maria@petflow.com\",\n  \"password\": \"Tutor@123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set(\"token\", json.token);"
+            ]
+          }
+        }
+      ]
+    },
     {
       "name": "Tutores",
       "item": [
@@ -3002,12 +3055,83 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Gamificação",
+      "item": [
+        {
+          "name": "Consultar meus pontos",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/gamification/points",
+              "host": ["{{base_url}}"],
+              "path": ["gamification", "points"]
+            }
+          }
+        },
+        {
+          "name": "Consultar risco do pet",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/gamification/pets/{{pet_id}}/risk",
+              "host": ["{{base_url}}"],
+              "path": ["gamification", "pets", "{{pet_id}}", "risk"]
+            }
+          }
+        },
+        {
+          "name": "Listar cupons disponíveis",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/gamification/coupons/available?page=0&size=10",
+              "host": ["{{base_url}}"],
+              "path": ["gamification", "coupons", "available"],
+              "query": [
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Resgatar cupom",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"couponId\": 1\n}",
+              "options": {
+                "raw": {"language": "json"}
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/gamification/redeem",
+              "host": ["{{base_url}}"],
+              "path": ["gamification", "redeem"]
+            }
+          }
+        }
+      ]
     }
   ],
   "variable": [
     {
       "key": "base_url",
       "value": "http://localhost:8080"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "pet_id",
+      "value": "1"
     }
   ]
 }
