@@ -1,14 +1,16 @@
 package br.com.petflow.petflow_api;
 
 import br.com.petflow.petflow_api.dto.PetResponseDTO;
+import br.com.petflow.petflow_api.dto.PetRequestDTO;
 import br.com.petflow.petflow_api.entity.Pet;
 import br.com.petflow.petflow_api.entity.Tutor;
 import br.com.petflow.petflow_api.enums.UserRole;
 import br.com.petflow.petflow_api.repository.PetRepository;
-import br.com.petflow.petflow_api.repository.RewardActionRepository;
-import br.com.petflow.petflow_api.repository.RewardPointRepository;
 import br.com.petflow.petflow_api.repository.TutorRepository;
+import br.com.petflow.petflow_api.service.GamificationProcedureService;
 import br.com.petflow.petflow_api.service.PetService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +29,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,10 +44,7 @@ class OwnershipAuthorizationTest {
     private TutorRepository tutorRepository;
 
     @Mock
-    private RewardActionRepository rewardActionRepository;
-
-    @Mock
-    private RewardPointRepository rewardPointRepository;
+    private GamificationProcedureService gamificationProcedureService;
 
     @InjectMocks
     private PetService petService;
@@ -72,6 +74,15 @@ class OwnershipAuthorizationTest {
     }
 
     @Test
+    void tutorCannotCreatePetForAnotherTutor() {
+        SecurityContextHolder.getContext().setAuthentication(authenticationFor(1L, "TUTOR"));
+        PetRequestDTO request = new PetRequestDTO(
+                "Milo", "Poodle", LocalDate.of(2021, 5, 15), new BigDecimal("4.80"), 2L, 1L);
+
+        assertThrows(AccessDeniedException.class, () -> petService.create(request));
+    }
+
+    @Test
     void tutorCanAccessOwnPet() {
         SecurityContextHolder.getContext().setAuthentication(authenticationFor(1L, "TUTOR"));
 
@@ -90,8 +101,8 @@ class OwnershipAuthorizationTest {
         PetResponseDTO response = petService.findById(10L);
 
         assertNotNull(response);
-        assertEquals(10L, response.getId());
-        assertEquals(1L, response.getTutorId());
+        assertEquals(10L, response.id());
+        assertEquals(1L, response.tutorId());
     }
 
     @Test
@@ -113,8 +124,8 @@ class OwnershipAuthorizationTest {
         PetResponseDTO response = petService.findById(80L);
 
         assertNotNull(response);
-        assertEquals(80L, response.getId());
-        assertEquals(7L, response.getTutorId());
+        assertEquals(80L, response.id());
+        assertEquals(7L, response.tutorId());
     }
 
     @Test
@@ -123,6 +134,18 @@ class OwnershipAuthorizationTest {
 
         assertThrows(AccessDeniedException.class,
                 () -> petService.findAll(null, 2L, Pageable.unpaged()));
+    }
+
+    @Test
+    void tutorNameFilterIsAppliedByTutorScopedRepositoryQuery() {
+        SecurityContextHolder.getContext().setAuthentication(authenticationFor(1L, "TUTOR"));
+        Pageable pageable = PageRequest.of(0, 10);
+        when(petRepository.findByTutorIdAndNameProjected(1L, "Milo", pageable))
+                .thenReturn(Page.empty(pageable));
+
+        petService.findAll("Milo", null, pageable);
+
+        verify(petRepository).findByTutorIdAndNameProjected(1L, "Milo", pageable);
     }
 
     private UsernamePasswordAuthenticationToken authenticationFor(Long tutorId, String role) {

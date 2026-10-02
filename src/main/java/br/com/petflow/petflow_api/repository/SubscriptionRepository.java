@@ -25,6 +25,19 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
             """)
     Page<SubscriptionResponseDTO> findByPetIdProjected(@Param("petId") Long petId, Pageable pageable);
 
+        @Query("""
+            SELECT new br.com.petflow.petflow_api.dto.SubscriptionResponseDTO(
+            s.id, s.startDate, s.endDate, s.status, s.createdAt,
+            s.pet.id, s.pet.name, s.plan.id, s.plan.name
+            )
+            FROM Subscription s
+            WHERE s.pet.id = :petId AND s.status = :status
+            """)
+        Page<SubscriptionResponseDTO> findByPetIdAndStatusProjected(
+            @Param("petId") Long petId,
+            @Param("status") SubscriptionStatus status,
+            Pageable pageable);
+
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.SubscriptionResponseDTO(
                 s.id, s.startDate, s.endDate, s.status, s.createdAt,
@@ -35,6 +48,29 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
             WHERE s.status = :status
             """)
     Page<SubscriptionResponseDTO> findByStatusProjected(@Param("status") SubscriptionStatus status, Pageable pageable);
+
+        @Query("""
+            SELECT new br.com.petflow.petflow_api.dto.SubscriptionResponseDTO(
+            s.id, s.startDate, s.endDate, s.status, s.createdAt,
+            s.pet.id, s.pet.name, s.plan.id, s.plan.name
+            )
+            FROM Subscription s
+            WHERE s.pet.tutor.id = :tutorId
+            """)
+        Page<SubscriptionResponseDTO> findByTutorIdProjected(@Param("tutorId") Long tutorId, Pageable pageable);
+
+        @Query("""
+            SELECT new br.com.petflow.petflow_api.dto.SubscriptionResponseDTO(
+            s.id, s.startDate, s.endDate, s.status, s.createdAt,
+            s.pet.id, s.pet.name, s.plan.id, s.plan.name
+            )
+            FROM Subscription s
+            WHERE s.pet.tutor.id = :tutorId AND s.status = :status
+            """)
+        Page<SubscriptionResponseDTO> findByTutorIdAndStatusProjected(
+            @Param("tutorId") Long tutorId,
+            @Param("status") SubscriptionStatus status,
+            Pageable pageable);
 
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.SubscriptionResponseDTO(

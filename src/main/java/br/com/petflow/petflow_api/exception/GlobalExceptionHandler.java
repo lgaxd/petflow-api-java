@@ -180,6 +180,11 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.BAD_REQUEST, "Parâmetro inválido", message, null, null, null);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        return buildError(HttpStatus.BAD_REQUEST, "Parâmetro inválido", ex.getMessage(), null, null, null);
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
             HttpMessageNotReadableException ex) {

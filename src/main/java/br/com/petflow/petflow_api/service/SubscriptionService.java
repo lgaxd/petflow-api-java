@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,45 +29,44 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final PetRepository petRepository;
     private final PlanRepository planRepository;
-    private final RewardActionRepository rewardActionRepository;
-    private final RewardPointRepository rewardPointRepository;
+    private final GamificationProcedureService gamificationProcedureService;
 
     @Transactional
-        @Caching(evict = {
+    @Caching(evict = {
             @CacheEvict(value = "subscriptions", allEntries = true),
             @CacheEvict(value = "tutorPoints", allEntries = true)
-        })
+    })
     public SubscriptionResponseDTO create(SubscriptionRequestDTO request) {
-        Pet pet = petRepository.findById(request.getPetId())
-                .orElseThrow(() -> new EntityNotFoundException("Pet", request.getPetId()));
+        Pet pet = petRepository.findById(request.petId())
+                .orElseThrow(() -> new EntityNotFoundException("Pet", request.petId()));
 
         if (!SecurityUtils.isAdmin()) {
             SecurityUtils.checkOwnership(pet.getTutor().getId());
         }
 
-        Plan plan = planRepository.findById(request.getPlanId())
-                .orElseThrow(() -> new EntityNotFoundException("Plano", request.getPlanId()));
+        Plan plan = planRepository.findById(request.planId())
+                .orElseThrow(() -> new EntityNotFoundException("Plano", request.planId()));
 
-        LocalDate endDate = request.getEndDate();
-        if (endDate == null && request.getStartDate() != null) {
-            endDate = request.getStartDate().plusDays(plan.getDurationDays());
+        LocalDate endDate = request.endDate();
+        if (endDate == null && request.startDate() != null) {
+            endDate = request.startDate().plusDays(plan.getDurationDays());
         }
 
         SubscriptionStatus status = SubscriptionStatus.ATIVO;
-        if (request.getStatus() != null && !request.getStatus().isBlank()) {
+        if (request.status() != null && !request.status().isBlank()) {
             try {
-                status = SubscriptionStatus.valueOf(request.getStatus().toUpperCase());
+                status = SubscriptionStatus.valueOf(request.status().toUpperCase());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Status inválido. Valores permitidos: ATIVO, ENCERRADO, CANCELADO, EXPIRADO");
             }
         }
 
-        if (request.getEndDate() != null && request.getEndDate().isBefore(request.getStartDate())) {
+        if (request.endDate() != null && request.endDate().isBefore(request.startDate())) {
             throw new BusinessRuleException("A data de término não pode ser anterior à data de início", "INVALID_DATE_RANGE");
         }
 
         Subscription subscription = Subscription.builder()
-                .startDate(request.getStartDate())
+                .startDate(request.startDate())
                 .endDate(endDate)
                 .status(status)
                 .pet(pet)
@@ -86,7 +84,6 @@ public class SubscriptionService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "subscriptions", key = "#id")
     public SubscriptionResponseDTO findById(Long id) {
         Subscription subscription = subscriptionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Assinatura", id));
@@ -99,29 +96,36 @@ public class SubscriptionService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "subscriptions", key = "#petId + '_' + #status + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<SubscriptionResponseDTO> findAll(Long petId, String status, Pageable pageable) {
-        if (!SecurityUtils.isAdmin()) {
-            Long currentTutorId = SecurityUtils.getCurrentTutorId();
-            if (petId != null) {
+        SubscriptionStatus subscriptionStatus = null;
+        if (status != null && !status.isBlank()) {
+            try {
+                subscriptionStatus = SubscriptionStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Status inválido. Valores permitidos: ATIVO, ENCERRADO, CANCELADO, EXPIRADO");
+            }
+        }
+
+        Long currentTutorId = SecurityUtils.isAdmin() ? null : SecurityUtils.getCurrentTutorId();
+        if (petId != null) {
+            if (currentTutorId != null) {
                 Pet pet = petRepository.findById(petId)
                         .orElseThrow(() -> new EntityNotFoundException("Pet", petId));
                 if (!currentTutorId.equals(pet.getTutor().getId())) {
                     throw new AccessDeniedException("Você não tem permissão para visualizar assinaturas de outro tutor.");
                 }
-                return subscriptionRepository.findByPetIdProjected(petId, pageable);
             }
+            return subscriptionStatus == null
+                    ? subscriptionRepository.findByPetIdProjected(petId, pageable)
+                    : subscriptionRepository.findByPetIdAndStatusProjected(petId, subscriptionStatus, pageable);
         }
-
-        if (petId != null) {
-            return subscriptionRepository.findByPetIdProjected(petId, pageable);
-        } else if (status != null && !status.isBlank()) {
-            try {
-                SubscriptionStatus subscriptionStatus = SubscriptionStatus.valueOf(status.toUpperCase());
-                return subscriptionRepository.findByStatusProjected(subscriptionStatus, pageable);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Status inválido. Valores permitidos: ATIVO, ENCERRADO, CANCELADO, EXPIRADO");
-            }
+        if (currentTutorId != null) {
+            return subscriptionStatus == null
+                    ? subscriptionRepository.findByTutorIdProjected(currentTutorId, pageable)
+                    : subscriptionRepository.findByTutorIdAndStatusProjected(currentTutorId, subscriptionStatus, pageable);
+        }
+        if (subscriptionStatus != null) {
+            return subscriptionRepository.findByStatusProjected(subscriptionStatus, pageable);
         }
         return subscriptionRepository.findAllProjected(pageable);
     }
@@ -197,16 +201,8 @@ public class SubscriptionService {
     }
 
     private void grantPointsForSubscription(Tutor tutor, Subscription subscription) {
-        RewardAction action = rewardActionRepository.findByName("ASSINATURA_ATIVA")
-                .orElseThrow(() -> new EntityNotFoundException("RewardAction", "name", "ASSINATURA_ATIVA"));
-        RewardPoint rewardPoint = RewardPoint.builder()
-                .tutor(tutor)
-                .rewardAction(action)
-                .points(action.getPointsValue())
-                .referenceType("SUBSCRIPTION")
-                .referenceId(subscription.getId())
-                .build();
-        rewardPointRepository.save(rewardPoint);
+        gamificationProcedureService.grantPoints(
+                tutor.getId(), "ASSINATURA_ATIVA", "SUBSCRIPTION", subscription.getId());
     }
 
     private void validateStatusTransition(SubscriptionStatus currentStatus, SubscriptionStatus newStatus) {

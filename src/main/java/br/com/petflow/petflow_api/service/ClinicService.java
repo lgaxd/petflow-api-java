@@ -23,15 +23,15 @@ public class ClinicService {
     @Transactional
     @CacheEvict(value = "clinics", allEntries = true)
     public ClinicResponseDTO create(ClinicRequestDTO request) {
-        if (clinicRepository.existsByCnpj(request.getCnpj())) {
-            throw new DuplicateResourceException("Clínica", "CNPJ", request.getCnpj());
+        if (clinicRepository.existsByCnpj(request.cnpj())) {
+            throw new DuplicateResourceException("Clínica", "CNPJ", request.cnpj());
         }
 
         Clinic clinic = Clinic.builder()
-                .name(request.getName())
-                .address(request.getAddress())
-                .phone(request.getPhone())
-                .cnpj(request.getCnpj())
+                .name(request.name())
+                .address(request.address())
+                .phone(request.phone())
+                .cnpj(request.cnpj())
                 .build();
 
         clinic = clinicRepository.save(clinic);
@@ -61,15 +61,15 @@ public class ClinicService {
         Clinic clinic = clinicRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Clínica", id));
 
-        if (!clinic.getCnpj().equals(request.getCnpj()) &&
-                clinicRepository.existsByCnpj(request.getCnpj())) {
-            throw new DuplicateResourceException("Clínica", "CNPJ", request.getCnpj());
+        if (!clinic.getCnpj().equals(request.cnpj()) &&
+                clinicRepository.existsByCnpj(request.cnpj())) {
+            throw new DuplicateResourceException("Clínica", "CNPJ", request.cnpj());
         }
 
-        clinic.setName(request.getName());
-        clinic.setAddress(request.getAddress());
-        clinic.setPhone(request.getPhone());
-        clinic.setCnpj(request.getCnpj());
+        clinic.setName(request.name());
+        clinic.setAddress(request.address());
+        clinic.setPhone(request.phone());
+        clinic.setCnpj(request.cnpj());
 
         clinic = clinicRepository.save(clinic);
         return toResponseDTO(clinic);

@@ -1,21 +1,17 @@
 package br.com.petflow.petflow_api.dto;
 
 import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.Builder;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class RedeemRequestDTO {
-
+public record RedeemRequestDTO(
     @NotNull(message = "Os pontos utilizados são obrigatórios")
     @Positive(message = "Os pontos utilizados devem ser positivos")
-    private Integer pointsUsed;
+    Integer pointsUsed,
 
     @NotNull(message = "O ID do tutor é obrigatório")
-    private Long tutorId;
+    Long tutorId,
 
     @NotNull(message = "O ID do cupom é obrigatório")
-    private Long couponId;
-}
+    Long couponId
+) {}

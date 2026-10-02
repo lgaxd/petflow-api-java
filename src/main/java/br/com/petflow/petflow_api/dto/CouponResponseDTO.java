@@ -2,32 +2,29 @@ package br.com.petflow.petflow_api.dto;
 
 import br.com.petflow.petflow_api.enums.CouponStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Builder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 @Schema(description = "Resposta com dados do cupom de desconto")
-public class CouponResponseDTO {
+public record CouponResponseDTO(
 
     @Schema(description = "ID do cupom", example = "1")
-    private Long id;
+    Long id,
 
     @Schema(description = "Código único do cupom", example = "DESCONTO20")
-    private String code;
+    String code,
 
     @Schema(description = "Status do cupom", example = "DISPONIVEL", allowableValues = {"DISPONIVEL", "RESGATADO", "UTILIZADO"})
-    private CouponStatus status;
+    CouponStatus status,
 
     @Schema(description = "Data de expiração", example = "2025-12-31")
-    private LocalDate expirationDate;
+    LocalDate expirationDate,
 
     @Schema(description = "ID do template", example = "1")
-    private Long templateId;
+    Long templateId,
 
     @Schema(description = "Data de criação", example = "2024-01-15T10:30:00")
-    private LocalDateTime createdAt;
-}
+    LocalDateTime createdAt
+) {}

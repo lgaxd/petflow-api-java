@@ -12,8 +12,10 @@ import br.com.petflow.petflow_api.repository.RedeemRepository;
 import br.com.petflow.petflow_api.repository.TutorRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -24,13 +26,21 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.util.Map;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Tag("integration")
 class CouponRedemptionFlowTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Value("${TEST_TUTOR_EMAIL}")
+    private String testTutorEmail;
+
+    @Value("${TEST_TUTOR_PASSWORD}")
+    private String testTutorPassword;
 
         private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -53,7 +63,9 @@ class CouponRedemptionFlowTest {
     void catalogCouponCanBeRedeemedByItsReturnedId() throws Exception {
         String loginResponse = mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"maria@petflow.com\",\"password\":\"Tutor@123\"}"))
+                .content(objectMapper.writeValueAsString(Map.of(
+                    "email", testTutorEmail,
+                    "password", testTutorPassword))))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -74,7 +86,7 @@ class CouponRedemptionFlowTest {
         assertNotNull(catalogCoupon);
         assertEquals(CouponStatus.DISPONIVEL, catalogCoupon.getStatus());
 
-        Tutor tutor = tutorRepository.findByEmail("maria@petflow.com").orElseThrow();
+        Tutor tutor = tutorRepository.findByEmail(testTutorEmail).orElseThrow();
         RewardAction rewardAction = rewardActionRepository.findByName("CADASTRO_PET").orElseThrow();
         RewardPoint testPoints = rewardPointRepository.save(RewardPoint.builder()
             .tutor(tutor)

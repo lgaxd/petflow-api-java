@@ -25,15 +25,15 @@ public class PlanService {
     @Transactional
     @CacheEvict(value = "plans", allEntries = true)
     public PlanResponseDTO create(PlanRequestDTO request) {
-        Clinic clinic = clinicRepository.findById(request.getClinicId())
-                .orElseThrow(() -> new EntityNotFoundException("Clínica", request.getClinicId()));
+        Clinic clinic = clinicRepository.findById(request.clinicId())
+            .orElseThrow(() -> new EntityNotFoundException("Clínica", request.clinicId()));
 
         Plan plan = Plan.builder()
-                .name(request.getName())
-                .description(request.getDescription())
-                .price(request.getPrice())
-                .durationDays(request.getDurationDays())
-                .pointsPerEvent(request.getPointsPerEvent())
+                .name(request.name())
+                .description(request.description())
+                .price(request.price())
+                .durationDays(request.durationDays())
+                .pointsPerEvent(request.pointsPerEvent())
                 .clinic(clinic)
                 .build();
 
@@ -64,17 +64,17 @@ public class PlanService {
         Plan plan = planRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Plano", id));
 
-        if (!plan.getClinic().getId().equals(request.getClinicId())) {
-            Clinic clinic = clinicRepository.findById(request.getClinicId())
-                    .orElseThrow(() -> new EntityNotFoundException("Clínica", request.getClinicId()));
+        if (!plan.getClinic().getId().equals(request.clinicId())) {
+            Clinic clinic = clinicRepository.findById(request.clinicId())
+                .orElseThrow(() -> new EntityNotFoundException("Clínica", request.clinicId()));
             plan.setClinic(clinic);
         }
 
-        plan.setName(request.getName());
-        plan.setDescription(request.getDescription());
-        plan.setPrice(request.getPrice());
-        plan.setDurationDays(request.getDurationDays());
-        plan.setPointsPerEvent(request.getPointsPerEvent());
+        plan.setName(request.name());
+        plan.setDescription(request.description());
+        plan.setPrice(request.price());
+        plan.setDurationDays(request.durationDays());
+        plan.setPointsPerEvent(request.pointsPerEvent());
 
         plan = planRepository.save(plan);
         return toResponseDTO(plan);

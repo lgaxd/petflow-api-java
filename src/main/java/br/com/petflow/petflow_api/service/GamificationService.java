@@ -2,7 +2,6 @@ package br.com.petflow.petflow_api.service;
 
 import br.com.petflow.petflow_api.dto.*;
 import br.com.petflow.petflow_api.entity.*;
-import br.com.petflow.petflow_api.enums.CouponStatus;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
 import br.com.petflow.petflow_api.exception.ExpiredCouponException;
 import br.com.petflow.petflow_api.exception.BusinessRuleException;
@@ -10,8 +9,6 @@ import br.com.petflow.petflow_api.exception.InsufficientPointsException;
 import br.com.petflow.petflow_api.repository.*;
 import br.com.petflow.petflow_api.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,13 +24,11 @@ public class GamificationService {
     private final TutorRepository tutorRepository;
     private final RewardPointRepository rewardPointRepository;
     private final CouponTemplateRepository couponTemplateRepository;
-    private final CouponRepository couponRepository;
     private final RedeemRepository redeemRepository;
     private final PetRepository petRepository;
-    private final RewardActionRepository rewardActionRepository;
+    private final GamificationProcedureService gamificationProcedureService;
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "tutorPoints", key = "#tutorId")
     public TutorPointsDTO getTutorPoints(Long tutorId) {
         if (!SecurityUtils.isAdmin()) {
             SecurityUtils.checkOwnership(tutorId);
@@ -42,8 +37,7 @@ public class GamificationService {
         Tutor tutor = tutorRepository.findById(tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("Tutor", tutorId));
 
-        Integer totalPoints = rewardPointRepository.sumPointsByTutorId(tutorId);
-        if (totalPoints == null) totalPoints = 0;
+        Integer totalPoints = gamificationProcedureService.getTutorPoints(tutorId);
 
         Page<PointHistoryDTO> history = rewardPointRepository.findHistoryByTutorId(tutorId, Pageable.ofSize(50));
 
@@ -120,65 +114,63 @@ public class GamificationService {
     }
 
     @Transactional
-    @CacheEvict(value = "tutorPoints", key = "#tutorId")
     public RedeemResponseDTO redeemCoupon(Long tutorId, Long couponId) {
         if (!SecurityUtils.isAdmin()) {
             SecurityUtils.checkOwnership(tutorId);
         }
 
-        Tutor tutor = tutorRepository.findById(tutorId)
-                .orElseThrow(() -> new EntityNotFoundException("Tutor", tutorId));
-
-        Coupon coupon = couponRepository.findById(couponId)
-                .orElseThrow(() -> new EntityNotFoundException("Cupom", couponId));
-
-        if (coupon.getStatus() != CouponStatus.DISPONIVEL) {
-            throw new BusinessRuleException("Cupom não está disponível para resgate");
+        GamificationProcedureService.RedeemResult result;
+        try {
+            result = gamificationProcedureService.redeemCoupon(tutorId, couponId);
+        } catch (GamificationProcedureService.ProcedureException exception) {
+            throw mapProcedureException(exception, couponId);
         }
 
-        Integer totalPoints = rewardPointRepository.sumPointsByTutorId(tutorId);
-        if (totalPoints == null) totalPoints = 0;
+        Redeem redeem = redeemRepository.findById(result.redeemId())
+                .orElseThrow(() -> new EntityNotFoundException("Resgate", result.redeemId()));
+        return toResponseDTO(redeem);
+    }
 
-        Integer pointsRequired = coupon.getTemplate().getPointsRequired();
-        if (totalPoints < pointsRequired) {
-            throw new InsufficientPointsException(totalPoints, pointsRequired);
-        }
+    private RuntimeException mapProcedureException(
+            GamificationProcedureService.ProcedureException exception,
+            Long couponId) {
+        return switch (exception.oracleCode()) {
+            case 20081 -> {
+                String[] values = procedurePayload(exception, "INSUFFICIENT_POINTS").split("\\|");
+                if (values.length != 2) yield exception;
+                yield new InsufficientPointsException(Integer.valueOf(values[0]), Integer.valueOf(values[1]));
+            }
+            case 20082 -> {
+                String[] values = procedurePayload(exception, "EXPIRED_COUPON").split("\\|");
+                if (values.length != 2) yield exception;
+                yield new ExpiredCouponException(values[0], LocalDate.parse(values[1]));
+            }
+            case 20083 -> new BusinessRuleException("Cupom não está disponível para resgate");
+            case 20084 -> new EntityNotFoundException("Cupom", couponId);
+            default -> exception;
+        };
+    }
 
-        if (coupon.getExpirationDate() != null && coupon.getExpirationDate().isBefore(LocalDate.now())) {
-            throw new ExpiredCouponException(coupon.getCode(), coupon.getExpirationDate());
-        }
+    private String procedurePayload(GamificationProcedureService.ProcedureException exception, String marker) {
+        String message = exception.getMessage();
+        int markerIndex = message == null ? -1 : message.indexOf(marker);
+        if (markerIndex < 0) return "";
+        return message.substring(markerIndex + marker.length())
+                .lines()
+                .findFirst()
+                .orElse("")
+                .replaceFirst("^\\|", "");
+    }
 
-        Redeem redeem = Redeem.builder()
-                .tutor(tutor)
-                .coupon(coupon)
-                .pointsUsed(pointsRequired)
-                .build();
-
-        redeem = redeemRepository.save(redeem);
-
-        coupon.setStatus(CouponStatus.RESGATADO);
-        couponRepository.save(coupon);
-
-        RewardAction rewardAction = rewardActionRepository.findByName("RESGATE_CUPOM")
-                .orElseThrow(() -> new EntityNotFoundException("RewardAction", "name", "RESGATE_CUPOM"));
-
-        RewardPoint pointConsumption = RewardPoint.builder()
-                .tutor(tutor)
-                .rewardAction(rewardAction)
-                .points(-pointsRequired)
-                .referenceType("REDEEM")
-                .referenceId(redeem.getId())
-                .build();
-        rewardPointRepository.save(pointConsumption);
-
+    private RedeemResponseDTO toResponseDTO(Redeem redeem) {
         return RedeemResponseDTO.builder()
                 .id(redeem.getId())
                 .pointsUsed(redeem.getPointsUsed())
                 .createdAt(redeem.getCreatedAt())
-                .tutorId(tutor.getId())
-                .tutorName(tutor.getName())
-                .couponId(coupon.getId())
-                .couponCode(coupon.getCode())
+                .tutorId(redeem.getTutor().getId())
+                .tutorName(redeem.getTutor().getName())
+                .couponId(redeem.getCoupon().getId())
+                .couponCode(redeem.getCoupon().getCode())
                 .build();
     }
 }

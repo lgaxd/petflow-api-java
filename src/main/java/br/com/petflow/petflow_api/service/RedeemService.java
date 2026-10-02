@@ -8,7 +8,6 @@ import br.com.petflow.petflow_api.repository.TutorRepository;
 import br.com.petflow.petflow_api.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ public class RedeemService {
     private final TutorRepository tutorRepository;
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "redeems", key = "#id")
     public RedeemResponseDTO findById(Long id) {
         Redeem redeem = redeemRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Resgate", id));
@@ -35,7 +33,6 @@ public class RedeemService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "redeems", key = "#tutorId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<RedeemResponseDTO> findAll(Long tutorId, Pageable pageable) {
         if (!SecurityUtils.isAdmin()) {
             Long currentTutorId = SecurityUtils.getCurrentTutorId();

@@ -7,13 +7,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import br.com.petflow.petflow_api.security.AuthenticatedTutor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/gamification")
@@ -42,7 +41,7 @@ public class GamificationController {
     public ResponseEntity<Page<CouponCatalogDTO>> getAvailableCoupons(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("pointsRequired").ascending());
+        Pageable pageable = ApiPageable.of(page, size, "pointsRequired", "asc", Set.of("pointsRequired"));
         return ResponseEntity.ok(gamificationService.getAvailableCoupons(pageable));
     }
 
@@ -53,7 +52,7 @@ public class GamificationController {
             @Valid @RequestBody RedeemCouponRequestDTO request) {
         AuthenticatedTutor userDetails = (AuthenticatedTutor) authentication.getPrincipal();
         Long tutorId = extractTutorId(userDetails);
-        return ResponseEntity.ok(gamificationService.redeemCoupon(tutorId, request.getCouponId()));
+        return ResponseEntity.ok(gamificationService.redeemCoupon(tutorId, request.couponId()));
     }
 
     private Long extractTutorId(AuthenticatedTutor userDetails) {

@@ -30,6 +30,20 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
             """)
     Page<PetResponseDTO> findByTutorIdProjected(@Param("tutorId") Long tutorId, Pageable pageable);
 
+        @Query("""
+            SELECT new br.com.petflow.petflow_api.dto.PetResponseDTO(
+            p.id, p.name, p.breed, p.birthDate, p.weight, p.speciesId, p.createdAt,
+            p.tutor.id, p.tutor.name
+            )
+            FROM Pet p
+            WHERE p.tutor.id = :tutorId
+            AND LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))
+            """)
+        Page<PetResponseDTO> findByTutorIdAndNameProjected(
+            @Param("tutorId") Long tutorId,
+            @Param("name") String name,
+            Pageable pageable);
+
     @Query("""
             SELECT new br.com.petflow.petflow_api.dto.PetResponseDTO(
                 p.id, p.name, p.breed, p.birthDate, p.weight, p.speciesId, p.createdAt,

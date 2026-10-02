@@ -12,15 +12,15 @@
 - [Equipe](#equipe)
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Arquitetura do Projeto](#arquitetura-do-projeto)
-- [Requisitos da Sprint 3](#requisitos-da-sprint-3)
+- [Java Advanced](#java-advanced)
 - [Visão de Domínio](#visão-de-domínio)
 - [Endpoints da API](#endpoints-da-api)
 - [Banco de Dados](#banco-de-dados)
+- [JSON e MongoDB](#json-e-mongodb)
 - [Swagger / OpenAPI](#swagger--openapi)
 - [Como Executar](#como-executar)
-- [Credenciais de Teste](#credenciais-de-teste)
-- [Vídeo de Demonstração](#vídeo-de-demonstração)
-- [Observações Finais](#observações-finais)
+- [Testes](#testes)
+- [Links](#links)
 
 ---
 
@@ -28,7 +28,7 @@
 
 O **PetFlow** é uma aplicação web completa desenvolvida em Java com Spring Boot para gerenciamento de saúde preventiva pet. A solução gamifica o cuidado com o pet: eventos de saúde concluídos geram pontos para o tutor, que podem ser trocados por cupons de desconto em clínicas parceiras.
 
-A solução conta com uma interface web responsiva em um repositório frontend separado, autenticação JWT com dois perfis de usuário (ADMIN e TUTOR), versionamento de banco de dados com Flyway e documentação automática via Swagger/OpenAPI.
+A API suporta perfis ADMIN e TUTOR com JWT, persistência Oracle via JPA, evolução de schema pelo Flyway e documentação interativa OpenAPI. O frontend é mantido em outro repositório.
 
 ---
 
@@ -47,19 +47,17 @@ A solução conta com uma interface web responsiva em um repositório frontend s
 
 ## Tecnologias Utilizadas
 
-- **Java 21** - Linguagem de programação
-- **Spring Boot 4.0.6** - Framework principal
-- **Spring Data JPA** - Persistência de dados
-- **Spring Security** - Autenticação e autorização (JWT)
-- **Spring Cache** - Cacheamento de dados
-- **Spring Web MVC** - API RESTful
-- **Spring Validation** - Validação de dados
-- **Flyway** - Controle de versão do banco de dados
-- **Oracle Database** - Banco de dados principal
-- **JWT (java-jwt)** - Tokens de autenticação
-- **Lombok** - Redução de código boilerplate
-- **Swagger/OpenAPI** - Documentação interativa da API
-- **Maven** - Gerenciamento de dependências
+- **Java 21**: records para contratos imutáveis e suporte a versões LTS atuais.
+- **Spring Boot 4.0.6**: composição de API, segurança, validação e integração de dados.
+- **Spring MVC + Validation**: endpoints REST e validação declarativa nos DTOs.
+- **Spring Data JPA**: consultas paginadas e relacionamentos do domínio Oracle.
+- **Spring JDBC**: chamadas explícitas a procedures PL/SQL para pontos e resgates atômicos.
+- **Spring Security + java-jwt**: autenticação stateless e autorização por perfil.
+- **Oracle Database + Flyway**: persistência relacional e histórico versionado de migrações.
+- **Spring Cache**: cache apenas onde não pode contornar a autorização por tutor.
+- **Lombok**: redução de boilerplate em entidades e serviços, sem substituir records nos DTOs.
+- **springdoc OpenAPI**: documentação navegável dos endpoints reais.
+- **Maven Wrapper**: builds reproduzíveis sem exigir Maven global.
 
 ---
 
@@ -83,38 +81,11 @@ src/main/java/br/com/petflow/petflow_api/
 
 ---
 
-## Requisitos da Sprint 3
+## Java Advanced
 
-### 1. Frontend (30 pontos)
+O domínio mostra conceitos Java em contexto: records imutáveis para contratos de entrada/saída, enums para estados, camadas com injeção por construtor, validação declarativa, exceções de negócio com envelope JSON consistente, transações Spring e concorrência segura no resgate por PL/SQL.
 
-A interface web do PetFlow não está neste repositório. Ela está em um projeto separado, disponível em:
-
-https://github.com/lgaxd/petflow-front-api-java
-
-Para testar a aplicação completa, a API deve ser iniciada primeiro e, em seguida, o frontend deve ser executado no repositório do front-end. A aplicação web será aberta em http://localhost:5173/.
-
-### 2. Flyway (20 pontos)
-
-O versionamento do banco de dados é gerenciado pelo Flyway:
-- ✅ **V1__Create_Tables.sql** - Criação de todas as tabelas
-- ✅ **V2__Seed_Data.sql** - Carga inicial de dados (admin, tutor, clínicas, planos, cupons)
-- ✅ Migrações aplicadas automaticamente na inicialização
-
-### 3. Spring Security (30 pontos)
-
-Autenticação e autorização com JWT:
-- ✅ Dois perfis de usuário: **ADMIN** e **TUTOR**
-- ✅ Proteção de rotas baseada no perfil
-- ✅ Login via `/auth/login` com geração de token JWT
-- ✅ Filtro de autenticação para validação do token
-- ✅ Tratamento de erros 401 e 403 em formato JSON
-
-### 4. Funcionalidades Completas (20 pontos)
-
-#### Fluxos do Sistema:
-- ✅ **Admin:** Gerenciamento de clínicas, planos e cupons (CRUD)
-- ✅ **Tutor:** Cadastro de pets, eventos de saúde, assinaturas e resgate de cupons
-- ✅ Validações básicas em formulários e dados
+O tutor cadastra pets, registra eventos concluídos, consulta saldo/histórico e resgata cupons. O ADMIN mantém clínicas, planos, cupons e tutores. A API não contém a interface; fluxos completos com UI dependem do frontend vinculado em [Links](#links).
 
 ---
 
@@ -252,20 +223,29 @@ O resgate valida o status e a validade do cupom e compara o custo com o saldo at
 
 ## Banco de Dados
 
-O projeto utiliza **Oracle Database** como banco principal.
+Oracle é a fonte relacional compartilhada com o backend Java. Hibernate usa `ddl-auto=none`; o schema é controlado pelo Flyway.
 
 ### Migrações Flyway
 
 | Arquivo | Descrição |
 |---------|-----------|
-| `V1__Create_Tables.sql` | Criação de todas as tabelas (SPECIES, EVENT_TYPE, REWARD_ACTION, RISK_LEVEL, TUTOR, CLINIC, PLAN, PARTNER_DISCOUNT, COUPON_TEMPLATE, COUPON, PET, HEALTH_EVENT, SUBSCRIPTION, REDEEM) |
-| `V2__Seed_Data.sql` | Carga inicial de dados de referência e usuários de demonstração |
+| `V1__Create_Tables.sql` | Tabelas do domínio relacional, incluindo `REWARD_POINT`. |
+| `V2__Seed_Data.sql` | Domínios, ações de recompensa e dados demonstrativos. |
+| `V3__Create_Gamification_Package.sql` | Package `PKG_PETFLOW_GAMIFICATION` para saldo, concessão idempotente e resgate transacional. |
 
-### Modelo de Dados
+`GamificationProcedureService` chama `GET_TUTOR_POINTS`, `GRANT_POINTS` e `REDEEM_COUPON`. Os serviços Java mantêm autorização e composição HTTP; a procedure é a fonte da regra transacional para concessão/resgate. Não há `COMMIT` dentro do package, para a transação Spring controlar o commit/rollback. Os erros Oracle de saldo insuficiente e cupom expirado são convertidos para `INSUFFICIENT_POINTS` e `EXPIRED_COUPON` com HTTP 422.
 
-O modelo foi estruturado com JPA e relacionamentos entre entidades para garantir integridade e organização dos dados.
+Em um Oracle novo, o Flyway executa V1, V2 e V3. Em schema legado já populado com o estado equivalente a V1/V2 e sem histórico Flyway, o baseline configurado é V2 e a V3 é aplicada sem repetir o seed. Não use esse baseline em schema vazio ou parcial.
 
-O relacionamento entre `HEALTH_EVENT` e `EVENT_TYPE` é mapeado como associação JPA para a coluna `EVENT_TYPE_ID`, conforme a chave estrangeira definida no SQL Oracle. O mesmo padrão é usado para `REWARD_POINT`, `REWARD_ACTION`, `TUTOR` e as demais entidades relacionadas.
+O relacionamento `HEALTH_EVENT`/`EVENT_TYPE` usa `EVENT_TYPE_ID`; pontos de evento vêm de `EVENT_TYPE.POINTS_REWARD`. A concessão referencia a ação `EVENTO_SAUDE_REALIZADO` no histórico.
+
+Não foi incluído trigger de auditoria: o schema imutável desta API não contém as tabelas de auditoria exigidas pelo script externo. Os arquivos Oracle originais da disciplina não são alterados por este projeto.
+
+## JSON e MongoDB
+
+O diretório [`database`](database/README.md) documenta e contém uma exportação SQL*Plus/SQLcl baseada no schema efetivamente usado pela API, validadores/índices `mongosh`, os comandos `mongoimport` e um exemplo sintético. O modelo usa embedding para dados consultados juntos (pet/tutor, tipo de evento, plano/clínica e carteira) e IDs Oracle para rastreabilidade. `PASSWORD_HASH` não é exportado.
+
+`ADDRESS` e `RISK_SCORE` não existem na V1 da API; por isso não aparecem no JSON. O score de risco atual é calculado pelo serviço Java, não armazenado como histórico relacional. Execute export/import apenas com dataset controlado; JSON real pode conter dados pessoais e de saúde e não deve ser versionado.
 
 ---
 
@@ -284,101 +264,74 @@ A documentação interativa da API está disponível em:
 ### Pré-requisitos
 
 - Java 21
-- Maven 3.6+
+- Git
 - Oracle Database
 
-### Execução com Oracle Database
+### Configuração local
 
-1. **Configure as credenciais do banco** no arquivo `src/main/resources/application.properties`:
+Crie o arquivo local de configuração a partir do exemplo:
 
-```properties
-spring.datasource.url=jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL
-spring.datasource.username=seu_usuario
-spring.datasource.password=sua_senha
+```powershell
+Copy-Item .env.example .env
 ```
 
-2. **Execute a aplicação:**
+Preencha `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET` e `CORS_ALLOWED_ORIGINS`. O `.env` é ignorado pelo Git; nunca o publique. O segredo JWT deve ser aleatório e ter pelo menos 32 caracteres. `JWT_EXPIRATION_MS` é opcional e usa 86400000 ms por padrão; `PORT` é opcional e usa 8080.
+
+O Spring Boot importa `.env` por `spring.config.import`; também é possível fornecer as mesmas variáveis diretamente no ambiente de execução/VS Code. Valores obrigatórios ausentes impedem a inicialização.
+
+Na coleção Postman versionada, configure `tutor_email`, `tutor_password` e `new_tutor_password` em um environment local não compartilhado. A coleção não contém credenciais; o script de login preenche `token` automaticamente.
+
+### Iniciar
 
 ```bash
-./mvnw clean compile
+./mvnw clean verify
 ./mvnw spring-boot:run
 ```
 
-Ao iniciar, o Flyway aplica as migrations pendentes. Em um schema que já contenha tabelas antigas, ele não reexecuta automaticamente seeds já marcados como aplicados; nesse caso, limpe o schema de desenvolvimento ou insira os dados de referência conforme `V2__Seed_Data.sql` antes de testar.
+No Windows, execute `.\mvnw.cmd` diretamente no PowerShell. A API inicia em `http://localhost:8080`; Swagger em `http://localhost:8080/swagger`. O frontend fica em outro repositório e precisa ter sua origem em `CORS_ALLOWED_ORIGINS`.
 
-### Fluxo recomendado de teste
+### Fluxo de demonstração
 
-1. Inicie a API localmente.
-2. Inicie o frontend no repositório separado.
-3. Acesse a interface em http://localhost:5173/.
-4. Faça login e use o token retornado para acessar o painel correspondente.
-5. No painel do tutor, cadastre um pet e confirme a pontuação na aba **Gamificação**.
-6. Registre um evento de saúde com status `REALIZADO` e confirme o novo lançamento de pontos.
-7. Crie uma assinatura ativa e confirme o lançamento de `ASSINATURA_ATIVA`.
-8. Em **Cupons & Resgate**, tente um cupom mais caro que o saldo. A mensagem deve aparecer nessa seção, informando o saldo disponível e o custo necessário.
-9. Com saldo suficiente, resgate o cupom e confirme o registro em **Meus cupons resgatados**.
+1. Cadastre um tutor por `POST /tutors` e autentique em `POST /auth/login`.
+2. Com o token TUTOR, cadastre um pet e confira a concessão de pontos.
+3. Registre um evento de saúde `REALIZADO`; os pontos vêm do tipo de evento configurado.
+4. Crie assinatura ativa e confira o histórico de pontos.
+5. Consulte cupons disponíveis e faça resgate: saldo, validade, baixa do cupom, resgate e débito são tratados pela procedure.
+6. Com perfil ADMIN, confira as rotas administrativas e os logs sem dados sensíveis da chamada ao package.
 
-### Teste rápido (frontend em repositório separado)
+### Frontend separado
 
-- A API deste repositório deve ser iniciada primeiro.
-- O frontend deve ser executado a partir do repositório do projeto web em: https://github.com/lgaxd/petflow-front-api-java
-- Após iniciar o frontend, acesse http://localhost:5173/ e realize os testes usando as credenciais listadas em **Credenciais de Teste**.
-- As credenciais de acesso ao banco já estão definidas em [src/main/resources/application.properties](src/main/resources/application.properties), portanto não é necessário configurar um banco adicional para testes rápidos.
+O frontend usado no desenvolvimento está em [petflow-front-api-java](https://github.com/lgaxd/petflow-front-api-java). Inicie-o separadamente e configure seu endereço local (por padrão `http://localhost:5173`) em `CORS_ALLOWED_ORIGINS`.
 
-### Opcional: usar Oracle local com Flyway
+## Testes
 
-- Se preferir executar um Oracle Database localmente, inicie o serviço do banco e atualize as credenciais em [src/main/resources/application.properties](src/main/resources/application.properties). Ao iniciar a aplicação, o Flyway aplicará automaticamente as migrations em `src/main/resources/db/migration` para criar as tabelas e popular os dados necessários para teste.
+O build padrão não exige Oracle; testes `@Tag("integration")` ficam fora dele:
 
----
+```bash
+./mvnw clean verify
+```
 
-## Credenciais de Teste
+Para executar testes de integração Oracle explicitamente no PowerShell:
 
-### ADMIN
-- **Email:** `admin@petflow.com`
-- **Senha:** `Admin@123`
+```powershell
+.\mvnw.cmd '-Dtest.excludedGroups=' '-Dtest=CouponRedemptionFlowTest,GamificationProcedureIntegrationTest' test
+```
 
-### TUTOR
-- **Email:** `maria@petflow.com`
-- **Senha:** `Tutor@123`
+`GamificationProcedureIntegrationTest` valida concessão idempotente e leitura de saldo; `CouponRedemptionFlowTest` valida resgate pelo endpoint. Eles escrevem dados transacionais temporários e exigem schema seedado e V3 aplicada.
 
-*Esses usuários são criados automaticamente pelo Flyway (V2__Seed_Data.sql).*
+O fluxo de resgate autentica o tutor de teste indicado por `TEST_TUTOR_EMAIL` e `TEST_TUTOR_PASSWORD` no `.env`; esses valores não ficam no repositório.
 
----
+## Links
 
-## Vídeo de Demonstração
+- Aplicação publicada: **[preencher URL pública]**
+- Vídeo final: **[preencher link do vídeo]**
+- Frontend: https://github.com/lgaxd/petflow-front-api-java
 
-[Assistir ao vídeo de demonstração da aplicação](https://www.youtube.com/watch?v=TK8Rlf_WRrE)
+## Evidências multidisciplinares
 
-*O vídeo apresenta todas as funcionalidades da aplicação, incluindo:*
-
-- ✅ Autenticação com JWT (Admin e Tutor)
-- ✅ Painel do Administrador (CRUD de clínicas, planos e cupons)
-- ✅ Painel do Tutor (cadastro de pets, eventos de saúde, assinaturas e resgate)
-- ✅ Documentação Swagger
-- ✅ Controle de versão do banco com Flyway
-
----
-
-## 📄 Documentação Complementar
-
-O repositório inclui:
-
-- ✅ **PetFlow API.postman_collection.json** - Coleção completa de requisições Postman
-- ✅ **Scripts Flyway** - Migrações do banco de dados
-- ✅ **Swagger/OpenAPI** - Documentação interativa da API
-- ✅ **README completo** - Instruções de instalação e uso
-
----
-
-## Observações Finais
-
-Esta versão do PetFlow foi desenvolvida para atender aos requisitos da **Sprint 3 de Java Advanced**:
-
-- **Frontend:** Interface web responsiva executada a partir do repositório separado
-- **Flyway:** Controle de versão do banco de dados com migrações
-- **Spring Security:** Autenticação JWT com dois perfis (ADMIN/TUTOR)
-- **Funcionalidades:** Fluxos completos de negócio com validações
-
-Desenvolvido como parte do Challenge 2TDSPX - FIAP
+- Packages e integração Java: `src/main/resources/db/migration/V3__Create_Gamification_Package.sql` e `GamificationProcedureService`.
+- Exportação Oracle e importação NoSQL: [database/README.md](database/README.md), scripts e exemplo em `database/`.
+- Especificação de endpoints: Swagger em `/swagger`.
+- Evidências externas de modelagem, vídeo e Azure DevOps: incluir os links na seção acima ou no material de entrega da disciplina.
 
 ---

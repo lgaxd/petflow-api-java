@@ -5,6 +5,7 @@ import br.com.petflow.petflow_api.entity.Coupon;
 import br.com.petflow.petflow_api.enums.CouponStatus;
 import br.com.petflow.petflow_api.repository.CouponRepository;
 import br.com.petflow.petflow_api.repository.CouponTemplateRepository;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
+@Tag("integration")
 class CouponCatalogRepositoryTest {
 
     @Autowired
@@ -32,11 +34,11 @@ class CouponCatalogRepositoryTest {
         assertTrue(catalog.hasContent(), "O seed deve possuir ao menos um cupom disponível");
 
         for (CouponCatalogDTO item : catalog.getContent()) {
-            Coupon coupon = couponRepository.findById(item.getId()).orElse(null);
+            Coupon coupon = couponRepository.findById(item.id()).orElse(null);
 
             assertNotNull(coupon, "O ID do catálogo deve ser de um Coupon individual");
-            assertEquals(coupon.getId(), item.getId());
-            assertEquals(coupon.getCode(), item.getCode());
+            assertEquals(coupon.getId(), item.id());
+            assertEquals(coupon.getCode(), item.code());
             assertEquals(CouponStatus.DISPONIVEL, coupon.getStatus());
         }
     }

@@ -26,15 +26,15 @@ public class TutorService {
     @Transactional
     @CacheEvict(value = "tutors", allEntries = true)
     public TutorResponseDTO create(TutorRequestDTO request) {
-        if (tutorRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateResourceException("Tutor", "email", request.getEmail());
+        if (tutorRepository.existsByEmail(request.email())) {
+            throw new DuplicateResourceException("Tutor", "email", request.email());
         }
 
         Tutor tutor = Tutor.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .phone(request.getPhone())
-                .passwordHash(passwordEncoder.encode(request.getPassword()))
+                .name(request.name())
+                .email(request.email())
+                .phone(request.phone())
+                .passwordHash(passwordEncoder.encode(request.password()))
                 .role(UserRole.TUTOR)
                 .build();
 
@@ -65,17 +65,17 @@ public class TutorService {
         Tutor tutor = tutorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Tutor", id));
 
-        if (!tutor.getEmail().equals(request.getEmail()) &&
-                tutorRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateResourceException("Tutor", "email", request.getEmail());
+        if (!tutor.getEmail().equals(request.email()) &&
+                tutorRepository.existsByEmail(request.email())) {
+            throw new DuplicateResourceException("Tutor", "email", request.email());
         }
 
-        tutor.setName(request.getName());
-        tutor.setEmail(request.getEmail());
-        tutor.setPhone(request.getPhone());
+        tutor.setName(request.name());
+        tutor.setEmail(request.email());
+        tutor.setPhone(request.phone());
 
-        if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            tutor.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        if (request.password() != null && !request.password().isBlank()) {
+            tutor.setPasswordHash(passwordEncoder.encode(request.password()));
         }
 
         tutor = tutorRepository.save(tutor);

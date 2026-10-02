@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,43 +25,42 @@ public class HealthEventService {
     private final PetRepository petRepository;
     private final ClinicRepository clinicRepository;
     private final EventTypeRepository eventTypeRepository;
-    private final RewardActionRepository rewardActionRepository;
-    private final RewardPointRepository rewardPointRepository;
+    private final GamificationProcedureService gamificationProcedureService;
 
     @Transactional
-        @Caching(evict = {
+    @Caching(evict = {
             @CacheEvict(value = "healthEvents", allEntries = true),
             @CacheEvict(value = "tutorPoints", allEntries = true)
-        })
+    })
     public HealthEventResponseDTO create(HealthEventRequestDTO request) {
-        Pet pet = petRepository.findById(request.getPetId())
-                .orElseThrow(() -> new EntityNotFoundException("Pet", request.getPetId()));
+        Pet pet = petRepository.findById(request.petId())
+                .orElseThrow(() -> new EntityNotFoundException("Pet", request.petId()));
 
         if (!SecurityUtils.isAdmin()) {
             SecurityUtils.checkOwnership(pet.getTutor().getId());
         }
 
         HealthEventStatus status = HealthEventStatus.AGENDADO;
-        if (request.getStatus() != null && !request.getStatus().isBlank()) {
+        if (request.status() != null && !request.status().isBlank()) {
             try {
-                status = HealthEventStatus.valueOf(request.getStatus().toUpperCase());
+                status = HealthEventStatus.valueOf(request.status().toUpperCase());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Status inválido. Valores permitidos: AGENDADO, REALIZADO, CANCELADO");
             }
         }
 
         Clinic clinic = null;
-        if (request.getClinicId() != null) {
-            clinic = clinicRepository.findById(request.getClinicId())
-                    .orElseThrow(() -> new EntityNotFoundException("Clínica", request.getClinicId()));
+        if (request.clinicId() != null) {
+            clinic = clinicRepository.findById(request.clinicId())
+                    .orElseThrow(() -> new EntityNotFoundException("Clínica", request.clinicId()));
         }
 
-        EventType eventType = eventTypeRepository.findById(request.getEventTypeId())
-                .orElseThrow(() -> new EntityNotFoundException("EventType", request.getEventTypeId()));
+        EventType eventType = eventTypeRepository.findById(request.eventTypeId())
+                .orElseThrow(() -> new EntityNotFoundException("EventType", request.eventTypeId()));
 
         HealthEvent healthEvent = HealthEvent.builder()
-                .description(request.getDescription())
-                .eventDate(request.getEventDate())
+                .description(request.description())
+                .eventDate(request.eventDate())
                 .status(status)
                 .eventType(eventType)
                 .pet(pet)
@@ -80,7 +78,6 @@ public class HealthEventService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "healthEvents", key = "#id")
     public HealthEventResponseDTO findById(Long id) {
         HealthEvent healthEvent = healthEventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Evento de Saúde", id));
@@ -93,35 +90,45 @@ public class HealthEventService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "healthEvents", key = "#petId + '_' + #status + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<HealthEventResponseDTO> findAll(Long petId, String status, Pageable pageable) {
-        if (!SecurityUtils.isAdmin()) {
-            Long currentTutorId = SecurityUtils.getCurrentTutorId();
-            if (petId != null) {
+        HealthEventStatus healthStatus = null;
+        if (status != null && !status.isBlank()) {
+            try {
+                healthStatus = HealthEventStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Status inválido. Valores permitidos: AGENDADO, REALIZADO, CANCELADO");
+            }
+        }
+
+        Long currentTutorId = SecurityUtils.isAdmin() ? null : SecurityUtils.getCurrentTutorId();
+        if (petId != null) {
+            if (currentTutorId != null) {
                 Pet pet = petRepository.findById(petId)
                         .orElseThrow(() -> new EntityNotFoundException("Pet", petId));
                 if (!currentTutorId.equals(pet.getTutor().getId())) {
                     throw new AccessDeniedException("Você não tem permissão para visualizar eventos de outro tutor.");
                 }
-                return healthEventRepository.findByPetIdProjected(petId, pageable);
             }
+            return healthStatus == null
+                    ? healthEventRepository.findByPetIdProjected(petId, pageable)
+                    : healthEventRepository.findByPetIdAndStatusProjected(petId, healthStatus, pageable);
         }
-
-        if (petId != null) {
-            return healthEventRepository.findByPetIdProjected(petId, pageable);
-        } else if (status != null && !status.isBlank()) {
-            try {
-                HealthEventStatus healthStatus = HealthEventStatus.valueOf(status.toUpperCase());
-                return healthEventRepository.findByStatusProjected(healthStatus, pageable);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Status inválido. Valores permitidos: AGENDADO, REALIZADO, CANCELADO");
-            }
+        if (currentTutorId != null) {
+            return healthStatus == null
+                    ? healthEventRepository.findByTutorIdProjected(currentTutorId, pageable)
+                    : healthEventRepository.findByTutorIdAndStatusProjected(currentTutorId, healthStatus, pageable);
+        }
+        if (healthStatus != null) {
+            return healthEventRepository.findByStatusProjected(healthStatus, pageable);
         }
         return healthEventRepository.findAllProjected(pageable);
     }
 
     @Transactional
-    @CacheEvict(value = "healthEvents", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "healthEvents", allEntries = true),
+            @CacheEvict(value = "tutorPoints", allEntries = true)
+    })
     public HealthEventResponseDTO update(Long id, HealthEventRequestDTO request) {
         HealthEvent healthEvent = healthEventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Evento de Saúde", id));
@@ -133,9 +140,9 @@ public class HealthEventService {
         HealthEventStatus oldStatus = healthEvent.getStatus();
         HealthEventStatus newStatus = oldStatus;
 
-        if (request.getStatus() != null && !request.getStatus().isBlank()) {
+        if (request.status() != null && !request.status().isBlank()) {
             try {
-                newStatus = HealthEventStatus.valueOf(request.getStatus().toUpperCase());
+                newStatus = HealthEventStatus.valueOf(request.status().toUpperCase());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Status inválido. Valores permitidos: AGENDADO, REALIZADO, CANCELADO");
             }
@@ -145,18 +152,18 @@ public class HealthEventService {
             }
         }
 
-        healthEvent.setDescription(request.getDescription());
-        healthEvent.setEventDate(request.getEventDate());
+        healthEvent.setDescription(request.description());
+        healthEvent.setEventDate(request.eventDate());
 
-        if (request.getEventTypeId() != null) {
-            EventType eventType = eventTypeRepository.findById(request.getEventTypeId())
-                    .orElseThrow(() -> new EntityNotFoundException("EventType", request.getEventTypeId()));
+        if (request.eventTypeId() != null) {
+            EventType eventType = eventTypeRepository.findById(request.eventTypeId())
+                    .orElseThrow(() -> new EntityNotFoundException("EventType", request.eventTypeId()));
             healthEvent.setEventType(eventType);
         }
 
-        if (request.getClinicId() != null) {
-            Clinic clinic = clinicRepository.findById(request.getClinicId())
-                    .orElseThrow(() -> new EntityNotFoundException("Clínica", request.getClinicId()));
+        if (request.clinicId() != null) {
+            Clinic clinic = clinicRepository.findById(request.clinicId())
+                    .orElseThrow(() -> new EntityNotFoundException("Clínica", request.clinicId()));
             healthEvent.setClinic(clinic);
         }
 
@@ -184,16 +191,8 @@ public class HealthEventService {
     }
 
     private void grantPointsForEvent(Tutor tutor, HealthEvent event) {
-        RewardAction action = rewardActionRepository.findByName("EVENTO_SAUDE_REALIZADO")
-                .orElseThrow(() -> new EntityNotFoundException("RewardAction", "name", "EVENTO_SAUDE_REALIZADO"));
-        RewardPoint rewardPoint = RewardPoint.builder()
-                .tutor(tutor)
-                .rewardAction(action)
-                .points(action.getPointsValue())
-                .referenceType("HEALTH_EVENT")
-                .referenceId(event.getId())
-                .build();
-        rewardPointRepository.save(rewardPoint);
+        gamificationProcedureService.grantPoints(
+                tutor.getId(), "EVENTO_SAUDE_REALIZADO", "HEALTH_EVENT", event.getId());
     }
 
     private void validateStatusTransition(HealthEventStatus currentStatus, HealthEventStatus newStatus) {

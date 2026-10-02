@@ -29,7 +29,7 @@ public class AuthController {
     @Operation(summary = "Login", description = "Autentica um tutor ou admin e retorna um token JWT")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
         var authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+                new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
         AuthenticatedTutor tutor = (AuthenticatedTutor) authentication.getPrincipal();
         String token = jwtService.generateToken(tutor);

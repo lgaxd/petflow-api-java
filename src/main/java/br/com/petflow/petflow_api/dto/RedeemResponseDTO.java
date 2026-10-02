@@ -1,34 +1,31 @@
 package br.com.petflow.petflow_api.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Builder;
 import java.time.LocalDateTime;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 @Schema(description = "Resposta com dados do resgate de cupom")
-public class RedeemResponseDTO {
+public record RedeemResponseDTO(
 
     @Schema(description = "ID do resgate", example = "1")
-    private Long id;
+    Long id,
 
     @Schema(description = "Pontos utilizados no resgate", example = "100")
-    private Integer pointsUsed;
+    Integer pointsUsed,
 
     @Schema(description = "Data do resgate", example = "2024-06-15T14:30:00")
-    private LocalDateTime createdAt;
+    LocalDateTime createdAt,
 
     @Schema(description = "ID do tutor", example = "10")
-    private Long tutorId;
+    Long tutorId,
 
     @Schema(description = "Nome do tutor", example = "João Silva")
-    private String tutorName;
+    String tutorName,
 
     @Schema(description = "ID do cupom resgatado", example = "20")
-    private Long couponId;
+    Long couponId,
 
     @Schema(description = "Código do cupom", example = "DESCONTO20")
-    private String couponCode;
-}
+    String couponCode
+) {}

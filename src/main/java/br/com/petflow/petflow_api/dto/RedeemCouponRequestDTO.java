@@ -1,16 +1,10 @@
 package br.com.petflow.petflow_api.dto;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class RedeemCouponRequestDTO {
+public record RedeemCouponRequestDTO(
     @NotNull(message = "O ID do cupom é obrigatório")
-    private Long couponId;
-}
+    Long couponId
+) {}

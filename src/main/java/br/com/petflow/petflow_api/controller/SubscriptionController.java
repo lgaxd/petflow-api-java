@@ -10,12 +10,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/subscriptions")
@@ -45,7 +44,8 @@ public class SubscriptionController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sortBy));
+        Pageable pageable = ApiPageable.of(page, size, sortBy, direction,
+            Set.of("id", "startDate", "endDate", "status", "createdAt"));
         return ResponseEntity.ok(subscriptionService.findAll(petId, status, pageable));
     }
 

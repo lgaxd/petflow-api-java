@@ -30,28 +30,28 @@ public class CouponService {
     @Transactional
     @CacheEvict(value = "coupons", allEntries = true)
     public CouponResponseDTO create(CouponRequestDTO request) {
-        Optional<Coupon> existing = couponRepository.findByCode(request.getCode());
+        Optional<Coupon> existing = couponRepository.findByCode(request.code());
         if (existing.isPresent()) {
-            throw new DuplicateResourceException("Cupom", "código", request.getCode());
+            throw new DuplicateResourceException("Cupom", "código", request.code());
         }
 
         // Buscar o template pelo ID
-        CouponTemplate template = couponTemplateRepository.findById(request.getTemplateId())
-                .orElseThrow(() -> new EntityNotFoundException("CouponTemplate", request.getTemplateId()));
+        CouponTemplate template = couponTemplateRepository.findById(request.templateId())
+            .orElseThrow(() -> new EntityNotFoundException("CouponTemplate", request.templateId()));
 
         CouponStatus status = CouponStatus.DISPONIVEL;
-        if (request.getStatus() != null && !request.getStatus().isBlank()) {
+        if (request.status() != null && !request.status().isBlank()) {
             try {
-                status = CouponStatus.valueOf(request.getStatus().toUpperCase());
+            status = CouponStatus.valueOf(request.status().toUpperCase());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Status inválido. Valores permitidos: DISPONIVEL, RESGATADO, UTILIZADO");
             }
         }
 
         Coupon coupon = Coupon.builder()
-                .code(request.getCode())
+                .code(request.code())
                 .status(status)
-                .expirationDate(request.getExpirationDate())
+                .expirationDate(request.expirationDate())
                 .template(template) // <-- MUDANÇA AQUI
                 .build();
 

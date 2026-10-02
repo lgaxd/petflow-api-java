@@ -1,8 +1,6 @@
 -- =====================================================================
 -- Dados de referência e demonstração.
--- Senhas (hash BCrypt, custo 10):
---   admin@petflow.com  -> Admin@123
---   ana.lima@email.com -> Tutor@123 (hash abaixo)
+-- Contas demonstrativas usam hashes BCrypt; credenciais não são documentadas aqui.
 -- =====================================================================
 
 INSERT INTO species (name, description) VALUES ('Cachorro', 'Canino doméstico');
@@ -29,7 +27,7 @@ INSERT INTO tutor (name, role, email, phone, password_hash)
 VALUES ('Administrador PetFlow', 'ADMIN', 'admin@petflow.com', '(11) 90000-0000',
         '$2b$10$h5iXTBt/JpyOL/.UE2bmM.QvC3W/wCSb7M75bMI1Y.6Fn7D1cVWjS');
 
--- Tutor de demonstração (senha: Tutor@123)
+-- Tutor de demonstração
 INSERT INTO tutor (name, role, email, phone, password_hash)
 VALUES ('Maria Souza', 'TUTOR', 'maria@petflow.com', '11-98001-0001',
         '$2b$10$/vPZqCCwPJSroSMducM2T.ZEgB9RFu2vz4K0jAoy3o10erMPVqJmu');

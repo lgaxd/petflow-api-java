@@ -10,12 +10,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/pets")
@@ -45,7 +44,8 @@ public class PetController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String direction) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sortBy));
+        Pageable pageable = ApiPageable.of(page, size, sortBy, direction,
+            Set.of("id", "name", "breed", "birthDate", "weight", "speciesId", "createdAt"));
         return ResponseEntity.ok(petService.findAll(name, tutorId, pageable));
     }
 
