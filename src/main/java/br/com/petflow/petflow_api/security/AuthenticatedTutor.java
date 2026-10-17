@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class AuthenticatedTutor implements UserDetails {
+
     private final Long id;
     private final String email;
     private final String name;
@@ -18,14 +19,7 @@ public class AuthenticatedTutor implements UserDetails {
     private final Collection<? extends GrantedAuthority> authorities;
 
     public AuthenticatedTutor(Tutor tutor) {
-        this.id = tutor.getId();
-        this.email = tutor.getEmail();
-        this.name = tutor.getName();
-        this.password = tutor.getPasswordHash();
-        this.role = tutor.getRole();
-        this.authorities = role == UserRole.ADMIN
-                ? List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_TUTOR"))
-                : List.of(new SimpleGrantedAuthority("ROLE_TUTOR"));
+        this(tutor.getId(), tutor.getEmail(), tutor.getName(), tutor.getPasswordHash(), tutor.getRole());
     }
 
     public AuthenticatedTutor(Long id, String email, String name, String password, UserRole role) {
@@ -37,10 +31,6 @@ public class AuthenticatedTutor implements UserDetails {
         this.authorities = role == UserRole.ADMIN
                 ? List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_TUTOR"))
                 : List.of(new SimpleGrantedAuthority("ROLE_TUTOR"));
-    }
-
-    public AuthenticatedTutor(Long id, String email, String name, UserRole role) {
-        this(id, email, name, null, role);
     }
 
     public Long getId() {
@@ -55,6 +45,10 @@ public class AuthenticatedTutor implements UserDetails {
         return role;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
@@ -67,30 +61,6 @@ public class AuthenticatedTutor implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
-    public String getEmail() {
         return email;
     }
 }

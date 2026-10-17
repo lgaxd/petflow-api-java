@@ -54,7 +54,9 @@ A API suporta perfis ADMIN e TUTOR com JWT, persistência Oracle via JPA, evolu�
 - **Spring JDBC**: chamadas explícitas a procedures PL/SQL para pontos e resgates atômicos.
 - **Spring Security + java-jwt**: autenticação stateless e autorização por perfil.
 - **Oracle Database + Flyway**: persistência relacional e histórico versionado de migrações.
-- **Spring Cache**: cache apenas onde não pode contornar a autorização por tutor.
+- **Spring Cache**: cache apenas onde não pode contornar a autorização por tutor (chaves incluem paginação e ordenação).
+- **Spring Boot Actuator**: `GET /actuator/health` (liveness/readiness e conexão com o Oracle) para monitoramento.
+- **JUnit 5 + Mockito + MockMvc + JaCoCo**: testes unitários, de controller com segurança JWT real e relatório de cobertura.
 - **Lombok**: redução de boilerplate em entidades e serviços, sem substituir records nos DTOs.
 - **springdoc OpenAPI**: documentação navegável dos endpoints reais.
 - **Maven Wrapper**: builds reproduzíveis sem exigir Maven global.
@@ -63,21 +65,34 @@ A API suporta perfis ADMIN e TUTOR com JWT, persistência Oracle via JPA, evolu�
 
 ## Arquitetura do Projeto
 
-O projeto segue uma arquitetura em camadas bem definida:
+Arquitetura em camadas com dependências sempre apontando para dentro (controller → service → repository), DTOs `record` na borda HTTP e regras transacionais críticas no Oracle (package PL/SQL).
+
+```mermaid
+flowchart LR
+    Client["Frontend / Postman / Swagger"] -->|HTTP + JWT| Filter["JwtAuthenticationFilter<br/>SecurityConfig (perfis ADMIN/TUTOR)"]
+    Filter --> Controller["controller<br/>validação, paginação, ordenação"]
+    Controller --> Service["service<br/>regras de negócio e autorização por tutor"]
+    Service --> Repository["repository (Spring Data JPA)"]
+    Service --> Proc["GamificationProcedureService<br/>(JdbcTemplate)"]
+    Repository --> Oracle[("Oracle<br/>tabelas + Flyway")]
+    Proc -->|PKG_PETFLOW_GAMIFICATION| Oracle
+    Controller -. erros .-> Handler["GlobalExceptionHandler<br/>envelope JSON padronizado"]
+```
 
 ```text
 src/main/java/br/com/petflow/petflow_api/
-├── config/          # Configurações (Security, Cache, Swagger)
-├── controller/      # Endpoints REST
-├── dto/             # Data Transfer Objects
+├── config/          # Segurança, cache, agendamento e Swagger
+├── controller/      # Endpoints REST (paginação/filtros/ordenação)
+├── dto/             # Records de entrada e saída
 ├── entity/          # Entidades JPA
-├── enums/           # Enumeradores
-├── exception/       # Tratamento de exceções
-├── repository/      # Repositórios JPA
-├── security/        # Configurações de segurança (JWT)
-├── service/         # Regras de negócio
-└── PetflowApiApplication.java  # Classe principal
+├── enums/           # Enumeradores e EnumParser
+├── exception/       # Exceções de negócio e handler global
+├── repository/      # Repositórios Spring Data (projeções DTO)
+├── security/        # JWT: serviço, filtro e handlers 401/403
+└── service/         # Regras de negócio e chamadas às procedures
 ```
+
+Decisões: injeção por construtor (`@RequiredArgsConstructor`), transações no service, autorização por dono do recurso (`SecurityUtils.checkOwnership`), ordenação restrita a campos permitidos (`ApiPageable`) e erros sempre em JSON.
 
 ---
 
@@ -208,6 +223,12 @@ O PetFlow possui um sistema de gamificação onde tutores acumulam pontos ao rea
 | GET | `/redeems` | Listar resgates | Authenticated |
 | GET | `/redeems/{id}` | Buscar resgate por ID | Authenticated |
 
+### Monitoramento
+
+| Método | Endpoint | Descrição | Permissão |
+|--------|----------|-----------|-----------|
+| GET | `/actuator/health` | Estado da aplicação e do banco | Público |
+
 ### Endpoints de Gamificação
 
 | Método | Endpoint | Descrição | Permissão |
@@ -263,7 +284,7 @@ A documentação interativa da API está disponível em:
 
 ### Pré-requisitos
 
-- Java 21
+- JDK 21 (com `JAVA_HOME` apontando para ele)
 - Git
 - Oracle Database
 
@@ -279,7 +300,7 @@ Preencha `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET` e `CORS_ALLOWED_OR
 
 O Spring Boot importa `.env` por `spring.config.import`; também é possível fornecer as mesmas variáveis diretamente no ambiente de execução/VS Code. Valores obrigatórios ausentes impedem a inicialização.
 
-Na coleção Postman versionada, configure `tutor_email`, `tutor_password` e `new_tutor_password` em um environment local não compartilhado. A coleção não contém credenciais; o script de login preenche `token` automaticamente.
+Na coleção Postman versionada, configure `tutor_email`, `tutor_password`, `admin_email`, `admin_password` e `new_tutor_password` em um environment local não compartilhado. A coleção não contém credenciais: os logins preenchem `token` e `admin_token`, as criações guardam os IDs (`pet_id`, `plan_id`...) e cada requisição tem testes de status. Execute a coleção inteira (Runner ou `newman run "PetFlow API.postman_collection.json" -e local.json`) na ordem: ela cria, consulta, atualiza e remove os próprios dados (pasta *Limpeza*).
 
 ### Iniciar
 
@@ -305,21 +326,35 @@ O frontend usado no desenvolvimento está em [petflow-front-api-java](https://gi
 
 ## Testes
 
-O build padrão não exige Oracle; testes `@Tag("integration")` ficam fora dele:
+O build padrão não exige Oracle (testes `@Tag("integration")` ficam de fora):
 
 ```bash
-./mvnw clean verify
+./mvnw clean verify          # compila, roda os testes e gera target/site/jacoco/index.html
 ```
 
-Para executar testes de integração Oracle explicitamente no PowerShell:
+> Use JDK 21 (`JAVA_HOME` apontando para ele); com JDK mais antigo o Surefire falha ao carregar as classes.
+
+| Camada | O que é validado |
+|---|---|
+| `controller/*ControllerTest` (MockMvc + segurança JWT real) | Todos os endpoints: sucesso, 400 de validação, 401 sem token, 403 por perfil, 404, 409 e 422 |
+| `service/*Test` (Mockito) | Regras de negócio: transições de status, pontos, datas, propriedade do recurso, tradução dos erros da procedure |
+| `service/CachingBehaviourTest` | Chaves de cache sensíveis à ordenação e invalidação em escrita |
+| `security/JwtServiceTest` | Emissão, expiração, adulteração e tamanho mínimo do segredo |
+
+Testes de integração Oracle (opcionais, gravam dados temporários):
 
 ```powershell
 .\mvnw.cmd '-Dtest.excludedGroups=' '-Dtest=CouponRedemptionFlowTest,GamificationProcedureIntegrationTest' test
 ```
 
-`GamificationProcedureIntegrationTest` valida concessão idempotente e leitura de saldo; `CouponRedemptionFlowTest` valida resgate pelo endpoint. Eles escrevem dados transacionais temporários e exigem schema seedado e V3 aplicada.
+Teste de fumaça ponta a ponta contra a API rodando com o Oracle real (login, CRUD de pets/eventos/assinaturas, pontos, resgate e erros):
 
-O fluxo de resgate autentica o tutor de teste indicado por `TEST_TUTOR_EMAIL` e `TEST_TUTOR_PASSWORD` no `.env`; esses valores não ficam no repositório.
+```bash
+./mvnw spring-boot:run
+python scripts/e2e_smoke.py http://localhost:8080
+```
+
+Preencha `ADMIN_EMAIL`/`ADMIN_PASSWORD` no `.env` para incluir os endpoints exclusivos de ADMIN (clínicas, planos, tutores). O fluxo de resgate de integração usa `TEST_TUTOR_EMAIL` e `TEST_TUTOR_PASSWORD` do `.env`.
 
 ## Links
 

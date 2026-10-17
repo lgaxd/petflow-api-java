@@ -1,5 +1,6 @@
 package br.com.petflow.petflow_api.service;
 
+import br.com.petflow.petflow_api.enums.EnumParser;
 import br.com.petflow.petflow_api.dto.CouponRequestDTO;
 import br.com.petflow.petflow_api.dto.CouponResponseDTO;
 import br.com.petflow.petflow_api.entity.Coupon;
@@ -25,7 +26,7 @@ import java.util.Optional;
 public class CouponService {
 
     private final CouponRepository couponRepository;
-    private final CouponTemplateRepository couponTemplateRepository; // ADICIONADO
+    private final CouponTemplateRepository couponTemplateRepository;
 
     @Transactional
     @CacheEvict(value = "coupons", allEntries = true)
@@ -35,24 +36,16 @@ public class CouponService {
             throw new DuplicateResourceException("Cupom", "código", request.code());
         }
 
-        // Buscar o template pelo ID
         CouponTemplate template = couponTemplateRepository.findById(request.templateId())
             .orElseThrow(() -> new EntityNotFoundException("CouponTemplate", request.templateId()));
 
-        CouponStatus status = CouponStatus.DISPONIVEL;
-        if (request.status() != null && !request.status().isBlank()) {
-            try {
-            status = CouponStatus.valueOf(request.status().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Status inválido. Valores permitidos: DISPONIVEL, RESGATADO, UTILIZADO");
-            }
-        }
+        CouponStatus status = EnumParser.parseOrDefault(CouponStatus.class, request.status(), CouponStatus.DISPONIVEL);
 
         Coupon coupon = Coupon.builder()
                 .code(request.code())
                 .status(status)
                 .expirationDate(request.expirationDate())
-                .template(template) // <-- MUDANÇA AQUI
+                .template(template)
                 .build();
 
         coupon = couponRepository.save(coupon);
@@ -67,17 +60,13 @@ public class CouponService {
         return toResponseDTO(coupon);
     }
 
-    @Cacheable(value = "coupons", key = "#status + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
+    @Transactional(readOnly = true)
+    @Cacheable(value = "coupons", key = "{#status, #pageable}")
     public Page<CouponResponseDTO> findAll(String status, Pageable pageable) {
-        if (status != null && !status.isBlank()) {
-            try {
-                CouponStatus couponStatus = CouponStatus.valueOf(status.toUpperCase());
-                return couponRepository.findByStatus(couponStatus, pageable);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Status inválido. Valores permitidos: DISPONIVEL, RESGATADO, UTILIZADO");
-            }
-        }
-        return couponRepository.findAllProjected(pageable);
+        CouponStatus couponStatus = EnumParser.parseOrNull(CouponStatus.class, status);
+        return couponStatus == null
+                ? couponRepository.findAllProjected(pageable)
+                : couponRepository.findByStatus(couponStatus, pageable);
     }
 
     @Transactional
@@ -86,12 +75,7 @@ public class CouponService {
         Coupon coupon = couponRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Cupom", id));
 
-        CouponStatus newStatus;
-        try {
-            newStatus = CouponStatus.valueOf(newStatusStr.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Status inválido. Valores permitidos: DISPONIVEL, RESGATADO, UTILIZADO");
-        }
+        CouponStatus newStatus = EnumParser.parse(CouponStatus.class, newStatusStr);
 
         validateStatusTransition(coupon.getStatus(), newStatus);
         coupon.setStatus(newStatus);
@@ -133,7 +117,7 @@ public class CouponService {
                 .code(coupon.getCode())
                 .status(coupon.getStatus())
                 .expirationDate(coupon.getExpirationDate())
-                .templateId(coupon.getTemplate().getId()) // <-- MUDANÇA AQUI
+                .templateId(coupon.getTemplate().getId())
                 .createdAt(coupon.getCreatedAt())
                 .build();
     }

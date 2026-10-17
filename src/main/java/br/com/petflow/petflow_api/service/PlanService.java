@@ -50,7 +50,7 @@ public class PlanService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "plans", key = "#clinicId + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
+    @Cacheable(value = "plans", key = "{#clinicId, #pageable}")
     public Page<PlanResponseDTO> findAll(Long clinicId, Pageable pageable) {
         if (clinicId != null) {
             return planRepository.findByClinicIdProjected(clinicId, pageable);

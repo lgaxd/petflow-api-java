@@ -1,6 +1,7 @@
 package br.com.petflow.petflow_api.controller;
 
 import br.com.petflow.petflow_api.dto.TutorRequestDTO;
+import br.com.petflow.petflow_api.dto.TutorUpdateRequestDTO;
 import br.com.petflow.petflow_api.dto.TutorResponseDTO;
 import br.com.petflow.petflow_api.service.TutorService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -65,7 +66,7 @@ public class TutorController {
         @ApiResponse(responseCode = "404", description = "Tutor não encontrado"),
         @ApiResponse(responseCode = "409", description = "E-mail já cadastrado")
     })
-    public ResponseEntity<TutorResponseDTO> update(@PathVariable Long id, @Valid @RequestBody TutorRequestDTO request) {
+    public ResponseEntity<TutorResponseDTO> update(@PathVariable Long id, @Valid @RequestBody TutorUpdateRequestDTO request) {
         return ResponseEntity.ok(tutorService.update(id, request));
     }
 

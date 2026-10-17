@@ -11,17 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class CacheConfig {
 
     @Bean
-    public CacheManager cacheManager() {
-        return new ConcurrentMapCacheManager(
-            "tutors",
-            "pets", 
-            "clinics",
-            "plans",
-            "subscriptions",
-            "healthEvents",
-            "tutorPoints",
-            "coupons",
-            "redeems"
-        );
+    CacheManager cacheManager() {
+        return new ConcurrentMapCacheManager("tutors", "clinics", "plans", "coupons");
     }
 }

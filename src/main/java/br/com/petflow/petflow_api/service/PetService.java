@@ -10,8 +10,6 @@ import br.com.petflow.petflow_api.repository.TutorRepository;
 import br.com.petflow.petflow_api.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,10 +25,6 @@ public class PetService {
     private final GamificationProcedureService gamificationProcedureService;
 
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "pets", allEntries = true),
-            @CacheEvict(value = "tutorPoints", allEntries = true)
-    })
     public PetResponseDTO create(PetRequestDTO request) {
         if (!SecurityUtils.isAdmin()
                 && !SecurityUtils.getCurrentTutorId().equals(request.tutorId())) {
@@ -90,7 +84,6 @@ public class PetService {
     }
 
     @Transactional
-    @CacheEvict(value = "pets", allEntries = true)
     public PetResponseDTO update(Long id, PetRequestDTO request) {
         Pet pet = petRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pet", id));
@@ -118,7 +111,6 @@ public class PetService {
     }
 
     @Transactional
-    @CacheEvict(value = "pets", allEntries = true)
     public void delete(Long id) {
         Pet pet = petRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pet", id));
