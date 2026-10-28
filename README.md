@@ -322,7 +322,7 @@ No Windows, execute `.\mvnw.cmd` diretamente no PowerShell. A API inicia em `htt
 
 ### Frontend separado
 
-O frontend usado no desenvolvimento está em [petflow-front-api-java](https://github.com/lgaxd/petflow-front-api-java). Inicie-o separadamente e configure seu endereço local (por padrão `http://localhost:5173`) em `CORS_ALLOWED_ORIGINS`.
+O frontend está em [petflow-front-api-java](https://github.com/lgaxd/petflow-front-api-java) e também publicado (ver [Links](#links)). Para rodá-lo localmente, inicie-o separadamente e configure seu endereço (por padrão `http://localhost:5173`) em `CORS_ALLOWED_ORIGINS`.
 
 ## Testes
 
@@ -358,9 +358,26 @@ Preencha `ADMIN_EMAIL`/`ADMIN_PASSWORD` no `.env` para incluir os endpoints excl
 
 ## Links
 
-- Aplicação publicada: **[preencher URL pública]**
+- **Aplicação publicada (acesso do professor): https://561413-petflow-front.azurewebsites.net**
+  - Na tela de login há o botão **Criar conta** (cadastro de tutor) e as contas de demonstração de ADMIN e TUTOR.
+- API publicada: https://561413-petflow-webapp.azurewebsites.net (Swagger em [/swagger](https://561413-petflow-webapp.azurewebsites.net/swagger), saúde em [/actuator/health](https://561413-petflow-webapp.azurewebsites.net/actuator/health))
 - Vídeo final: **[preencher link do vídeo]**
-- Frontend: https://github.com/lgaxd/petflow-front-api-java
+- Repositório do frontend: https://github.com/lgaxd/petflow-front-api-java
+
+### Deploy na nuvem (Azure App Service)
+
+API (Java 21) e front (React, servido como SPA) rodam em Web Apps Linux no mesmo plano B1, região `southafricanorth`. A API **não cria banco na Azure**: conecta-se ao Oracle da FIAP pelas variáveis `DB_URL`, `DB_USERNAME` e `DB_PASSWORD`. Os scripts ficam em [scripts/deploy/](scripts/deploy/) (Azure CLI, bash):
+
+| Script | Função |
+|---|---|
+| `01-create-infra.sh` | Resource group, plano, Web App da API, Web App do front e variáveis de ambiente (incluindo CORS) |
+| `02-deploy-api.sh` | Build do JAR, publicação e espera pelo `/actuator/health` (inclui o Oracle) |
+| `03-deploy-front.sh` | Build do front apontando para a API e publicação |
+| `04-smoke-test.sh` | Health, Swagger, front, CORS, login e leitura autenticada |
+| `up.sh` | Executa 01 → 04 em sequência (espera uma exclusão anterior terminar) |
+| `99-delete-infra.sh` | Remove o resource group (o Oracle não é afetado) |
+
+Copie `scripts/deploy/.env.deploy.example` para `.env.deploy` (ignorado pelo Git); `DB_*` e `JWT_SECRET` vêm do `.env` da API.
 
 ## Evidências multidisciplinares
 
