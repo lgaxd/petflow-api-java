@@ -1,7 +1,7 @@
 # 🐾 PetFlow API
 
 [![Java](https://img.shields.io/badge/Java-21-blue.svg)](https://adoptium.net/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.6-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.8-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Oracle](https://img.shields.io/badge/Oracle-Database-red.svg)](https://www.oracle.com/database/)
 [![Swagger](https://img.shields.io/badge/Swagger-OpenAPI-85EA2D.svg)](https://swagger.io/)
 [![Flyway](https://img.shields.io/badge/Flyway-Migrations-orange.svg)](https://flywaydb.org/)
@@ -9,6 +9,7 @@
 ## 📋 Sumário
 
 - [Sobre o Projeto](#sobre-o-projeto)
+- [Links](#links)
 - [Equipe](#equipe)
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Arquitetura do Projeto](#arquitetura-do-projeto)
@@ -20,7 +21,7 @@
 - [Swagger / OpenAPI](#swagger--openapi)
 - [Como Executar](#como-executar)
 - [Testes](#testes)
-- [Links](#links)
+- [Deploy na nuvem](#deploy-na-nuvem-azure-app-service)
 
 ---
 
@@ -29,6 +30,20 @@
 O **PetFlow** é uma aplicação web completa desenvolvida em Java com Spring Boot para gerenciamento de saúde preventiva pet. A solução gamifica o cuidado com o pet: eventos de saúde concluídos geram pontos para o tutor, que podem ser trocados por cupons de desconto em clínicas parceiras.
 
 A API suporta perfis ADMIN e TUTOR com JWT, persistência Oracle via JPA, evolução de schema pelo Flyway e documentação interativa OpenAPI. O frontend é mantido em outro repositório.
+
+---
+
+## Links
+
+| | |
+|---|---|
+| 🌐 **Aplicação publicada (acesso do professor)** | **https://561413-petflow-front.azurewebsites.net** |
+| 🎬 **Vídeo da apresentação** | **https://www.youtube.com/watch?v=4q7MDHcjweY** |
+| 📖 Swagger / OpenAPI | https://561413-petflow-webapp.azurewebsites.net/swagger |
+| ⚙️ API publicada | https://561413-petflow-webapp.azurewebsites.net (saúde: [/actuator/health](https://561413-petflow-webapp.azurewebsites.net/actuator/health)) |
+| 💻 Repositório do frontend | https://github.com/lgaxd/petflow-front-api-java |
+
+> Na tela de login da aplicação há o botão **Criar conta** (cadastro de tutor) e as contas de demonstração de ADMIN e TUTOR. A infraestrutura de nuvem e os scripts estão em [Deploy na nuvem](#deploy-na-nuvem-azure-app-service).
 
 ---
 
@@ -260,13 +275,13 @@ Em um Oracle novo, o Flyway executa V1, V2 e V3. Em schema legado já populado c
 
 O relacionamento `HEALTH_EVENT`/`EVENT_TYPE` usa `EVENT_TYPE_ID`; pontos de evento vêm de `EVENT_TYPE.POINTS_REWARD`. A concessão referencia a ação `EVENTO_SAUDE_REALIZADO` no histórico.
 
-Não foi incluído trigger de auditoria: o schema imutável desta API não contém as tabelas de auditoria exigidas pelo script externo. Os arquivos Oracle originais da disciplina não são alterados por este projeto.
+**Dois schemas, um contrato.** O schema criado pelo Flyway (V1 a V3) contém tudo que a API usa e funciona em qualquer Oracle vazio. O banco do grupo na FIAP foi criado antes, pelo script da Sprint 3 da disciplina de Banco, e tem tabelas adicionais que a API não consulta: `ADDRESS`, `RISK_SCORE` (o risco do pet é calculado pelo serviço Java) e as de auditoria `LOG_ERROS` e `LOG_AUDITORIA_HEALTH_EVENT`. Sobre elas a disciplina de Banco acrescentou na Sprint 4 os pacotes `PKG_PETFLOW_CADASTRO`, `PKG_PETFLOW_RELATORIO` e `PKG_PETFLOW_AUDITORIA` e a trigger `TRG_AUDIT_HEALTH_EVENT`, que registra alterações de `HEALTH_EVENT` em `LOG_AUDITORIA_HEALTH_EVENT`. Esses objetos estão em [database/](database/README.md) e não são necessários para a API rodar.
 
 ## JSON e MongoDB
 
-O diretório [`database`](database/README.md) documenta e contém uma exportação SQL*Plus/SQLcl baseada no schema efetivamente usado pela API, validadores/índices `mongosh`, os comandos `mongoimport` e um exemplo sintético. O modelo usa embedding para dados consultados juntos (pet/tutor, tipo de evento, plano/clínica e carteira) e IDs Oracle para rastreabilidade. `PASSWORD_HASH` não é exportado.
+O diretório [`database`](database/README.md) contém: o script de exportação Oracle para JSON (`JSON_OBJECT`/`JSON_ARRAYAGG`, 6 datasets denormalizados), o script `mongosh` que cria as coleções com validadores `$jsonSchema` e índices, o script de carga dos JSON e um exemplo sintético. O modelo usa embedding para dados consultados juntos (pet/tutor, tipo de evento, plano/clínica e carteira) e IDs Oracle para rastreabilidade. `PASSWORD_HASH` não é exportado.
 
-`ADDRESS` e `RISK_SCORE` não existem na V1 da API; por isso não aparecem no JSON. O score de risco atual é calculado pelo serviço Java, não armazenado como histórico relacional. Execute export/import apenas com dataset controlado; JSON real pode conter dados pessoais e de saúde e não deve ser versionado.
+Os JSON exportados contêm dados pessoais e de saúde; por isso `database/*.json` está no `.gitignore` e não deve ser versionado.
 
 ---
 
@@ -286,7 +301,22 @@ A documentação interativa da API está disponível em:
 
 - JDK 21 (com `JAVA_HOME` apontando para ele)
 - Git
-- Oracle Database
+- Um Oracle Database acessível: o da FIAP **ou** um Oracle local e vazio via Docker (veja abaixo)
+
+### Oracle local (sem usar o banco da FIAP)
+
+Quem for testar por conta própria não precisa das credenciais do grupo: o `docker-compose.yml` sobe um Oracle Free vazio e o **Flyway cria o schema completo na primeira execução da API** (V1 tabelas, V2 dados iniciais, V3 pacote `PKG_PETFLOW_GAMIFICATION`).
+
+```bash
+cp .env.example .env            # no PowerShell: Copy-Item .env.example .env
+# edite o .env: DB_PASSWORD (qualquer senha) e JWT_SECRET (>= 32 caracteres); o restante já serve
+docker compose up -d oracle     # a primeira vez baixa a imagem; aguarde ficar "healthy" (docker compose ps)
+./mvnw spring-boot:run          # o Flyway aplica V1, V2 e V3 (confira no log: "Successfully applied 3 migrations")
+```
+
+Contas criadas pelo seed (V2): `admin@petflow.com` / `Admin@123` (ADMIN) e `maria@petflow.com` / `Tutor@123` (TUTOR). Para limpar tudo e recomeçar: `docker compose down -v`.
+
+Verificado em um Oracle Free vazio (mesma imagem e variáveis do compose): as 3 migrações são aplicadas, a API fica saudável e a coleção Postman completa (55 requisições) passa sem falhas. Os scripts de `database/` (pacotes de cadastro/auditoria, exportação JSON, MongoDB) dependem do schema da Sprint 3 e **não** são necessários para rodar a API; veja [database/README.md](database/README.md).
 
 ### Configuração local
 
@@ -300,7 +330,7 @@ Preencha `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET` e `CORS_ALLOWED_OR
 
 O Spring Boot importa `.env` por `spring.config.import`; também é possível fornecer as mesmas variáveis diretamente no ambiente de execução/VS Code. Valores obrigatórios ausentes impedem a inicialização.
 
-Na coleção Postman versionada, configure `tutor_email`, `tutor_password`, `admin_email`, `admin_password` e `new_tutor_password` em um environment local não compartilhado. A coleção não contém credenciais: os logins preenchem `token` e `admin_token`, as criações guardam os IDs (`pet_id`, `plan_id`...) e cada requisição tem testes de status. Execute a coleção inteira (Runner ou `newman run "PetFlow API.postman_collection.json" -e local.json`) na ordem: ela cria, consulta, atualiza e remove os próprios dados (pasta *Limpeza*).
+Na coleção Postman versionada (num Oracle novo, use as contas do seed: veja [Oracle local](#oracle-local-sem-usar-o-banco-da-fiap)), configure `tutor_email`, `tutor_password`, `admin_email`, `admin_password` e `new_tutor_password` em um environment local não compartilhado. A coleção não contém credenciais: os logins preenchem `token` e `admin_token`, as criações guardam os IDs (`pet_id`, `plan_id`...) e cada requisição tem testes de status. Execute a coleção inteira (Runner ou `newman run "PetFlow API.postman_collection.json" -e local.json`) na ordem: ela cria, consulta, atualiza e remove os próprios dados (pasta *Limpeza*).
 
 ### Iniciar
 
@@ -356,15 +386,7 @@ python scripts/e2e_smoke.py http://localhost:8080
 
 Preencha `ADMIN_EMAIL`/`ADMIN_PASSWORD` no `.env` para incluir os endpoints exclusivos de ADMIN (clínicas, planos, tutores). O fluxo de resgate de integração usa `TEST_TUTOR_EMAIL` e `TEST_TUTOR_PASSWORD` do `.env`.
 
-## Links
-
-- **Aplicação publicada (acesso do professor): https://561413-petflow-front.azurewebsites.net**
-  - Na tela de login há o botão **Criar conta** (cadastro de tutor) e as contas de demonstração de ADMIN e TUTOR.
-- API publicada: https://561413-petflow-webapp.azurewebsites.net (Swagger em [/swagger](https://561413-petflow-webapp.azurewebsites.net/swagger), saúde em [/actuator/health](https://561413-petflow-webapp.azurewebsites.net/actuator/health))
-- Vídeo final: **[preencher link do vídeo]**
-- Repositório do frontend: https://github.com/lgaxd/petflow-front-api-java
-
-### Deploy na nuvem (Azure App Service)
+## Deploy na nuvem (Azure App Service)
 
 API (Java 21) e front (React, servido como SPA) rodam em Web Apps Linux no mesmo plano B1, região `southafricanorth`. A API **não cria banco na Azure**: conecta-se ao Oracle da FIAP pelas variáveis `DB_URL`, `DB_USERNAME` e `DB_PASSWORD`. Os scripts ficam em [scripts/deploy/](scripts/deploy/) (Azure CLI, bash):
 
@@ -382,8 +404,8 @@ Copie `scripts/deploy/.env.deploy.example` para `.env.deploy` (ignorado pelo Git
 ## Evidências multidisciplinares
 
 - Packages e integração Java: `src/main/resources/db/migration/V3__Create_Gamification_Package.sql` e `GamificationProcedureService`.
-- Exportação Oracle e importação NoSQL: [database/README.md](database/README.md), scripts e exemplo em `database/`.
+- Pacotes PL/SQL, trigger de auditoria, exportação Oracle para JSON e carga no MongoDB: [database/README.md](database/README.md) e scripts em `database/`.
 - Especificação de endpoints: Swagger em `/swagger`.
-- Evidências externas de modelagem, vídeo e Azure DevOps: incluir os links na seção acima ou no material de entrega da disciplina.
+- Aplicação publicada e vídeo: seção [Links](#links) no topo deste README.
 
 ---

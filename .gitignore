@@ -38,3 +38,6 @@ ROTEIRO_VIDEO_*.md
 
 ### Deploy (segredos locais) ###
 scripts/deploy/.env.deploy
+
+### Dados exportados do Oracle (dados pessoais; nao versionar) ###
+database/*.json
