@@ -1,5 +1,6 @@
 package br.com.petflow.petflow_api.service;
 
+import br.com.petflow.petflow_api.enums.EnumParser;
 import br.com.petflow.petflow_api.dto.SubscriptionRequestDTO;
 import br.com.petflow.petflow_api.dto.SubscriptionResponseDTO;
 import br.com.petflow.petflow_api.entity.*;
@@ -11,8 +12,6 @@ import br.com.petflow.petflow_api.repository.*;
 import br.com.petflow.petflow_api.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,10 +31,6 @@ public class SubscriptionService {
     private final GamificationProcedureService gamificationProcedureService;
 
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "subscriptions", allEntries = true),
-            @CacheEvict(value = "tutorPoints", allEntries = true)
-    })
     public SubscriptionResponseDTO create(SubscriptionRequestDTO request) {
         Pet pet = petRepository.findById(request.petId())
                 .orElseThrow(() -> new EntityNotFoundException("Pet", request.petId()));
@@ -47,19 +42,14 @@ public class SubscriptionService {
         Plan plan = planRepository.findById(request.planId())
                 .orElseThrow(() -> new EntityNotFoundException("Plano", request.planId()));
 
-        LocalDate endDate = request.endDate();
-        if (endDate == null && request.startDate() != null) {
-            endDate = request.startDate().plusDays(plan.getDurationDays());
+        if (request.endDate() != null && request.endDate().isBefore(request.startDate())) {
+            throw new BusinessRuleException("A data de término não pode ser anterior à data de início", "INVALID_DATE_RANGE");
         }
+        LocalDate endDate = request.endDate() != null
+                ? request.endDate()
+                : request.startDate().plusDays(plan.getDurationDays());
 
-        SubscriptionStatus status = SubscriptionStatus.ATIVO;
-        if (request.status() != null && !request.status().isBlank()) {
-            try {
-                status = SubscriptionStatus.valueOf(request.status().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Status inválido. Valores permitidos: ATIVO, ENCERRADO, CANCELADO, EXPIRADO");
-            }
-        }
+        SubscriptionStatus status = EnumParser.parseOrDefault(SubscriptionStatus.class, request.status(), SubscriptionStatus.ATIVO);
 
         if (request.endDate() != null && request.endDate().isBefore(request.startDate())) {
             throw new BusinessRuleException("A data de término não pode ser anterior à data de início", "INVALID_DATE_RANGE");
@@ -97,14 +87,7 @@ public class SubscriptionService {
 
     @Transactional(readOnly = true)
     public Page<SubscriptionResponseDTO> findAll(Long petId, String status, Pageable pageable) {
-        SubscriptionStatus subscriptionStatus = null;
-        if (status != null && !status.isBlank()) {
-            try {
-                subscriptionStatus = SubscriptionStatus.valueOf(status.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Status inválido. Valores permitidos: ATIVO, ENCERRADO, CANCELADO, EXPIRADO");
-            }
-        }
+        SubscriptionStatus subscriptionStatus = EnumParser.parseOrNull(SubscriptionStatus.class, status);
 
         Long currentTutorId = SecurityUtils.isAdmin() ? null : SecurityUtils.getCurrentTutorId();
         if (petId != null) {
@@ -131,7 +114,6 @@ public class SubscriptionService {
     }
 
     @Transactional
-    @CacheEvict(value = "subscriptions", allEntries = true)
     public SubscriptionResponseDTO updateStatus(Long id, String newStatusStr) {
         Subscription subscription = subscriptionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Assinatura", id));
@@ -140,12 +122,7 @@ public class SubscriptionService {
             SecurityUtils.checkOwnership(subscription.getPet().getTutor().getId());
         }
 
-        SubscriptionStatus newStatus;
-        try {
-            newStatus = SubscriptionStatus.valueOf(newStatusStr.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Status inválido. Valores permitidos: ATIVO, ENCERRADO, CANCELADO, EXPIRADO");
-        }
+        SubscriptionStatus newStatus = EnumParser.parse(SubscriptionStatus.class, newStatusStr);
 
         validateStatusTransition(subscription.getStatus(), newStatus);
 
@@ -154,29 +131,8 @@ public class SubscriptionService {
         return toResponseDTO(subscription);
     }
 
-    @Transactional
-    @CacheEvict(value = "subscriptions", allEntries = true)
-    public SubscriptionResponseDTO cancel(Long id) {
-        Subscription subscription = subscriptionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Assinatura", id));
-
-        if (!SecurityUtils.isAdmin()) {
-            SecurityUtils.checkOwnership(subscription.getPet().getTutor().getId());
-        }
-
-        if (subscription.getStatus() != SubscriptionStatus.ATIVO) {
-            throw new InvalidStatusTransitionException(
-                    "Subscription", subscription.getStatus().name(), SubscriptionStatus.CANCELADO.name());
-        }
-
-        subscription.setStatus(SubscriptionStatus.CANCELADO);
-        subscription = subscriptionRepository.save(subscription);
-        return toResponseDTO(subscription);
-    }
-
     @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
-    @CacheEvict(value = "subscriptions", allEntries = true)
     public void expireSubscriptions() {
         List<Subscription> expiredSubscriptions = subscriptionRepository
                 .findExpiredSubscriptions(SubscriptionStatus.ATIVO, LocalDate.now());
@@ -188,7 +144,6 @@ public class SubscriptionService {
     }
 
     @Transactional
-    @CacheEvict(value = "subscriptions", allEntries = true)
     public void delete(Long id) {
         Subscription subscription = subscriptionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Assinatura", id));

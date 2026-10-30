@@ -43,9 +43,13 @@ public final class SecurityUtils {
             return false;
         }
 
-        return authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .anyMatch(authority -> authority.equals("ROLE_ADMIN") || authority.equals("ADMIN"));
+        for (GrantedAuthority granted : authentication.getAuthorities()) {
+            String authority = granted.getAuthority();
+            if ("ROLE_ADMIN".equals(authority) || "ADMIN".equals(authority)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void checkOwnership(Long resourceOwnerTutorId) {

@@ -1,6 +1,7 @@
 package br.com.petflow.petflow_api.service;
 
 import br.com.petflow.petflow_api.dto.TutorRequestDTO;
+import br.com.petflow.petflow_api.dto.TutorUpdateRequestDTO;
 import br.com.petflow.petflow_api.dto.TutorResponseDTO;
 import br.com.petflow.petflow_api.entity.Tutor;
 import br.com.petflow.petflow_api.enums.UserRole;
@@ -51,7 +52,7 @@ public class TutorService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "tutors", key = "#name + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
+    @Cacheable(value = "tutors", key = "{#name, #pageable}")
     public Page<TutorResponseDTO> findAll(String name, Pageable pageable) {
         if (name != null && !name.isBlank()) {
             return tutorRepository.findByNameProjected(name, pageable);
@@ -61,7 +62,7 @@ public class TutorService {
 
     @Transactional
     @CacheEvict(value = "tutors", allEntries = true)
-    public TutorResponseDTO update(Long id, TutorRequestDTO request) {
+    public TutorResponseDTO update(Long id, TutorUpdateRequestDTO request) {
         Tutor tutor = tutorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Tutor", id));
 

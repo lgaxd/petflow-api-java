@@ -1,5 +1,6 @@
 package br.com.petflow.petflow_api.service;
 
+import br.com.petflow.petflow_api.enums.EnumParser;
 import br.com.petflow.petflow_api.dto.HealthEventRequestDTO;
 import br.com.petflow.petflow_api.dto.HealthEventResponseDTO;
 import br.com.petflow.petflow_api.entity.*;
@@ -10,8 +11,6 @@ import br.com.petflow.petflow_api.repository.*;
 import br.com.petflow.petflow_api.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,10 +27,6 @@ public class HealthEventService {
     private final GamificationProcedureService gamificationProcedureService;
 
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "healthEvents", allEntries = true),
-            @CacheEvict(value = "tutorPoints", allEntries = true)
-    })
     public HealthEventResponseDTO create(HealthEventRequestDTO request) {
         Pet pet = petRepository.findById(request.petId())
                 .orElseThrow(() -> new EntityNotFoundException("Pet", request.petId()));
@@ -40,14 +35,7 @@ public class HealthEventService {
             SecurityUtils.checkOwnership(pet.getTutor().getId());
         }
 
-        HealthEventStatus status = HealthEventStatus.AGENDADO;
-        if (request.status() != null && !request.status().isBlank()) {
-            try {
-                status = HealthEventStatus.valueOf(request.status().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Status inválido. Valores permitidos: AGENDADO, REALIZADO, CANCELADO");
-            }
-        }
+        HealthEventStatus status = EnumParser.parseOrDefault(HealthEventStatus.class, request.status(), HealthEventStatus.AGENDADO);
 
         Clinic clinic = null;
         if (request.clinicId() != null) {
@@ -91,14 +79,7 @@ public class HealthEventService {
 
     @Transactional(readOnly = true)
     public Page<HealthEventResponseDTO> findAll(Long petId, String status, Pageable pageable) {
-        HealthEventStatus healthStatus = null;
-        if (status != null && !status.isBlank()) {
-            try {
-                healthStatus = HealthEventStatus.valueOf(status.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Status inválido. Valores permitidos: AGENDADO, REALIZADO, CANCELADO");
-            }
-        }
+        HealthEventStatus healthStatus = EnumParser.parseOrNull(HealthEventStatus.class, status);
 
         Long currentTutorId = SecurityUtils.isAdmin() ? null : SecurityUtils.getCurrentTutorId();
         if (petId != null) {
@@ -125,10 +106,6 @@ public class HealthEventService {
     }
 
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "healthEvents", allEntries = true),
-            @CacheEvict(value = "tutorPoints", allEntries = true)
-    })
     public HealthEventResponseDTO update(Long id, HealthEventRequestDTO request) {
         HealthEvent healthEvent = healthEventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Evento de Saúde", id));
@@ -141,11 +118,7 @@ public class HealthEventService {
         HealthEventStatus newStatus = oldStatus;
 
         if (request.status() != null && !request.status().isBlank()) {
-            try {
-                newStatus = HealthEventStatus.valueOf(request.status().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Status inválido. Valores permitidos: AGENDADO, REALIZADO, CANCELADO");
-            }
+            newStatus = EnumParser.parse(HealthEventStatus.class, request.status());
             if (oldStatus != newStatus) {
                 validateStatusTransition(oldStatus, newStatus);
                 healthEvent.setStatus(newStatus);
@@ -167,7 +140,9 @@ public class HealthEventService {
             healthEvent.setClinic(clinic);
         }
 
-        healthEvent = healthEventRepository.save(healthEvent);
+        // A procedure PL/SQL lê o status direto do banco: a alteração precisa estar
+        // visível na transação (flush) antes de conceder os pontos.
+        healthEvent = healthEventRepository.saveAndFlush(healthEvent);
 
         // Se o status mudou para REALIZADO, conceder pontos (evitar duplicidade)
         if (oldStatus != HealthEventStatus.REALIZADO && newStatus == HealthEventStatus.REALIZADO) {
@@ -178,7 +153,6 @@ public class HealthEventService {
     }
 
     @Transactional
-    @CacheEvict(value = "healthEvents", allEntries = true)
     public void delete(Long id) {
         HealthEvent healthEvent = healthEventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Evento de Saúde", id));

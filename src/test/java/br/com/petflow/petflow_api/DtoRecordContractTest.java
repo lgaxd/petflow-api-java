@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DtoRecordContractTest {
@@ -70,15 +69,13 @@ class DtoRecordContractTest {
     }
 
     @Test
-    void explicitNullStatusStillFailsBeanValidation() throws Exception {
-        SubscriptionRequestDTO subscription = objectMapper.readValue(
-                "{\"startDate\":\"2026-01-01\",\"status\":null,\"petId\":1,\"planId\":2}",
-                SubscriptionRequestDTO.class);
+    void missingOrBlankSubscriptionStatusDefaultsToAtivo() {
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        SubscriptionRequestDTO subscription = new SubscriptionRequestDTO(LocalDate.of(2026, 1, 1), null, null, 1L, 2L);
 
-        assertNull(subscription.status());
-        assertTrue(validator.validate(subscription).stream()
-                .anyMatch(violation -> violation.getPropertyPath().toString().equals("status")));
+        assertEquals("ATIVO", subscription.status());
+        assertEquals("ATIVO", new SubscriptionRequestDTO(LocalDate.of(2026, 1, 1), null, "  ", 1L, 2L).status());
+        assertTrue(validator.validate(subscription).isEmpty());
     }
 
     @Test

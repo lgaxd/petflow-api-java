@@ -2,10 +2,8 @@ package br.com.petflow.petflow_api.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -13,6 +11,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -20,19 +19,22 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
-@RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
     private final HttpServletRequest request;
+
+    public GlobalExceptionHandler(HttpServletRequest request) {
+        this.request = request;
+    }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
@@ -138,32 +140,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
             DataIntegrityViolationException ex) {
-
+        String cause = ex.getMostSpecificCause().getMessage();
+        String detail = cause == null ? "" : cause.toLowerCase();
         String message = "Violação de integridade de dados";
-
-        if (ex.getMostSpecificCause() != null &&
-                ex.getMostSpecificCause().getMessage() != null) {
-
-            String detailedMessage =
-                    ex.getMostSpecificCause().getMessage().toLowerCase();
-
-            if (detailedMessage.contains("unique") ||
-                    detailedMessage.contains("duplicate")) {
-
-                message = "Registro duplicado. Verifique os campos únicos.";
-            }
-
-            if (detailedMessage.contains("foreign key")) {
-
-                message = "Registro relacionado não encontrado.";
-            }
-
-            if (detailedMessage.contains("cannot be null")) {
-
-                message = "Existem campos obrigatórios não preenchidos.";
-            }
+        if (detail.contains("ora-00001") || detail.contains("unique") || detail.contains("duplicate")) {
+            message = "Registro duplicado. Verifique os campos únicos.";
+        } else if (detail.contains("ora-02292") || detail.contains("child record")) {
+            message = "O registro possui dependências e não pode ser removido.";
+        } else if (detail.contains("ora-02291") || detail.contains("parent key") || detail.contains("foreign key")) {
+            message = "Registro relacionado não encontrado.";
+        } else if (detail.contains("ora-01400") || detail.contains("cannot be null")) {
+            message = "Existem campos obrigatórios não preenchidos.";
         }
-
+        log.warn("Violação de integridade: {}", cause);
         return buildError(HttpStatus.CONFLICT, "Erro de integridade", message, null, null, null);
     }
 
@@ -207,10 +196,15 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.METHOD_NOT_ALLOWED, "Método HTTP não suportado", "O método HTTP informado não é suportado para esta rota.", null, null, null);
     }
 
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNoHandlerFound(
-            NoHandlerFoundException ex) {
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMediaTypeNotSupported(
+            HttpMediaTypeNotSupportedException ex) {
+        return buildError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Tipo de mídia não suportado",
+                "Use Content-Type: application/json.", null, null, null);
+    }
 
+    @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
+    public ResponseEntity<ErrorResponse> handleNoHandlerFound(Exception ex) {
         return buildError(HttpStatus.NOT_FOUND, "Endpoint não encontrado", "A rota solicitada não existe.", null, null, null);
     }
 

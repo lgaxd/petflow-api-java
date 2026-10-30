@@ -47,7 +47,7 @@ public class ClinicService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "clinics", key = "#name + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
+    @Cacheable(value = "clinics", key = "{#name, #pageable}")
     public Page<ClinicResponseDTO> findAll(String name, Pageable pageable) {
         if (name != null && !name.isBlank()) {
             return clinicRepository.findByNameProjected(name, pageable);

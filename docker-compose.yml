@@ -1,0 +1,23 @@
+# Oracle local e vazio para testar a API sem usar o banco da FIAP.
+# O Flyway cria o schema (V1 tabelas, V2 seed, V3 pacote de gamificação) na primeira inicialização da API.
+#
+#   docker compose up -d oracle     # a primeira subida baixa a imagem e leva alguns minutos
+#   docker compose ps               # aguarde o status "healthy"
+#
+# Usa DB_PASSWORD do .env (ou do ambiente) como senha do usuário petflow_user.
+services:
+  oracle:
+    image: gvenzl/oracle-free:23-slim-faststart
+    container_name: petflow-oracle
+    ports:
+      - "1521:1521"
+    environment:
+      ORACLE_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD no .env}
+      APP_USER: ${DB_USERNAME:-petflow_user}
+      APP_USER_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD no .env}
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s

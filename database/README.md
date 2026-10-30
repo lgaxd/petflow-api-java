@@ -1,55 +1,61 @@
-# Oracle JSON e MongoDB
+# Scripts de banco de dados (Oracle e MongoDB)
 
-Os arquivos daqui são derivados do schema atual em `src/main/resources/db/migration/V1__Create_Tables.sql`. Eles não alteram o banco Oracle nem adicionam MongoDB à API.
+Esta pasta reúne os scripts da disciplina de **Banco de Dados** usados com a mesma base relacional da API Java. A **API Java não depende deles para funcionar**: o schema que ela usa é criado pelo Flyway (`src/main/resources/db/migration`, V1 a V3). Os scripts abaixo complementam esse schema com empacotamento PL/SQL, auditoria e a carga NoSQL.
 
-## Procedures
+## Dois cenários de banco
 
-`PKG_PETFLOW_GAMIFICATION` é aplicado pela migration V3. `GamificationProcedureService` chama consulta de saldo, concessão idempotente e resgate transacional. O package não executa `COMMIT`; a transação Spring controla o resultado.
-
-| Código Oracle | Situação | Mapeamento HTTP/API |
+| Cenário | Schema | Como obter |
 |---|---|---|
-| `ORA-20081` | Saldo insuficiente | 422 `INSUFFICIENT_POINTS`, com saldo/custo em `details`. |
-| `ORA-20082` | Cupom expirado | 422 `EXPIRED_COUPON`, com código/validade em `details`. |
-| `ORA-20083` | Cupom indisponível | 422 `BUSINESS_RULE_VIOLATION`. |
-| `ORA-20084` | Cupom/tutor não encontrado | 404 `EntityNotFoundException`. |
-| `ORA-20101` | Referência de recompensa não encontrada | 404 `EntityNotFoundException`. |
-| `ORA-20102` | Evento não realizado | 422 `INVALID_EVENT_STATUS`. |
-| `ORA-20103` | Tipo de referência inválido | 422 `INVALID_REWARD_REFERENCE`. |
-| `ORA-20104` | Tutor divergente da referência | 403 `AccessDeniedException`. |
+| **Oracle vazio** (ex.: o do professor, via Docker) | Tabelas do domínio, seed e pacote de gamificação | Subir a API: o Flyway executa V1, V2 e V3 sozinho. Veja [Oracle local](../README.md#oracle-local-sem-usar-o-banco-da-fiap) |
+| **Oracle da FIAP do grupo** | O acima **mais** `ADDRESS`, `RISK_SCORE`, `LOG_ERROS`, `LOG_AUDITORIA_HEALTH_EVENT` e as procedures da Sprint 3 | Criado pelo script `2TDSPX_CodigoSql_PetFlow.sql` (Sprint 3), entregue no zip da disciplina de Banco |
 
-## Exportação
+O script `01` pressupõe o segundo cenário (ele usa `LOG_ERROS`, `LOG_AUDITORIA_HEALTH_EVENT`, `ADDRESS` e `RISK_SCORE`). **Em um Oracle criado só pelo Flyway ele não executa**, porque essas tabelas só existem no script da Sprint 3. O script da Sprint 3 não está neste repositório porque a primeira seção dele apaga todas as tabelas (`DROP`).
 
-Com SQLcl ou SQL*Plus instalado, conecte ao mesmo schema Oracle configurado no `.env` e execute:
+## Arquivos
+
+| Ordem | Arquivo | O que faz |
+|---|---|---|
+| 1 | `01_PetFlow_Sprint4_Pacotes.sql` | Empacota as procedures e functions em `PKG_PETFLOW_CADASTRO`, `PKG_PETFLOW_RELATORIO` e `PKG_PETFLOW_AUDITORIA`, e recria a trigger `TRG_AUDIT_HEALTH_EVENT` (objeto de schema, chamando o pacote de auditoria). **Altera o banco.** |
+| 2 | `02_PetFlow_Sprint4_Export_JSON.sql` | Gera 6 arquivos JSON denormalizados com `JSON_OBJECT`/`JSON_ARRAYAGG`: `tutores_pets`, `eventos_saude`, `carteira_recompensas`, `assinaturas`, `score_risco` e `catalogo_parceiros`. Só leitura. |
+| 3 | `03_PetFlow_Sprint4_MongoDB_Import.js` | Cria o banco `petflow_nosql`, as coleções com validadores `$jsonSchema` e os índices, e documenta a estrutura. |
+| 4 | `05_PetFlow_Sprint4_MongoDB_Load.js` | Carrega os 6 JSON nas coleções (idempotente; use `DATA_DIR` para indicar a pasta). |
+
+O pacote de gamificação usado pela API (`PKG_PETFLOW_GAMIFICATION`) **não está aqui**: é a migração [`V3__Create_Gamification_Package.sql`](../src/main/resources/db/migration/V3__Create_Gamification_Package.sql), aplicada pelo Flyway. Ele é chamado por `GamificationProcedureService` e converte os erros Oracle em respostas HTTP:
+
+| Código Oracle | Situação | Resposta da API |
+|---|---|---|
+| `ORA-20081` | Saldo insuficiente | 422 `INSUFFICIENT_POINTS` (com `availablePoints` e `requiredPoints`) |
+| `ORA-20082` | Cupom expirado | 422 `EXPIRED_COUPON` |
+| `ORA-20083` | Cupom indisponível | 422 `BUSINESS_RULE_VIOLATION` |
+| `ORA-20084` | Cupom ou tutor não encontrado | 404 |
+| `ORA-20101` | Referência de recompensa não encontrada | 404 |
+| `ORA-20102` | Evento não realizado | 422 `INVALID_EVENT_STATUS` |
+| `ORA-20103` | Tipo de referência inválido | 422 `INVALID_REWARD_REFERENCE` |
+| `ORA-20104` | Tutor divergente da referência | 403 |
+
+## Execução
+
+**Pacotes (Oracle SQL Developer ou SQLcl):** conectado ao schema do projeto, execute o `01` inteiro com *Run Script* (F5).
+
+**Exportação JSON** (SQLcl ou SQL*Plus; os arquivos são gravados na pasta corrente):
 
 ```text
-@database/01_PetFlow_Export_JSON.sql
+@02_PetFlow_Sprint4_Export_JSON.sql
 ```
 
-O script grava seis JSON arrays no diretório corrente: `tutores_pets.json`, `eventos_saude.json`, `carteira_recompensas.json`, `assinaturas.json`, `catalogo_parceiros.json` e `niveis_risco.json`. Os lookups de espécie, tipo de evento e ação de recompensa são embutidos nos documentos que os usam. `PASSWORD_HASH` não é exportado.
+**MongoDB** (`mongosh`), a partir da pasta com os JSON:
 
-O schema desta API não possui `ADDRESS` nem `RISK_SCORE`; por isso esses dados não aparecem no export. O risco retornado pela API é calculado a partir dos dados atuais do pet e não é um histórico relacional.
+```bash
+mongosh --file 03_PetFlow_Sprint4_MongoDB_Import.js
+mongosh --file 05_PetFlow_Sprint4_MongoDB_Load.js        # ou: DATA_DIR=/caminho/dos/json mongosh --file ...
+```
 
 ## Modelo MongoDB
 
-Cada coleção favorece as leituras do seu fluxo: pets dentro do documento do tutor; tipo de evento dentro do evento de saúde; plano/clínica dentro da assinatura; pontos e resgates dentro da carteira; templates/cupons dentro do catálogo do parceiro. Os IDs Oracle são preservados para rastreabilidade. Arrays agrupam conjuntos naturalmente pequenos ou consultados como histórico do tutor; eventos e assinaturas ficam em documentos próprios para evitar arrays potencialmente ilimitados.
+Cada coleção agrupa o que é consultado junto: pets dentro do tutor; tipo de evento, pet e clínica dentro do evento; plano e clínica dentro da assinatura; pontos e resgates dentro da carteira; templates e cupons dentro do catálogo do parceiro. Os IDs Oracle são preservados para rastreabilidade. Tabelas de domínio (`SPECIES`, `EVENT_TYPE`, `REWARD_ACTION`) ficam embutidas nos documentos que as usam. Eventos e assinaturas têm coleções próprias para evitar arrays ilimitados. `PASSWORD_HASH` não é exportado.
 
-Execute o script de coleções e índices:
+O arquivo [examples/tutores_pets.example.json](examples/tutores_pets.example.json) mostra a forma de um documento com dados fictícios.
 
-```text
-mongosh database/02_PetFlow_MongoDB_Import.js
-```
+## Segurança dos dados
 
-Esse script aplica validadores e índices. Em uma reimportação, limpa os documentos dessas seis coleções, mas preserva as coleções, validadores e índices. Faça a exportação Oracle imediatamente antes da importação.
-
-```powershell
-mongoimport --db petflow_nosql --collection tutores_pets --file tutores_pets.json --jsonArray
-mongoimport --db petflow_nosql --collection eventos_saude --file eventos_saude.json --jsonArray
-mongoimport --db petflow_nosql --collection carteira_recompensas --file carteira_recompensas.json --jsonArray
-mongoimport --db petflow_nosql --collection assinaturas --file assinaturas.json --jsonArray
-mongoimport --db petflow_nosql --collection catalogo_parceiros --file catalogo_parceiros.json --jsonArray
-mongoimport --db petflow_nosql --collection niveis_risco --file niveis_risco.json --jsonArray
-```
-
-O arquivo [examples/tutores_pets.example.json](examples/tutores_pets.example.json) mostra a forma de um documento e usa dados fictícios. Os JSONs exportados contêm dados pessoais e de saúde: não os publique nem os versione sem anonimização.
-
-Índices principais: tutor/email únicos; nome do pet para busca embutida; evento por ID único e pet/data; assinatura por ID único e pet/status; parceiro/nível por ID único. O saldo da carteira não é indexado por padrão porque consultas comuns partem do tutor; acrescente índices com base no padrão real de busca.
+Os JSON exportados contêm dados pessoais e de saúde. Por isso `database/*.json` está no `.gitignore` (somente `examples/` é versionado). Não os publique sem anonimização.

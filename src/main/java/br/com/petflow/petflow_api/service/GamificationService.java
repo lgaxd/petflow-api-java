@@ -9,6 +9,7 @@ import br.com.petflow.petflow_api.exception.InsufficientPointsException;
 import br.com.petflow.petflow_api.repository.*;
 import br.com.petflow.petflow_api.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,9 +31,7 @@ public class GamificationService {
 
     @Transactional(readOnly = true)
     public TutorPointsDTO getTutorPoints(Long tutorId) {
-        if (!SecurityUtils.isAdmin()) {
-            SecurityUtils.checkOwnership(tutorId);
-        }
+        SecurityUtils.checkOwnership(tutorId);
 
         Tutor tutor = tutorRepository.findById(tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("Tutor", tutorId));
@@ -114,10 +113,9 @@ public class GamificationService {
     }
 
     @Transactional
+    @CacheEvict(value = "coupons", allEntries = true)
     public RedeemResponseDTO redeemCoupon(Long tutorId, Long couponId) {
-        if (!SecurityUtils.isAdmin()) {
-            SecurityUtils.checkOwnership(tutorId);
-        }
+        SecurityUtils.checkOwnership(tutorId);
 
         GamificationProcedureService.RedeemResult result;
         try {
@@ -153,7 +151,8 @@ public class GamificationService {
 
     private String procedurePayload(GamificationProcedureService.ProcedureException exception, String marker) {
         String message = exception.getMessage();
-        int markerIndex = message == null ? -1 : message.indexOf(marker);
+        if (message == null) return "";
+        int markerIndex = message.indexOf(marker);
         if (markerIndex < 0) return "";
         return message.substring(markerIndex + marker.length())
                 .lines()
