@@ -169,7 +169,19 @@ O PetFlow possui um sistema de gamificação onde tutores acumulam pontos ao rea
 
 | Método | Endpoint | Descrição | Permissão |
 |--------|----------|-----------|-----------|
-| POST | `/auth/login` | Login e geração de token JWT | Público |
+| POST | `/auth/login` | Login e geração de token JWT (resposta inclui `expiresAt`) | Público |
+| POST | `/auth/refresh` | Troca um token válido por um novo (dados relidos do banco; sessão com tempo máximo) | Token válido |
+
+A renovação preserva o início da sessão: depois de `JWT_MAX_SESSION_MS` (padrão 7 dias) é preciso fazer login de novo (`401` com `code` `SESSION_EXPIRED`). Token inválido ou usuário removido retorna `401` com `code` `TOKEN_INVALID`. Os clientes devem renovar antes de `expiresAt` e tratar o `401` redirecionando para o login.
+
+### 🗂️ Tabelas de domínio
+
+| Método | Endpoint | Descrição | Permissão |
+|--------|----------|-----------|-----------|
+| GET | `/species` | Espécies de pet (`id`, `name`, `description`), lista simples ordenada por ID | Authenticated |
+| GET | `/event-types` | Tipos de evento de saúde (`id`, `name`, `pointsReward`, `category`), lista simples ordenada por ID | Authenticated |
+
+Os IDs devolvidos são os usados em `speciesId` (pets) e `eventTypeId` (eventos de saúde). Não são paginados (tabelas pequenas) e não usam cache na aplicação, porque também recebem inserções diretas pelos scripts de banco.
 
 ### 🐾 Pets
 
@@ -316,7 +328,7 @@ docker compose up -d oracle     # a primeira vez baixa a imagem; aguarde ficar "
 
 Contas criadas pelo seed (V2): `admin@petflow.com` / `Admin@123` (ADMIN) e `maria@petflow.com` / `Tutor@123` (TUTOR). Para limpar tudo e recomeçar: `docker compose down -v`.
 
-Verificado em um Oracle Free vazio (mesma imagem e variáveis do compose): as 3 migrações são aplicadas, a API fica saudável e a coleção Postman completa (55 requisições) passa sem falhas. Os scripts de `database/` (pacotes de cadastro/auditoria, exportação JSON, MongoDB) dependem do schema da Sprint 3 e **não** são necessários para rodar a API; veja [database/README.md](database/README.md).
+Verificado em um Oracle Free vazio (mesma imagem e variáveis do compose): as 3 migrações são aplicadas, a API fica saudável e a coleção Postman completa (62 requisições) passa sem falhas. Os scripts de `database/` (pacotes de cadastro/auditoria, exportação JSON, MongoDB) dependem do schema da Sprint 3 e **não** são necessários para rodar a API; veja [database/README.md](database/README.md).
 
 ### Configuração local
 
@@ -326,7 +338,7 @@ Crie o arquivo local de configuração a partir do exemplo:
 Copy-Item .env.example .env
 ```
 
-Preencha `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET` e `CORS_ALLOWED_ORIGINS`. O `.env` é ignorado pelo Git; nunca o publique. O segredo JWT deve ser aleatório e ter pelo menos 32 caracteres. `JWT_EXPIRATION_MS` é opcional e usa 86400000 ms por padrão; `PORT` é opcional e usa 8080.
+Preencha `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET` e `CORS_ALLOWED_ORIGINS`. O `.env` é ignorado pelo Git; nunca o publique. O segredo JWT deve ser aleatório e ter pelo menos 32 caracteres. `JWT_EXPIRATION_MS` é opcional e usa 86400000 ms por padrão; `JWT_MAX_SESSION_MS` (tempo máximo de uma sessão renovada) usa 604800000 ms (7 dias); `PORT` é opcional e usa 8080.
 
 O Spring Boot importa `.env` por `spring.config.import`; também é possível fornecer as mesmas variáveis diretamente no ambiente de execução/VS Code. Valores obrigatórios ausentes impedem a inicialização.
 

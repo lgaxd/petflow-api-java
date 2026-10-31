@@ -96,6 +96,14 @@
     {
       "key": "redeem_id",
       "value": ""
+    },
+    {
+      "key": "species_id",
+      "value": ""
+    },
+    {
+      "key": "event_type_id",
+      "value": ""
     }
   ],
   "item": [
@@ -151,7 +159,12 @@
                   "    const body = pm.response.json();",
                   "    pm.collectionVariables.set(\"token\", body.token);",
                   "}",
-                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"tutor_id\", pm.response.json().id); }"
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"tutor_id\", pm.response.json().id); }",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Resposta traz expiresAt (instante ISO-8601)\", function () {",
+                  "        pm.expect(pm.response.json().expiresAt).to.match(/^\\d{4}-\\d{2}-\\d{2}T/);",
+                  "    });",
+                  "}"
                 ]
               }
             }
@@ -344,6 +357,264 @@
               "path": [
                 "tutors"
               ]
+            }
+          }
+        },
+        {
+          "name": "Renovar token (tutor)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status esperado: 200\", function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Novo token e expiresAt\", function () {",
+                  "    pm.expect(body.token).to.be.a(\"string\").and.not.empty;",
+                  "    pm.expect(body.expiresAt).to.match(/^\\d{4}-\\d{2}-\\d{2}T/);",
+                  "});",
+                  "pm.test(\"Mesmo usuário e perfil\", function () {",
+                  "    pm.expect(body.id).to.eql(Number(pm.collectionVariables.get(\"tutor_id\")));",
+                  "    pm.expect(body.role).to.eql(\"TUTOR\");",
+                  "});",
+                  "// o resto da coleção passa a usar o token renovado",
+                  "pm.collectionVariables.set(\"token\", body.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Renovar token sem token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status esperado: 401\", function () {",
+                  "    pm.expect([401]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Renovar token adulterado (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status esperado: 401\", function () {",
+                  "    pm.expect([401]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer abc.def.ghi"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tabelas de domínio",
+      "item": [
+        {
+          "name": "Listar espécies",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status esperado: 200\", function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const list = pm.response.json();",
+                  "pm.test(\"Lista simples (array) com id e name\", function () {",
+                  "    pm.expect(list).to.be.an(\"array\").that.is.not.empty;",
+                  "    list.forEach(s => { pm.expect(s.id).to.be.a(\"number\"); pm.expect(s.name).to.be.a(\"string\"); });",
+                  "});",
+                  "pm.test(\"Ordenada por id\", function () {",
+                  "    const ids = list.map(s => s.id);",
+                  "    pm.expect(ids).to.eql([...ids].sort((a, b) => a - b));",
+                  "});",
+                  "pm.collectionVariables.set(\"species_id\", list[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/species",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "species"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar tipos de evento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status esperado: 200\", function () {",
+                  "    pm.expect([200]).to.include(pm.response.code);",
+                  "});",
+                  "const list = pm.response.json();",
+                  "pm.test(\"Lista simples (array) com id, name, pointsReward e category\", function () {",
+                  "    pm.expect(list).to.be.an(\"array\").that.is.not.empty;",
+                  "    list.forEach(t => {",
+                  "        pm.expect(t.id).to.be.a(\"number\"); pm.expect(t.name).to.be.a(\"string\");",
+                  "        pm.expect(t.pointsReward).to.be.a(\"number\"); pm.expect(t.category).to.be.a(\"string\");",
+                  "    });",
+                  "});",
+                  "pm.collectionVariables.set(\"event_type_id\", list[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/event-types",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "event-types"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Espécies sem token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status esperado: 401\", function () {",
+                  "    pm.expect([401]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/species",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "species"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Tipos de evento sem token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status esperado: 401\", function () {",
+                  "    pm.expect([401]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/event-types",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "event-types"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           }
         }
@@ -1091,7 +1362,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Tommy\",\n  \"breed\": \"Labrador\",\n  \"birthDate\": \"2018-05-20\",\n  \"weight\": 23.5,\n  \"speciesId\": 1,\n  \"tutorId\": \"{{tutor_id}}\"\n}",
+              "raw": "{\n  \"name\": \"Tommy\",\n  \"breed\": \"Labrador\",\n  \"birthDate\": \"2018-05-20\",\n  \"weight\": 23.5,\n  \"speciesId\": {{species_id}},\n  \"tutorId\": \"{{tutor_id}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1468,7 +1739,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"description\": \"Vacinação contra raiva\",\n  \"eventDate\": \"2026-03-15\",\n  \"status\": \"AGENDADO\",\n  \"petId\": \"{{pet_id}}\",\n  \"eventTypeId\": 1\n}",
+              "raw": "{\n  \"description\": \"Vacinação contra raiva\",\n  \"eventDate\": \"2026-03-15\",\n  \"status\": \"AGENDADO\",\n  \"petId\": \"{{pet_id}}\",\n  \"eventTypeId\": {{event_type_id}}\n}",
               "options": {
                 "raw": {
                   "language": "json"

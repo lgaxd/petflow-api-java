@@ -56,6 +56,18 @@ call('POST', '/tutors', body={'name': '', 'email': 'x', 'password': '1'}, expect
 ttoken, tjs = login(email, 'senha12345')
 tid = tjs['id']
 
+# --- renovacao de token e tabelas de dominio
+assert tjs.get('expiresAt'), 'login sem expiresAt'
+call('POST', '/auth/refresh', expect=401, label='refresh sem token')
+call('POST', '/auth/refresh', token='abc.def.ghi', expect=401, label='refresh token adulterado')
+c, renewed = call('POST', '/auth/refresh', token=ttoken, expect=200, label='refresh')
+assert renewed['id'] == tid and renewed['token'], 'refresh devolveu outro usuario'
+ttoken = renewed['token']
+call('GET', '/species', expect=401, label='species sem token')
+c, species = call('GET', '/species', token=ttoken, expect=200, label='species')
+c, event_types = call('GET', '/event-types', token=ttoken, expect=200, label='event-types')
+assert species and event_types, 'tabelas de dominio vazias'
+
 # --- admin only checks
 call('GET', '/tutors', token=ttoken, expect=403, label='tutor lists tutors')
 admin = False
