@@ -76,6 +76,8 @@ public class SecurityConfig {
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                         .accessDeniedHandler(jwtAccessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
+                        // Precisa vir antes de /auth/**: a renovação exige um token válido
+                        .requestMatchers(HttpMethod.POST, "/auth/refresh").authenticated()
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         // Cadastro público de tutor (novo usuário se autocadastra no app)
                         .requestMatchers(HttpMethod.POST, "/tutors").permitAll()

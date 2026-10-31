@@ -56,6 +56,11 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.UNAUTHORIZED, "Credenciais inválidas", "E-mail ou senha inválidos", null, null, null);
     }
 
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidToken(InvalidTokenException ex) {
+        return buildError(HttpStatus.UNAUTHORIZED, "Token inválido", ex.getMessage(), ex.getCode(), null, null);
+    }
+
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUsernameNotFound(UsernameNotFoundException ex) {
         return buildError(HttpStatus.UNAUTHORIZED, "Credenciais inválidas", "E-mail ou senha inválidos", null, null, null);
