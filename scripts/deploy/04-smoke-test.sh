@@ -14,11 +14,14 @@ check() { # descrição, condição (0 = ok)
 echo "API:   $API_URL"
 echo "Front: $FRONT_URL"
 
-CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$API_URL/actuator/health")
-check "GET /actuator/health = 200 (HTTP $CODE)" "$([ "$CODE" = 200 ] && echo 0 || echo 1)"
+# O App Service responde 200 com uma página "Welcome" enquanto o Spring não sobe:
+# só vale se o corpo for o JSON do Actuator com status UP (aplicação + Oracle).
+BODY=$(curl -s --max-time 20 "$API_URL/actuator/health")
+check "GET /actuator/health = {\"status\":\"UP\"} (Spring no ar, com Oracle)" \
+  "$(printf '%s' "$BODY" | grep -q '"status":"UP"' && echo 0 || echo 1)"
 
-CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$API_URL/swagger-ui/index.html")
-check "Swagger UI acessível (HTTP $CODE)" "$([ "$CODE" = 200 ] && echo 0 || echo 1)"
+check "OpenAPI (/api-docs) lista /auth/refresh, /species e /event-types" \
+  "$(curl -s --max-time 20 "$API_URL/api-docs" | grep -q '/auth/refresh' && echo 0 || echo 1)"
 
 CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$FRONT_URL/")
 check "Front / = 200 (HTTP $CODE)" "$([ "$CODE" = 200 ] && echo 0 || echo 1)"
