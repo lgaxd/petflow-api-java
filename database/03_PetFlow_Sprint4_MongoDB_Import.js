@@ -40,6 +40,10 @@
 // -------------------------------------------------------------
 use("petflow_nosql");
 
+// Recria o banco do zero: assim o script pode ser executado mais de uma vez
+// (createCollection falharia se a colecao ja existisse com outro validador).
+db.dropDatabase();
+
 
 // -------------------------------------------------------------
 // 2) Colecao "tutores_pets"
@@ -232,7 +236,7 @@ db.createCollection("assinaturas", {
       required: ["assinatura_id", "status", "pet", "plano"],
       properties: {
         assinatura_id: { bsonType: "number" },
-        status: { bsonType: "string", enum: ["ATIVO", "ENCERRADO", "CANCELADO"] },
+        status: { bsonType: "string", enum: ["ATIVO", "ENCERRADO", "CANCELADO", "EXPIRADO"] },
         data_inicio: { bsonType: ["string", "null"] },
         data_fim: { bsonType: ["string", "null"] },
         pet: {
