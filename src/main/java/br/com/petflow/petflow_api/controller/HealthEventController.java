@@ -26,11 +26,13 @@ public class HealthEventController {
 
     @PostMapping
     @Operation(summary = "Registrar evento de saúde",
-               description = "Cria um novo evento de saúde para um pet. Quando marcado como REALIZADO, gera pontos automaticamente.")
+               description = "Cria um novo evento de saúde para um pet. Eventos AGENDADO ou CANCELADO aceitam data futura; "
+                   + "REALIZADO não (422, código FUTURE_DATE_NOT_ALLOWED). Quando marcado como REALIZADO, gera pontos automaticamente.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Evento criado com sucesso"),
         @ApiResponse(responseCode = "400", description = "Dados inválidos"),
-        @ApiResponse(responseCode = "404", description = "Pet ou clínica não encontrado")
+        @ApiResponse(responseCode = "404", description = "Pet ou clínica não encontrado"),
+        @ApiResponse(responseCode = "422", description = "Evento REALIZADO com data futura")
     })
     public ResponseEntity<HealthEventResponseDTO> create(@Valid @RequestBody HealthEventRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(healthEventService.create(request));
@@ -67,7 +69,7 @@ public class HealthEventController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Evento atualizado com sucesso"),
         @ApiResponse(responseCode = "404", description = "Evento não encontrado"),
-        @ApiResponse(responseCode = "422", description = "Transição de status inválida")
+        @ApiResponse(responseCode = "422", description = "Transição de status inválida ou evento REALIZADO com data futura")
     })
     public ResponseEntity<HealthEventResponseDTO> update(
             @PathVariable Long id,
