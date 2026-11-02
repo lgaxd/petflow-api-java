@@ -2,6 +2,7 @@ package br.com.petflow.petflow_api.controller;
 
 import br.com.petflow.petflow_api.dto.HealthEventResponseDTO;
 import br.com.petflow.petflow_api.enums.HealthEventStatus;
+import br.com.petflow.petflow_api.exception.BusinessRuleException;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
 import br.com.petflow.petflow_api.exception.InvalidStatusTransitionException;
 import br.com.petflow.petflow_api.service.HealthEventService;
@@ -42,11 +43,31 @@ class HealthEventControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    void createRejectsFutureDateAndMissingIds() throws Exception {
+    void createAcceptsFutureDateForScheduledEvent() throws Exception {
+        when(healthEventService.create(any())).thenReturn(event);
+
+        mvc.perform(json(post("/health-events"), tutorToken(),
+                        BODY.replace("2024-01-10", "2999-01-01")))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void createReturns422WhenServiceRejectsFutureRealizedEvent() throws Exception {
+        when(healthEventService.create(any())).thenThrow(new BusinessRuleException(
+                "Um evento realizado não pode ter data futura", "FUTURE_DATE_NOT_ALLOWED"));
+
+        mvc.perform(json(post("/health-events"), tutorToken(),
+                        BODY.replace("2024-01-10", "2999-01-01").replace("AGENDADO", "REALIZADO")))
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.code").value("FUTURE_DATE_NOT_ALLOWED"));
+    }
+
+    @Test
+    void createRejectsMissingIds() throws Exception {
         mvc.perform(json(post("/health-events"), tutorToken(),
                         "{\"eventDate\":\"2999-01-01\",\"status\":\"AGENDADO\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.validationErrors.eventDate").exists())
+                .andExpect(jsonPath("$.validationErrors.eventDate").doesNotExist())
                 .andExpect(jsonPath("$.validationErrors.petId").exists())
                 .andExpect(jsonPath("$.validationErrors.eventTypeId").exists());
         mvc.perform(post("/health-events").contentType("application/json").content(BODY))

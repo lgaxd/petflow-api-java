@@ -7,6 +7,7 @@ import br.com.petflow.petflow_api.entity.Pet;
 import br.com.petflow.petflow_api.entity.Tutor;
 import br.com.petflow.petflow_api.enums.HealthEventStatus;
 import br.com.petflow.petflow_api.enums.UserRole;
+import br.com.petflow.petflow_api.exception.BusinessRuleException;
 import br.com.petflow.petflow_api.exception.InvalidStatusTransitionException;
 import br.com.petflow.petflow_api.repository.ClinicRepository;
 import br.com.petflow.petflow_api.repository.EventTypeRepository;
@@ -100,6 +101,74 @@ class HealthEventPointsTest {
 
         healthEventService.update(20L, update("REALIZADO"));
 
+        verify(gamificationProcedureService, never()).grantPoints(any(), any(), any(), any());
+    }
+
+    private HealthEventRequestDTO request(String status, LocalDate date) {
+        return HealthEventRequestDTO.builder().description("d").eventDate(date)
+                .status(status).petId(10L).eventTypeId(1L).build();
+    }
+
+    @Test
+    void scheduledEventCanBeCreatedWithFutureDate() {
+        LocalDate nextWeek = LocalDate.now().plusDays(7);
+        when(petRepository.findById(10L)).thenReturn(Optional.of(pet));
+        when(eventTypeRepository.findById(1L)).thenReturn(Optional.of(new EventType()));
+        when(healthEventRepository.save(any(HealthEvent.class))).thenAnswer(call -> call.getArgument(0));
+
+        var response = healthEventService.create(request("AGENDADO", nextWeek));
+
+        assertEquals(nextWeek, response.eventDate());
+        assertEquals(HealthEventStatus.AGENDADO, response.status());
+        verify(gamificationProcedureService, never()).grantPoints(any(), any(), any(), any());
+    }
+
+    @Test
+    void realizedEventCannotBeCreatedWithFutureDate() {
+        when(petRepository.findById(10L)).thenReturn(Optional.of(pet));
+
+        BusinessRuleException ex = assertThrows(BusinessRuleException.class,
+                () -> healthEventService.create(request("REALIZADO", LocalDate.now().plusDays(1))));
+
+        assertEquals("FUTURE_DATE_NOT_ALLOWED", ex.getCode());
+        verify(healthEventRepository, never()).save(any());
+        verify(gamificationProcedureService, never()).grantPoints(any(), any(), any(), any());
+    }
+
+    @Test
+    void scheduledEventCanBeUpdatedToAnotherFutureDate() {
+        LocalDate later = LocalDate.now().plusDays(30);
+        when(healthEventRepository.findById(20L)).thenReturn(Optional.of(event(HealthEventStatus.AGENDADO)));
+        when(eventTypeRepository.findById(1L)).thenReturn(Optional.of(new EventType()));
+        when(healthEventRepository.saveAndFlush(any(HealthEvent.class))).thenAnswer(call -> call.getArgument(0));
+
+        var response = healthEventService.update(20L, request("AGENDADO", later));
+
+        assertEquals(later, response.eventDate());
+    }
+
+    @Test
+    void cancelledEventCanKeepFutureDate() {
+        LocalDate later = LocalDate.now().plusDays(10);
+        when(healthEventRepository.findById(20L)).thenReturn(Optional.of(event(HealthEventStatus.AGENDADO)));
+        when(eventTypeRepository.findById(1L)).thenReturn(Optional.of(new EventType()));
+        when(healthEventRepository.saveAndFlush(any(HealthEvent.class))).thenAnswer(call -> call.getArgument(0));
+
+        var response = healthEventService.update(20L, request("CANCELADO", later));
+
+        assertEquals(HealthEventStatus.CANCELADO, response.status());
+    }
+
+    @Test
+    void scheduledEventCannotBeCompletedWithFutureDate() {
+        HealthEvent scheduled = event(HealthEventStatus.AGENDADO);
+        when(healthEventRepository.findById(20L)).thenReturn(Optional.of(scheduled));
+
+        BusinessRuleException ex = assertThrows(BusinessRuleException.class,
+                () -> healthEventService.update(20L, request("REALIZADO", LocalDate.now().plusDays(3))));
+
+        assertEquals("FUTURE_DATE_NOT_ALLOWED", ex.getCode());
+        verify(healthEventRepository, never()).saveAndFlush(any());
         verify(gamificationProcedureService, never()).grantPoints(any(), any(), any(), any());
     }
 

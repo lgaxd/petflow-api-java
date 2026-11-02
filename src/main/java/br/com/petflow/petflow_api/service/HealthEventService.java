@@ -5,6 +5,7 @@ import br.com.petflow.petflow_api.dto.HealthEventRequestDTO;
 import br.com.petflow.petflow_api.dto.HealthEventResponseDTO;
 import br.com.petflow.petflow_api.entity.*;
 import br.com.petflow.petflow_api.enums.HealthEventStatus;
+import br.com.petflow.petflow_api.exception.BusinessRuleException;
 import br.com.petflow.petflow_api.exception.EntityNotFoundException;
 import br.com.petflow.petflow_api.exception.InvalidStatusTransitionException;
 import br.com.petflow.petflow_api.repository.*;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +39,7 @@ public class HealthEventService {
         }
 
         HealthEventStatus status = EnumParser.parseOrDefault(HealthEventStatus.class, request.status(), HealthEventStatus.AGENDADO);
+        validateEventDate(request.eventDate(), status);
 
         Clinic clinic = null;
         if (request.clinicId() != null) {
@@ -125,6 +129,8 @@ public class HealthEventService {
             }
         }
 
+        validateEventDate(request.eventDate(), newStatus);
+
         healthEvent.setDescription(request.description());
         healthEvent.setEventDate(request.eventDate());
 
@@ -167,6 +173,14 @@ public class HealthEventService {
     private void grantPointsForEvent(Tutor tutor, HealthEvent event) {
         gamificationProcedureService.grantPoints(
                 tutor.getId(), "EVENTO_SAUDE_REALIZADO", "HEALTH_EVENT", event.getId());
+    }
+
+    // Agendado e cancelado podem ter data futura; um evento já realizado não.
+    private void validateEventDate(LocalDate eventDate, HealthEventStatus status) {
+        if (status == HealthEventStatus.REALIZADO && eventDate.isAfter(LocalDate.now())) {
+            throw new BusinessRuleException(
+                    "Um evento realizado não pode ter data futura", "FUTURE_DATE_NOT_ALLOWED");
+        }
     }
 
     private void validateStatusTransition(HealthEventStatus currentStatus, HealthEventStatus newStatus) {

@@ -10,7 +10,6 @@ public record HealthEventRequestDTO(
     String description,
 
     @NotNull(message = "A data do evento é obrigatória")
-    @PastOrPresent(message = "A data do evento não pode ser futura")
     LocalDate eventDate,
 
     @NotBlank(message = "O status é obrigatório")
